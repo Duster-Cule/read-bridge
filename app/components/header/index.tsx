@@ -1,84 +1,71 @@
 'use client';
-import { Menu, Divider } from 'antd';
-import { HomeOutlined, AppstoreOutlined, SettingOutlined } from '@ant-design/icons';
-import { useState } from 'react';
-import { theme } from 'antd';
+import { useRouter } from 'next/navigation';
 
-const items = [
-  {
-    label: '首页',
-    key: 'home',
-    icon: <HomeOutlined />,
-  },
-  {
-    label: '导航',
-    key: 'nav',
-    icon: <AppstoreOutlined />,
-    children: [
-      {
-        label: '选项1',
-        key: 'setting:1',
-      },
-      {
-        label: '选项2',
-        key: 'setting:2',
-      },
-    ],
-  },
-  {
-    label: '设置',
-    key: 'settings',
-    icon: <SettingOutlined />,
-    children: [
-      {
-        label: '个人信息',
-        key: 'profile',
-      },
-      {
-        label: '系统设置',
-        key: 'system',
-      },
-    ],
-  },
-];
+import { theme } from 'antd';
+import { LogoIcon } from '@/assets/icon';
+import { GithubOutlined, SunOutlined, MoonOutlined } from '@ant-design/icons';
+import { Button, Menu } from 'antd';
+
+import { useThemeStore } from '@/store/useThemeStore';
+import { useState } from 'react';
 
 export default function Header() {
+  const { theme: storeTheme, toggleTheme } = useThemeStore();
   const { token } = theme.useToken();
-  const [current, setCurrent] = useState('home');
-
-  const onClick = (e: any) => {
-    setCurrent(e.key);
-  };
-
   return (
     <div className="header flex justify-between w-full h-full" style={{ backgroundColor: token.colorBgContainer }}>
-      <HeaderLogoArea />
+      <HeaderLogoArea theme={storeTheme} />
       <HeaderContentArea />
-      <HeaderIconArea />
+      <HeaderIconArea theme={storeTheme} toggleTheme={toggleTheme} />
     </div>
   );
 }
 
-function HeaderLogoArea() {
-  return (
-    <div className="flex w-[16%] h-full bg-red-500">
+function HeaderLogoArea({ theme }: { theme: string }) {
+  const router = useRouter();
 
+  return (
+    <div className="flex w-[16%] h-full items-center pl-[40px] cursor-pointer" onClick={() => router.push('/')}>
+      <LogoIcon size={32} color={theme === 'dark' ? '#fff' : '#54808C'} />
+      <div className="text-[18px] font-bold ml-2">
+        Read Bridge
+      </div>
     </div>
   )
 }
 
 function HeaderContentArea() {
+  const items = [
+    {
+      label: '首页',
+      key: '/',
+    },
+    {
+      label: '阅读',
+      key: '/read',
+    },
+  ]
+  const router = useRouter();
+  const [current, setCurrent] = useState('/');
+  const onClick = (info: { key: string }) => {
+    setCurrent(info.key);
+    router.push(info.key);
+  };
   return (
-    <div className="flex w-full h-full bg-blue-500">
-
+    <div className="flex w-full h-full ">
+      <Menu onClick={onClick} selectedKeys={[current]} mode="horizontal" items={items} />
     </div>
   )
 }
 
-function HeaderIconArea() {
-  return (
-    <div className="flex w-[16%] h-full bg-green-500">
+function HeaderIconArea({ theme, toggleTheme }: { theme: string, toggleTheme: () => void }) {
+  const iconStyle = { fontSize: 20 };
+  const ThemeIcon = theme === 'dark' ? SunOutlined : MoonOutlined;
 
+  return (
+    <div className="flex w-[16%] h-full items-center justify-end pr-[40px]">
+      <Button type="text" size="large" icon={<GithubOutlined style={iconStyle} />} />
+      <Button type="text" size="large" icon={<ThemeIcon style={iconStyle} />} onClick={toggleTheme} />
     </div>
   )
 }
