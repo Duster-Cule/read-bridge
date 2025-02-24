@@ -4,8 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "./components/layout/theme-provider";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import StructureLayout from './components/layout/structure-layout';
-import { useEffect } from "react";
-import { useThemeStore } from "@/store/useThemeStore";
+
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",

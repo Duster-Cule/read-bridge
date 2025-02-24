@@ -1,22 +1,19 @@
 'use client';
 
 import { ConfigProvider, theme } from 'antd';
-import { useThemeStore } from '@/store/useThemeStore';
+import { ThemeProvider as NextThemeProvider, useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 
-
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [isHydrated, setIsHydrated] = useState(false);
-  const { theme: currentTheme } = useThemeStore();
+function AntdProvider({ children }: { children: React.ReactNode }) {
+  const { theme: currentTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    Promise.resolve(useThemeStore.persist.rehydrate()).then(() => {
-      setIsHydrated(true);
-    });
+    setMounted(true);
   }, []);
 
-  if (!isHydrated) {
-    return null; // 或者返回一个加载状态
+  if (!mounted) {
+    return null;
   }
 
   return (
@@ -24,11 +21,17 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       theme={{
         cssVar: true,
         algorithm: currentTheme === 'dark' ? theme.darkAlgorithm : theme.defaultAlgorithm,
-        token: {
-        },
       }}
     >
       {children}
     </ConfigProvider>
+  );
+}
+
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <NextThemeProvider attribute="class" defaultTheme="system">
+      <AntdProvider>{children}</AntdProvider>
+    </NextThemeProvider>
   );
 } 

@@ -1,11 +1,11 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { useThemeStore } from '@/store/useThemeStore';
+import { useSiderStore } from '@/store/useSiderStore';
 
-const MIN_WIDTH = 200;
+const MIN_WIDTH = 300;
 const MAX_WIDTH = 600;
 
 export default function Sider() {
-  const { siderWidth, setSiderWidth } = useThemeStore();
+  const { siderWidth, setSiderWidth } = useSiderStore();
   const [width, setWidth] = useState(siderWidth); // 默认宽度
   const isDragging = useRef(false);
   const startX = useRef(0);
