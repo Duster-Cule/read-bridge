@@ -5,7 +5,7 @@ import { ThemeProvider as NextThemeProvider, useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 
 function AntdProvider({ children }: { children: React.ReactNode }) {
-  const { theme: currentTheme } = useTheme();
+  const { theme: currentTheme = '' } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -15,13 +15,25 @@ function AntdProvider({ children }: { children: React.ReactNode }) {
   if (!mounted) {
     return null;
   }
+  function generateTheme(currentTheme: string) {
+    const darkTokens = {
+      colorBgLayout: '#1f1f1f',
+      colorBgContainer: '#181818',
+    };
 
+    const lightTokens = {
+      colorBgLayout: '#fff',
+    };
+
+    return {
+      cssVar: true,
+      algorithm: currentTheme === 'dark' ? theme.darkAlgorithm : theme.defaultAlgorithm,
+      token: currentTheme === 'dark' ? darkTokens : lightTokens
+    }
+  }
   return (
     <ConfigProvider
-      theme={{
-        cssVar: true,
-        algorithm: currentTheme === 'dark' ? theme.darkAlgorithm : theme.defaultAlgorithm,
-      }}
+      theme={generateTheme(currentTheme)}
     >
       {children}
     </ConfigProvider>

@@ -1,7 +1,8 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useSiderStore } from '@/store/useSiderStore';
+import { theme } from 'antd';
 
-const MIN_WIDTH = 300;
+const MIN_WIDTH = 400;
 const MAX_WIDTH = 600;
 
 export default function Sider() {
@@ -41,10 +42,11 @@ export default function Sider() {
     };
   }, [handleMouseMove, handleMouseUp]);
 
+  const { token } = theme.useToken();
   return (
     <div
-      className="h-full bg-[#525252] relative"
-      style={{ width: `${width}px` }}
+      className="h-full relative ml-2 shadow-sm"
+      style={{ width: `${width}px`, backgroundColor: token.colorBgContainer }}
     >
       <div
         className="absolute left-[-4px] top-0 bottom-0 w-[8px] cursor-ew-resize hover:bg-blue-300 transition-colors"

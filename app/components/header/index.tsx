@@ -12,7 +12,11 @@ export default function Header() {
   const { theme: currentTheme, setTheme } = useTheme();
 
   return (
-    <div className="header flex justify-between w-full h-full" style={{ backgroundColor: token.colorBgContainer }}>
+    <div className="header flex justify-between w-full h-full shadow-sm"
+      style={{
+        backgroundColor: token.colorBgContainer,
+        borderBottom: `1px solid ${token.colorBorder}`
+      }}>
       <HeaderLogoArea theme={currentTheme} />
       <HeaderContentArea />
       <HeaderIconArea theme={currentTheme} toggleTheme={() => setTheme(currentTheme === 'dark' ? 'light' : 'dark')} />
