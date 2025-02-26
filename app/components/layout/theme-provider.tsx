@@ -1,7 +1,6 @@
 'use client';
 
 import { ConfigProvider, theme } from 'antd';
-import { AliasToken } from 'antd/es/theme/internal';
 import { ThemeProvider as NextThemeProvider, useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 
@@ -17,34 +16,50 @@ function AntdProvider({ children }: { children: React.ReactNode }) {
     return null;
   }
   function generateTheme(currentTheme: string) {
-    const darkTokens = {
-      colorBgLayout: '#1f1f1f',
-      colorBgContainer: '#181818',
-      colorBgElevated: '#313131'
-    };
-
-    const lightTokens = {
-      colorBgLayout: '#fff',
-    };
-    const CardLightToken = {
-      bodyPadding: 8,
-      colorBorderSecondary: '#d4d4d4',
-    }
-    const CardDarkToken = {
-      colorBgContainer: '#313131',
-      colorBorderSecondary: '#636363',
-      bodyPadding: 8,
-    }
-
+    const algorithm = currentTheme === 'dark' ? theme.darkAlgorithm : theme.defaultAlgorithm;
     return {
       cssVar: true,
-      algorithm: currentTheme === 'dark' ? theme.darkAlgorithm : theme.defaultAlgorithm,
-      token: currentTheme === 'dark' ? darkTokens : lightTokens,
-      components: {
-        Card: currentTheme === 'dark' ? CardDarkToken : CardLightToken
-      }
+      algorithm: algorithm,
+      token: getToken(currentTheme),
+      components: getComponentsToken(currentTheme)
     }
   }
+  // 修改主要主题色 
+  function getToken(currentTheme: string) {
+    const tokens = {
+      dark: {
+        colorBgLayout: '#1f1f1f',
+        colorBgContainer: '#181818',
+        colorBgElevated: '#313131'
+      },
+      light: {
+        colorBgLayout: '#fff'
+      }
+    };
+    return tokens[currentTheme === 'dark' ? 'dark' : 'light'];
+  }
+
+  // 修改组件样式
+  function getComponentsToken(currentTheme: string) {
+    const components = {
+      dark: {
+        Card: {
+          colorBgContainer: '#313131',
+          colorBorderSecondary: '#636363',
+          bodyPadding: 8
+        }
+      },
+      light: {
+        Card: {
+          bodyPadding: 8,
+          colorBorderSecondary: '#d4d4d4'
+        }
+      }
+    };
+
+    return components[currentTheme === 'dark' ? 'dark' : 'light'];
+  }
+
   return (
     <ConfigProvider
       theme={generateTheme(currentTheme)}
