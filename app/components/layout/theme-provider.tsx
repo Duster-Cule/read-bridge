@@ -1,6 +1,7 @@
 'use client';
 
 import { ConfigProvider, theme } from 'antd';
+import { AliasToken } from 'antd/es/theme/internal';
 import { ThemeProvider as NextThemeProvider, useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 
@@ -19,16 +20,29 @@ function AntdProvider({ children }: { children: React.ReactNode }) {
     const darkTokens = {
       colorBgLayout: '#1f1f1f',
       colorBgContainer: '#181818',
+      colorBgElevated: '#313131'
     };
 
     const lightTokens = {
       colorBgLayout: '#fff',
     };
+    const CardLightToken = {
+      bodyPadding: 8,
+      colorBorderSecondary: '#d4d4d4',
+    }
+    const CardDarkToken = {
+      colorBgContainer: '#313131',
+      colorBorderSecondary: '#636363',
+      bodyPadding: 8,
+    }
 
     return {
       cssVar: true,
       algorithm: currentTheme === 'dark' ? theme.darkAlgorithm : theme.defaultAlgorithm,
-      token: currentTheme === 'dark' ? darkTokens : lightTokens
+      token: currentTheme === 'dark' ? darkTokens : lightTokens,
+      components: {
+        Card: currentTheme === 'dark' ? CardDarkToken : CardLightToken
+      }
     }
   }
   return (

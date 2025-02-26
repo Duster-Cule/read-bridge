@@ -2,6 +2,8 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { useSiderStore } from '@/store/useSiderStore';
 import { theme } from 'antd';
 
+import StandardChat from './components/StandardChat';
+
 const MIN_WIDTH = 400;
 const MAX_WIDTH = 600;
 
@@ -46,13 +48,21 @@ export default function Sider() {
   return (
     <div
       className="h-full relative ml-2 shadow-sm"
-      style={{ width: `${width}px`, backgroundColor: token.colorBgContainer }}
+      style={{ width: `${width}px`, backgroundColor: token.colorBgContainer, borderLeft: `1px solid ${token.colorBorder}` }}
     >
       <div
         className="absolute left-[-4px] top-0 bottom-0 w-[8px] cursor-ew-resize hover:bg-blue-300 transition-colors"
         onMouseDown={handleMouseDown}
       />
-      Sider
+      <SiderContent />
+    </div>
+  )
+}
+
+function SiderContent() {
+  return (
+    <div className="w-full h-full p-4 flex flex-col">
+      <StandardChat />
     </div>
   )
 }
