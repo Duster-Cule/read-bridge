@@ -27,7 +27,8 @@ export default function Sider() {
     const newWidth = Math.min(Math.max(startWidth.current + diff, MIN_WIDTH), MAX_WIDTH);
     setWidth(newWidth);
     setSiderWidth(newWidth);
-  }, []);
+    // make eslint happy
+  }, [setWidth, setSiderWidth]);
 
   const handleMouseUp = useCallback(() => {
     isDragging.current = false;
