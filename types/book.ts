@@ -1,10 +1,15 @@
+import { BOOK_FORMAT } from '@/constants/book';
+
+export type BOOK_FORMAT_TYPE = typeof BOOK_FORMAT[keyof typeof BOOK_FORMAT];
+
+
 export interface Book {
   id: string;                 // UUID
   fileHash: string;           // 文件hash
   title: string;              // 书名 
+  format: BOOK_FORMAT_TYPE;           // 文件格式
   author?: string;            // 作者
   cover?: string;             // 封面图片 (base64/blob URL)
-  format: 'txt' | 'epub' | 'md'; // 原始格式
   fileSize: number;           // 文件大小(bytes)
   createTime: number;         // 导入时间
   lastReadTime?: number;      // 最后阅读时间
