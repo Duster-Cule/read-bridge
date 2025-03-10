@@ -3,16 +3,8 @@ import * as cheerio from 'cheerio';
 import type { AnyNode } from 'domhandler';
 import { unzipSync, strFromU8 } from 'fflate';
 
+import type { FormattedBook, ChapterBody, Metadata } from '@/types/book';
 
-interface EpubMetadata {
-  title: string; // 书名
-  author?: string; // 作者
-  publisher?: string; // 出版社
-  date?: string; // 出版日期
-  rights?: string; // 版权信息
-  identifier: string; // 图书唯一标识符
-  language?: string; // 语言代码
-}
 
 interface EpubManifestItem {
   id: string;
@@ -25,7 +17,19 @@ type EpubSpineBody = string[];
 type EpubManifestBody = EpubManifestItem[];
 
 
-export async function initEpubBook(buffer: Buffer) {
+/**
+ * 初始化 Epub 书籍
+ * @param buffer - Epub 文件的 Buffer 对象
+ * @returns 格式化后的书籍对象 {
+ *  metadata: Metadata,
+ *  chapterList: ChapterBody[]
+ * }
+ */
+export function initEpubBook(buffer: Buffer): FormattedBook {
+  if (!isValidEpub(buffer)) {
+    throw new Error('Invalid EPUB format');
+  }
+
   const unzipped = unzipSync(new Uint8Array(buffer));
 
   const containerXML = strFromU8(unzipped['META-INF/container.xml'])
@@ -44,11 +48,10 @@ export async function initEpubBook(buffer: Buffer) {
 
   const $manifest = $content('manifest')
   const manifest = initManifest($manifest)
-  console.log(manifest)
 
   const $spine = $content('spine')
   const spine = initSpine($spine)
-  console.log(spine)
+
 
   const sortChapters: EpubManifestBody = spine.map((id) => {
     const item = manifest.find((item) => item.id === id)
@@ -77,10 +80,31 @@ export async function initEpubBook(buffer: Buffer) {
     return contentXML
   })
 
-  console.log(chapterXMLs)
+  const chapterList: ChapterBody[] = []
+  for (const item of chapterXMLs) {
+    const $ = cheerio.load(item, { xml: true })
+    const title = $('h1').text()
+    if (!title || title === '') continue
+    const lines: string[] = []
+    $('p').each((_, p) => {
+      const text = $(p).text()
+      if (text.trim() !== '') {
+        lines.push(text)
+      }
+    })
+    chapterList.push({
+      title,
+      lines
+    })
+  }
+
+  return {
+    metadata: metadata as FormattedBook['metadata'],
+    chapterList
+  }
 }
 
-function initMetadata($metadata: cheerio.Cheerio<AnyNode>): EpubMetadata {
+function initMetadata($metadata: cheerio.Cheerio<AnyNode>): Metadata {
   const metaTags = {
     title: ['dc\\:title', 'title'],
     author: ['dc\\:creator', 'creator'],
@@ -142,4 +166,12 @@ function initSpine($spine: cheerio.Cheerio<AnyNode>): EpubSpineBody {
   });
 
   return spineItems;
+}
+
+function isValidEpub(buffer: Buffer): boolean {
+  const signature = buffer.subarray(0, 4).toString('hex');
+  if (signature !== '504b0304') {
+    return false;
+  }
+  return true;
 }

@@ -2,6 +2,26 @@ import { BOOK_FORMAT } from '@/constants/book';
 
 export type BOOK_FORMAT_TYPE = typeof BOOK_FORMAT[keyof typeof BOOK_FORMAT];
 
+export interface Metadata {
+  title: string; // 书名
+  author?: string; // 作者
+  publisher?: string; // 出版社
+  date?: string; // 出版日期
+  rights?: string; // 版权信息
+  identifier: string; // 图书唯一标识符
+  language?: string; // 语言代码
+  [key: string]: string | number | boolean | undefined; // 其他元数据
+}
+
+export interface FormattedBook {
+  metadata: Metadata
+  chapterList: ChapterBody[]
+}
+
+export interface ChapterBody {
+  title: string;
+  lines: string[];
+}
 
 export interface Book {
   id: string;                 // UUID
