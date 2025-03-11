@@ -32,12 +32,8 @@ export async function POST(req: NextRequest) {
 
   // 进行书籍初始化
   try {
-    await processBook(buffer, format, nameWithoutExt, hash)
-    return NextResponse.json({
-      success: true,
-      filename: file.name,
-      size: file.size,
-    });
+    const book = await processBook(buffer, format, nameWithoutExt, hash)
+    return NextResponse.json(book, { status: 200 });
   } catch (error) {
     if (error instanceof Error) NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ error: String(error) }, { status: 500 })

@@ -1,3 +1,5 @@
+// web only
+
 import Dexie, { Table } from 'dexie'
 import { Book } from '@/types/book'
 
