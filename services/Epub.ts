@@ -1,9 +1,9 @@
 import * as cheerio from 'cheerio';
 
 import type { AnyNode } from 'domhandler';
-import { unzipSync, strFromU8 } from 'fflate';
+import { unzipSync, strFromU8, Unzipped } from 'fflate';
 
-import type { FormattedBook, ChapterBody, Metadata } from '@/types/book';
+import type { FormattedBook, PlainTextChapter, Metadata, Resource } from '@/types/book';
 
 
 interface EpubManifestItem {
@@ -12,9 +12,9 @@ interface EpubManifestItem {
   mediaType: string;
 }
 
-type EpubSpineBody = string[];
+type EpubSpineList = string[];
 
-type EpubManifestBody = EpubManifestItem[];
+type EpubManifestList = EpubManifestItem[];
 
 
 /**
@@ -22,7 +22,7 @@ type EpubManifestBody = EpubManifestItem[];
  * @param buffer - Epub 文件的 Buffer 对象
  * @returns 格式化后的书籍对象 {
  *  metadata: Metadata,
- *  chapterList: ChapterBody[]
+ *  chapterList: PlainTextChapter[]
  * }
  */
 export function initEpubBook(buffer: Buffer): FormattedBook {
@@ -30,8 +30,7 @@ export function initEpubBook(buffer: Buffer): FormattedBook {
     throw new Error('Invalid EPUB format');
   }
 
-  const unzipped = unzipSync(new Uint8Array(buffer));
-
+  const unzipped: Unzipped = unzipSync(new Uint8Array(buffer));
   const containerXML = strFromU8(unzipped['META-INF/container.xml'])
   const $container = cheerio.load(containerXML, { xml: true })
   const fullPath = $container('rootfile').attr('full-path')
@@ -43,8 +42,7 @@ export function initEpubBook(buffer: Buffer): FormattedBook {
   const $content = cheerio.load(strFromU8(unzipped[fullPath]), { xml: true })
 
   const $metadata = $content('metadata:first')
-  const metadata = initMetadata($metadata)
-  console.log(metadata)
+  const metadata = initMetadata($metadata, unzipped)
 
   const $manifest = $content('manifest')
   const manifest = initManifest($manifest)
@@ -53,7 +51,7 @@ export function initEpubBook(buffer: Buffer): FormattedBook {
   const spine = initSpine($spine)
 
 
-  const sortChapters: EpubManifestBody = spine.map((id) => {
+  const sortChapters: EpubManifestList = spine.map((id) => {
     const item = manifest.find((item) => item.id === id)
     if (!item) {
       throw new Error(`Manifest item not found: ${id}`)
@@ -80,7 +78,7 @@ export function initEpubBook(buffer: Buffer): FormattedBook {
     return contentXML
   })
 
-  const chapterList: ChapterBody[] = []
+  const chapterList: PlainTextChapter[] = []
   for (const item of chapterXMLs) {
     const $ = cheerio.load(item, { xml: true })
     const title = $('h1').text()
@@ -104,7 +102,7 @@ export function initEpubBook(buffer: Buffer): FormattedBook {
   }
 }
 
-function initMetadata($metadata: cheerio.Cheerio<AnyNode>): Metadata {
+function initMetadata($metadata: cheerio.Cheerio<AnyNode>, unzipped: Unzipped): Metadata {
   const metaTags = {
     title: ['dc\\:title', 'title'],
     author: ['dc\\:creator', 'creator'],
@@ -123,6 +121,36 @@ function initMetadata($metadata: cheerio.Cheerio<AnyNode>): Metadata {
     }
     return ''
   }
+  function getCover(unzipped: Unzipped): Resource | undefined {
+    const mimeTypes: {
+      [key: string]: string
+    } = {
+      'jpeg': 'image/jpeg',
+      'jpg': 'image/jpeg',
+      'png': 'image/png',
+      'gif': 'image/gif',
+      'webp': 'image/webp'
+    }
+
+    const coverPatterns = [
+      /.*cover.*\.(jpe?g|png|gif|webp)$/i,
+      /\.(jpe?g|png|gif|webp)$/i,
+      /cover/i
+    ]
+
+    for (const pattern of coverPatterns) {
+      const coverUrl = Object.keys(unzipped).find(key => pattern.test(key))
+      if (coverUrl) {
+        const ext = coverUrl.split('.').pop()?.toLowerCase() || 'jpeg'
+        return {
+          data: Buffer.from(unzipped[coverUrl].buffer).toString('base64'),
+          mediaType: mimeTypes[ext] || 'image/jpeg'
+        }
+      }
+    }
+
+    return undefined
+  }
 
   return {
     title: getMetaTag(metaTags.title),
@@ -132,11 +160,12 @@ function initMetadata($metadata: cheerio.Cheerio<AnyNode>): Metadata {
     rights: getMetaTag(metaTags.rights),
     identifier: getMetaTag(metaTags.identifier),
     language: getMetaTag(metaTags.language),
+    cover: getCover(unzipped)
   }
 }
 
-function initManifest($manifest: cheerio.Cheerio<AnyNode>): EpubManifestBody {
-  const items: EpubManifestBody = [];
+function initManifest($manifest: cheerio.Cheerio<AnyNode>): EpubManifestList {
+  const items: EpubManifestList = [];
 
   $manifest.find('item').each((_, element) => {
     const id = element.attribs['id'];
@@ -149,13 +178,16 @@ function initManifest($manifest: cheerio.Cheerio<AnyNode>): EpubManifestBody {
   });
 
   // 只返回 HTML/XHTML 类型的内容
-  return items.filter(item =>
-    item.mediaType.includes('application/xhtml+xml') ||
-    item.mediaType.includes('text/html')
+  return items.filter(item => {
+    return (
+      item.mediaType.includes('application/xhtml+xml') ||
+      item.mediaType.includes('text/html')
+    )
+  }
   );
 }
 
-function initSpine($spine: cheerio.Cheerio<AnyNode>): EpubSpineBody {
+function initSpine($spine: cheerio.Cheerio<AnyNode>): EpubSpineList {
   const spineItems: string[] = [];
 
   $spine.find('itemref').each((_, element) => {
@@ -175,3 +207,4 @@ function isValidEpub(buffer: Buffer): boolean {
   }
   return true;
 }
+

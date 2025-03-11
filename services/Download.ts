@@ -11,6 +11,7 @@ import os from 'os';
  */
 export async function saveToFile(content: string, filename: string): Promise<string> {
   try {
+    console.log(content, filename)
     const downloadDir = path.join(os.homedir(), 'Downloads');
     const filePath = path.join(downloadDir, filename);
 
