@@ -5,7 +5,8 @@ import { LogoIcon } from '@/assets/icon';
 import { GithubOutlined, SunOutlined, MoonOutlined } from '@ant-design/icons';
 import { Button, Menu } from 'antd';
 import { useTheme } from 'next-themes';
-import { useState } from 'react';
+import { usePathname } from 'next/navigation';
+import { useSiderStore } from '@/store/useSiderStore';
 
 export default function Header() {
   const { token } = theme.useToken();
@@ -38,6 +39,7 @@ function HeaderLogoArea({ theme }: { theme?: string }) {
 }
 
 function HeaderContentArea() {
+  const { readingId } = useSiderStore()
   const items = [
     {
       label: '首页',
@@ -46,14 +48,15 @@ function HeaderContentArea() {
     {
       label: '阅读',
       key: '/read',
+      disabled: !readingId,
     },
   ]
   const router = useRouter();
-  const [current, setCurrent] = useState('/');
+  const current = usePathname().split('?')[0]
   const onClick = (info: { key: string }) => {
-    setCurrent(info.key);
     router.push(info.key);
   };
+
   return (
     <div className="flex w-full h-full ">
       <Menu onClick={onClick} selectedKeys={[current]} mode="horizontal" items={items} />

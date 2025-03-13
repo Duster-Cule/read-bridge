@@ -1,30 +1,19 @@
 import { Row, Col } from 'antd';
-import { BookPreview } from '@/types/book';
+import { BookPreview, Resource } from '@/types/book';
 import BookUploader from '@/components/BookUploader';
-import { useEffect, useState } from 'react';
+import { useStyleStore } from '@/store/useStyleStore';
+import { useRouter } from 'next/navigation';
 
 interface BookGridProps {
   books: BookPreview[];
 }
 
-// function handleBase64(base64: string) {
-//   return `data:image/jpeg;base64,${base64}`
-// }
-
 export default function BookGrid({ books }: BookGridProps) {
-  const [itemsPerRow, setItemsPerRow] = useState(12);
-  const [gutterX, setGutterX] = useState(16);
-  const [gutterY, setGutterY] = useState(16);
-
-  useEffect(() => {
-    // make eslint happy
-    setItemsPerRow(12)
-    setGutterX(16)
-    setGutterY(24)
-  }, [])
+  const { itemsPerRow, gutterX, gutterY } = useStyleStore()
+  const router = useRouter();
 
   const onBookClick = (id: string) => {
-    console.log(id)
+    router.push(`/read?id=${id}`);
   }
 
   return (
@@ -33,23 +22,8 @@ export default function BookGrid({ books }: BookGridProps) {
         {books.map((book) => (
           <Col key={book.id} span={24 / itemsPerRow}>
             <div className="cursor-pointer" onClick={() => onBookClick(book.id)}>
-              <div className="aspect-[3/4] w-full bg-gray-100 rounded-lg overflow-hidden">
-                {book.cover ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  // TODO 先不显示封面
-                  // <img
-                  //   src={handleBase64(book.cover.data)}
-                  //   alt={book.title}
-                  //   className="w-full h-full object-cover"
-                  // />
-                  <div className="w-full h-full flex items-center justify-center text-gray-400">
-                    No Cover
-                  </div>
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-400">
-                    No Cover
-                  </div>
-                )}
+              <div className="aspect-[3/4] w-full overflow-hidden">
+                <BookCover cover={book.cover} title={book.title} />
               </div>
               <div className="mt-2 text-center">
                 <div className="font-medium truncate">{book.title}</div>
@@ -68,4 +42,45 @@ export default function BookGrid({ books }: BookGridProps) {
       </Row>
     </div>
   );
-} 
+}
+
+// function handleBase64(base64: string) {
+//   return `data:image/jpeg;base64,${base64}`
+// }
+
+const BookCover = ({ cover, title }: { cover: Resource | undefined, title: string }) => {
+  console.log(title)
+  // eslint-disable-next-line
+  const imageCSS = `
+    w-full
+    h-full
+    object-cover
+    rounded-lg
+  `
+  const noCoverCSS = `
+    w-full
+    h-full
+    flex
+    items-center
+    justify-center
+    border
+    border-[var(--ant-color-border)]
+    rounded-lg
+    bg-[var(--ant-color-bg-elevated)]
+    dark:bg-[var(--ant-color-bg-elevated)]
+  `
+  return (
+    cover ? (
+      // TODO: 暂时不放封面
+      // // eslint-disable-next-line @next/next/no-img-element
+      // <img className={imageCSS} src={handleBase64(cover.data)} alt={title} />
+      <div className={noCoverCSS}>
+        No Cover
+      </div>
+    ) : (
+      <div className={noCoverCSS}>
+        No Cover
+      </div>
+    )
+  )
+}

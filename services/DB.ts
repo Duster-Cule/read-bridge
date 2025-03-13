@@ -32,6 +32,15 @@ class BookDB extends Dexie {
   }
 
   /**
+   * 获取书籍
+   * @param id 书籍id
+   * @returns 书籍 || null
+   */
+  async getBook(id: string): Promise<Book | null> {
+    return (await this.books.get(id)) ?? null
+  }
+
+  /**
    * 获取所有书籍
    * @returns 所有书籍
    */
