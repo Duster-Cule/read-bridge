@@ -1,7 +1,7 @@
 // web only
 
 import Dexie, { Table } from 'dexie'
-import { Book } from '@/types/book'
+import { Book, BookPreview } from '@/types/book'
 
 const DB_SEARCH_KEYS = ['&id', 'title', 'fileHash', 'author', 'createTime', 'lastReadTime', 'metadata.identifier', 'metadata.language']
 class BookDB extends Dexie {
@@ -40,6 +40,17 @@ class BookDB extends Dexie {
     return books.sort((a, b) => bookSort(a, b, reverse))
   }
 
+  /**
+   * 获取所有书籍预览
+   * @returns 所有书籍预览liveQuery
+   */
+  async getAllBooksPreview(): Promise<BookPreview[]> {
+    const books = await this.getAllBooks()
+    return new Promise((resolve) => {
+      resolve(getBookPreview(books))
+    })
+
+  }
 
   /**
    * 按字段查询书籍
@@ -53,8 +64,22 @@ class BookDB extends Dexie {
       .where(type)
       .equals(value)
       .toArray()
-
     return books.sort((a, b) => bookSort(a, b, reverse))
+
+  }
+
+  /**
+   * 按字段查询书籍预览 
+   * @param type Book 对象的键名
+   * @param value 查询值
+   * @param reverse 是否倒序
+   * @returns 按最后阅读时间(当没阅读过则使用创建时间)返回liveQuery
+   */
+  async getBooksPreview(type: typeof DB_SEARCH_KEYS[number], value: string, reverse = true): Promise<BookPreview[]> {
+    const books = await this.getBooks(type, value, reverse)
+    return new Promise((resolve) => {
+      resolve(getBookPreview(books))
+    })
   }
 
   /**
@@ -118,6 +143,15 @@ function bookSort(a: Book, b: Book, reverse = true) {
   const timeA = a.lastReadTime ?? a.createTime ?? 0
   const timeB = b.lastReadTime ?? b.createTime ?? 0
   return reverse ? timeB - timeA : timeA - timeB
+}
+
+function getBookPreview(books: Book[]): BookPreview[] {
+  return books.map(book => ({
+    id: book.id,
+    title: book.title,
+    author: book.author,
+    cover: book.metadata.cover
+  }))
 }
 
 const db = new BookDB()

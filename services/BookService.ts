@@ -7,7 +7,7 @@ import { saveToFile } from '@/services/Download'
 
 /**
  * 处理书籍
- * @param buffer 书籍缓冲区
+ * @param buffer 书籍文件
  * @param format 书籍格式
  * @param name 书籍名称
  * @param hash 书籍哈希值

@@ -50,3 +50,10 @@ export interface Book {
   readingProgress?: ReadingProgress;
   metadata: Metadata;
 }
+
+export interface BookPreview {
+  id: string;
+  title: string;
+  author?: string;
+  cover?: Resource;
+}

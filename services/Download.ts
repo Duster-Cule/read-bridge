@@ -11,20 +11,15 @@ import os from 'os';
  */
 export async function saveToFile(content: string, filename: string): Promise<string> {
   try {
-    console.log(content, filename)
     const downloadDir = path.join(os.homedir(), 'Downloads');
     const filePath = path.join(downloadDir, filename);
 
-    console.log('Saving to:', filePath);  // 打印保存路径
-
     // 检查目录是否存在
     if (!fs.existsSync(downloadDir)) {
-      console.log('Downloads directory not found:', downloadDir);
       throw new Error(`Downloads directory not found: ${downloadDir}`);
     }
 
     await fs.promises.writeFile(filePath, content, 'utf-8');
-    console.log('File saved successfully');
 
     return filePath;
   } catch (error) {

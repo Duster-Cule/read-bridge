@@ -48,11 +48,11 @@ export default function Sider() {
   const { token } = theme.useToken();
   return (
     <div
-      className="h-full relative ml-2 shadow-sm"
+      className="h-full relative  shadow-sm"
       style={{ width: `${width}px`, backgroundColor: token.colorBgContainer, borderLeft: `1px solid ${token.colorBorder}` }}
     >
       <div
-        className="absolute left-[-4px] top-0 bottom-0 w-[8px] cursor-ew-resize hover:bg-blue-300 transition-colors"
+        className="absolute left-[0px] top-0 bottom-0 w-[8px] cursor-ew-resize hover:bg-blue-300 transition-colors"
         onMouseDown={handleMouseDown}
       />
       <SiderContent />

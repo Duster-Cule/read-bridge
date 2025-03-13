@@ -14,6 +14,7 @@
     "antd": "^5.24.0",
     "cheerio": "^1.0.0",
     "dexie": "^4.0.11",
+    "dexie-react-hooks": "^1.1.7",
     "emittery": "^1.1.0",
     "fflate": "^0.8.2",
     "next": "14.2.24",
