@@ -17,6 +17,6 @@ export function useBook() {
     }
   }, [readingId])
 
-  return book
+  return [book, setBook] as const
 }
 

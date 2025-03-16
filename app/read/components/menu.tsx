@@ -19,10 +19,11 @@ export default function ReadMenu({ toc, currentChapter, onChapterChange }: ReadM
   const menuItems = toc.map(({ title, index }) => ({
     key: index,
     label: collapsed ? index + 1 : title,
+    title: title
   }))
 
   return (
-    <div className="flex flex-col h-full max-w-60">
+    <div className="flex flex-col h-full min-w-[80px]">
       <Button
         type="text"
         onClick={toggleCollapsed}

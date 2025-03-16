@@ -30,8 +30,9 @@ class BookDB extends Dexie {
     if (exists) {
       throw new Error('Book already exists')
     }
-
-    return await this.books.add(book)
+    const id = await this.books.add(book)
+    await this.addReadingProgress(id)
+    return id
   }
 
   /**
@@ -58,7 +59,23 @@ class BookDB extends Dexie {
    */
   async getAllBooks(reverse = true): Promise<Book[]> {
     const books = await this.books.toArray()
-    return books.sort((a, b) => bookSort(a, b, reverse))
+
+    const bookIds = books.map(book => book.id)
+    const readingProgressList = await this.readingProgress
+      .where('bookId')
+      .anyOf(bookIds)
+      .toArray()
+
+    const lastReadTimeMap = new Map<string, number>()
+    readingProgressList.forEach(progress => {
+      lastReadTimeMap.set(progress.bookId, progress.lastReadTime)
+    })
+
+    return books.sort((a, b) => {
+      const timeA = lastReadTimeMap.get(a.id) ?? a.createTime ?? 0
+      const timeB = lastReadTimeMap.get(b.id) ?? b.createTime ?? 0
+      return reverse ? timeB - timeA : timeA - timeB
+    })
   }
 
   /**
@@ -85,8 +102,23 @@ class BookDB extends Dexie {
       .where(type)
       .equals(value)
       .toArray()
-    return books.sort((a, b) => bookSort(a, b, reverse))
 
+    const bookIds = books.map(book => book.id)
+    const readingProgressList = await this.readingProgress
+      .where('bookId')
+      .anyOf(bookIds)
+      .toArray()
+
+    const lastReadTimeMap = new Map<string, number>()
+    readingProgressList.forEach(progress => {
+      lastReadTimeMap.set(progress.bookId, progress.lastReadTime)
+    })
+
+    return books.sort((a, b) => {
+      const timeA = lastReadTimeMap.get(a.id) ?? a.createTime ?? 0
+      const timeB = lastReadTimeMap.get(b.id) ?? b.createTime ?? 0
+      return reverse ? timeB - timeA : timeA - timeB
+    })
   }
 
   /**
@@ -122,22 +154,6 @@ class BookDB extends Dexie {
 
     await this.books.put(book)
   }
-
-  /**
-   * 删除书籍
-   * @param id Book id
-   * @throws {Error} 当书籍不存在时抛出异常
-   * @returns {Promise<void>}
-   */
-  async deleteBook(id: string): Promise<void> {
-    const exists = await this.books.get(id)
-    if (!exists) {
-      throw new Error('Book not found')
-    }
-
-    await this.books.delete(id)
-  }
-
   /**
    * 更新书籍的单个字段
    * @param id Book id
@@ -158,12 +174,104 @@ class BookDB extends Dexie {
 
     await this.books.update(id, { [type]: value } as Partial<Book>)
   }
-}
 
-function bookSort(a: Book, b: Book, reverse = true) {
-  const timeA = a.createTime ?? 0
-  const timeB = b.createTime ?? 0
-  return reverse ? timeB - timeA : timeA - timeB
+  /**
+   * 删除书籍
+   * @param id Book id
+   * @throws {Error} 当书籍不存在时抛出异常
+   * @returns {Promise<void>}
+   */
+  async deleteBook(id: string): Promise<void> {
+    const exists = await this.books.get(id)
+    if (!exists) {
+      throw new Error('Book not found')
+    }
+
+    await this.books.delete(id)
+  }
+
+  /**
+   * 添加书籍阅读信息
+   * @param readingProgress 书籍阅读信息
+   * @returns {Promise<void>}
+   */
+  async addReadingProgress(bookId: string): Promise<void> {
+    const exists = await this.readingProgress.get(bookId)
+    if (exists) return
+    else {
+      const defaultReadingProgress: ReadingProgress = {
+        bookId,
+        lastReadTime: Date.now(),
+        currentLocation: {
+          chapterIndex: 0,
+          lineIndex: 0
+        }
+      }
+      return await this.readingProgress.add(defaultReadingProgress)
+    }
+  }
+
+  /**
+   * 获得书籍阅读信息
+   * @param bookId 书籍id
+   * @returns {Promise<ReadingProgress>} 书籍阅读进度 如果不存在则新建
+   */
+  async getReadingProgress(bookId: string): Promise<ReadingProgress> {
+    const readingProgress = await this.readingProgress.get(bookId)
+    if (readingProgress) return readingProgress
+    else await this.addReadingProgress(bookId)
+    return await this.readingProgress.get(bookId) as ReadingProgress
+  }
+  /**
+   * 更新书籍阅读信息 如不存在则新建
+   * @param bookId 书籍id
+   * @param readingProgress 书籍阅读信息
+   * @returns {Promise<void>}
+   */
+  async updateReadingProgress(bookId: string, readingProgress: ReadingProgress): Promise<ReadingProgress> {
+    const result = await this.readingProgress.update(bookId, readingProgress)
+    if (!result) await this.addReadingProgress(bookId)
+    return await this.readingProgress.get(bookId) as ReadingProgress
+  }
+  /**
+   * 更新书籍阅读时间 如不存在则新建
+   * @param bookId 书籍id
+   * @param lastReadTime 最后阅读时间
+   * @returns {Promise<ReadingProgress>} 更新后的阅读信息
+   */
+  async updateLastReadTime(bookId: string, lastReadTime: number): Promise<ReadingProgress> {
+    const readingProgress = await this.readingProgress.get(bookId)
+    if (!!readingProgress) await this.readingProgress.update(bookId, { lastReadTime })
+    return await this.readingProgress.get(bookId) as ReadingProgress
+  }
+  /**
+   * 获取最后阅读时间
+   * @param bookId 书籍id
+   * @returns {Promise<number>} 最后阅读时间
+   */
+  async getLastReadTime(bookId: string): Promise<number> {
+    const readingProgress = await this.readingProgress.get(bookId)
+    if (!!readingProgress) return readingProgress.lastReadTime ?? 0
+    else return 0
+  }
+  /**
+   * 更新书籍阅读位置
+   * @param bookId 书籍id
+   * @param currentLocation 阅读位置
+   * @returns {Promise<void>}
+   */
+  async updateCurrentLocation(bookId: string, currentLocation: ReadingProgress['currentLocation']): Promise<void> {
+    const readingProgress = await this.readingProgress.get(bookId)
+    if (!!readingProgress) await this.readingProgress.update(bookId, { currentLocation })
+  }
+  /**
+   * 删除书籍阅读信息
+   * @param bookId 书籍id
+   * @returns {Promise<void>}
+   */
+  async deleteReadingProgress(bookId: string): Promise<void> {
+    await this.readingProgress.delete(bookId)
+  }
 }
 
 function getBookPreview(books: Book[]): BookPreview[] {

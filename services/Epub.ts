@@ -81,7 +81,10 @@ export function initEpubBook(buffer: Buffer): FormattedBook {
   const chapterList: PlainTextChapter[] = []
   for (const item of chapterXMLs) {
     const $ = cheerio.load(item, { xml: true })
-    const title = $('h1').text()
+    const title = $('h1').first().text() ||
+      $('title').first().text() ||
+      $('h2').first().text() ||
+      '';
     if (!title || title === '') continue
     const lines: string[] = []
     $('p').each((_, p) => {
@@ -90,6 +93,7 @@ export function initEpubBook(buffer: Buffer): FormattedBook {
         lines.push(text)
       }
     })
+    if (lines.length === 0) continue
     chapterList.push({
       title,
       lines
