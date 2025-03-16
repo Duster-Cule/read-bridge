@@ -32,11 +32,6 @@ interface TocItem {
   title: string;
   index: number;
 }
-interface ReadingProgress {
-  chapterIndex: number;
-  offset: number;
-  timestamp: number;
-}
 
 export interface Book {
   id: string;
@@ -44,10 +39,8 @@ export interface Book {
   author?: string;
   fileHash: string;
   createTime: number;
-  lastReadTime?: number;
   chapterList: PlainTextChapter[];
   toc: TocItem[];
-  readingProgress?: ReadingProgress;
   metadata: Metadata;
 }
 
@@ -56,4 +49,13 @@ export interface BookPreview {
   title: string;
   author?: string;
   cover?: Resource;
+}
+
+export interface ReadingProgress {
+  bookId: string;
+  lastReadTime: number;
+  currentLocation: {
+    chapterIndex: number;
+    lineIndex: number;
+  };
 }

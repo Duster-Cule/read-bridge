@@ -2,6 +2,7 @@
 import { useBook } from "@/app/hooks/useBook"
 import { useSiderStore } from "@/store/useSiderStore"
 import { useEffect } from "react"
+import ReadMenu from "./components/menu"
 export default function ReadPage({ searchParams }: { searchParams: { id: string } }) {
   const id = searchParams.id ?? ''
   const { setReadingId } = useSiderStore()
@@ -13,9 +14,13 @@ export default function ReadPage({ searchParams }: { searchParams: { id: string 
   if (!book) return <div>书籍不存在</div>
   return (
     <div className="w-full h-full p-2">
-      正在阅读书籍 ID: {id}, 正在阅读书籍 title: {book.title}
+      <ReadMenu toc={book.toc} currentChapter={0} onChapterChange={(index: number) => {
+        console.log('chapter changed', index)
+      }} />
+      {/* 正在阅读书籍 ID: {id}, 正在阅读书籍 title: {book.title}
       {book.chapterList.map((chapter) => (
         <div key={chapter.title}>
+          ------------------------
           {chapter.lines.map(line => {
             return (
               <div key={line}>
@@ -23,8 +28,9 @@ export default function ReadPage({ searchParams }: { searchParams: { id: string 
               </div>
             )
           })}
+          ------------------------
         </div>
-      ))}
+      ))} */}
     </div>
   )
 } 

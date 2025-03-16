@@ -6,7 +6,15 @@ import db from '@/services/DB';
 import { Book } from '@/types/book';
 
 const { Dragger } = Upload;
-
+function checkFileFormat(file: File): boolean {
+  const fileExtension = file.name.split('.').pop()?.toLowerCase();
+  return Object.values(BOOK_FORMAT).some(
+    format => format.toLowerCase() === fileExtension
+  );
+}
+function showError(fileNames: string) {
+  message.error(`${fileNames} 格式不支持，请上传 ${Object.values(BOOK_FORMAT).join('/')} 格式的文件`);
+}
 const props: UploadProps = {
   name: 'file',
   multiple: true,
@@ -14,6 +22,26 @@ const props: UploadProps = {
   maxCount: 1,
   showUploadList: false,
   accept: Object.values(BOOK_FORMAT).map(format => `.${format}`).join(','),
+
+  beforeUpload: (file) => {
+    const isAcceptedFormat = checkFileFormat(file);
+
+    if (!isAcceptedFormat) {
+      showError(file.name)
+      return Upload.LIST_IGNORE;
+    }
+
+    return true;
+  },
+  onDrop(e) {
+    const files = Array.from(e.dataTransfer.files);
+    const invalidFiles = files.filter(file => !checkFileFormat(file));
+
+    if (invalidFiles.length > 0) {
+      const fileNames = invalidFiles.map(file => file.name).join(', ');
+      showError(fileNames)
+    }
+  },
   onChange: async (info) => {
     const { status, response } = info.file;
     if (status === 'error') return message.error(`${info.file.name} 文件导入失败， ${response.error}`);
@@ -26,9 +54,6 @@ const props: UploadProps = {
         else message.error(`${info.file.name} 文件导入失败`);
       }
     }
-  },
-  onDrop(e) {
-    console.log('Dropped files', e.dataTransfer.files);
   },
 };
 

@@ -1,16 +1,19 @@
 // web only
 
 import Dexie, { Table } from 'dexie'
-import { Book, BookPreview } from '@/types/book'
+import { Book, BookPreview, ReadingProgress } from '@/types/book'
 
 const DB_SEARCH_KEYS = ['&id', 'title', 'fileHash', 'author', 'createTime', 'lastReadTime', 'metadata.identifier', 'metadata.language']
+const READING_PROGRESS_KEYS = ['&bookId', 'lastReadTime', 'currentLocation']
 class BookDB extends Dexie {
   books!: Table<Book>
+  readingProgress!: Table<ReadingProgress>
 
   constructor() {
     super('book-reader')
     this.version(1).stores({
-      books: DB_SEARCH_KEYS.join(',')
+      books: DB_SEARCH_KEYS.join(','),
+      readingProgress: READING_PROGRESS_KEYS.join(',')
     })
   }
   /**
@@ -39,6 +42,15 @@ class BookDB extends Dexie {
   async getBook(id: string): Promise<Book | null> {
     return (await this.books.get(id)) ?? null
   }
+
+  // /**
+  //  * 获取阅读进度
+  //  * @param bookId 书籍id
+  //  * @returns 阅读进度 || null
+  //  */
+  // async getReadingProgress(bookId: string): Promise<ReadingProgress | null> {
+
+  // }
 
   /**
    * 获取所有书籍
@@ -149,8 +161,8 @@ class BookDB extends Dexie {
 }
 
 function bookSort(a: Book, b: Book, reverse = true) {
-  const timeA = a.lastReadTime ?? a.createTime ?? 0
-  const timeB = b.lastReadTime ?? b.createTime ?? 0
+  const timeA = a.createTime ?? 0
+  const timeB = b.createTime ?? 0
   return reverse ? timeB - timeA : timeA - timeB
 }
 

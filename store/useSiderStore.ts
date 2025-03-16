@@ -6,6 +6,8 @@ interface SiderStore {
   setReadingId: (id: string | null) => void
   siderWidth: number
   setSiderWidth: (width: number) => void
+  collapsed: boolean
+  setCollapsed: (collapsed: boolean) => void
 }
 
 export const useSiderStore = create<SiderStore>()(
@@ -15,6 +17,8 @@ export const useSiderStore = create<SiderStore>()(
       setReadingId: (id) => set({ readingId: id }),
       siderWidth: 400,
       setSiderWidth: (width) => set({ siderWidth: width }),
+      collapsed: false,
+      setCollapsed: (collapsed) => set({ collapsed }),
     }),
     {
       name: 'sider-storage',
