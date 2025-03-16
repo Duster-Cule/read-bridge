@@ -26,14 +26,13 @@ export default function Sider() {
     const diff = startX.current - e.clientX;
     const newWidth = Math.min(Math.max(startWidth.current + diff, MIN_WIDTH), MAX_WIDTH);
     setWidth(newWidth);
-    setSiderWidth(newWidth);
-    // make eslint happy
-  }, [setWidth, setSiderWidth]);
+  }, [setWidth]);
 
   const handleMouseUp = useCallback(() => {
     isDragging.current = false;
     document.body.style.userSelect = '';
-  }, []);
+    setSiderWidth(width);
+  }, [setSiderWidth, width]);
 
   // 事件监听
   useEffect(() => {
