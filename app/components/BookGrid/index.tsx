@@ -3,6 +3,7 @@ import { BookPreview, Resource } from '@/types/book';
 import BookUploader from '@/components/BookUploader';
 import { useStyleStore } from '@/store/useStyleStore';
 import { useRouter } from 'next/navigation';
+import { useSiderStore } from '@/store/useSiderStore';
 
 interface BookGridProps {
   books: BookPreview[];
@@ -11,9 +12,11 @@ interface BookGridProps {
 export default function BookGrid({ books }: BookGridProps) {
   const { itemsPerRow, gutterX, gutterY } = useStyleStore()
   const router = useRouter();
+  const { setReadingId } = useSiderStore()
 
   const onBookClick = (id: string) => {
-    router.push(`/read?id=${id}`);
+    setReadingId(id)
+    router.push(`/read`);
   }
 
   return (

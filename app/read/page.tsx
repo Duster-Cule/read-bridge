@@ -9,15 +9,10 @@ import { useReadingProgress } from "@/app/hooks/useReadingProgress"
 import { Spin, Result } from "antd"
 import ReadArea from "./components/readArea"
 
-export default function ReadPage({ searchParams }: { searchParams: { id: string } }) {
-  const id = searchParams.id ?? ''
-  const { setReadingId } = useSiderStore()
+export default function ReadPage() {
+  const { readingId, setReadingId } = useSiderStore()
   const [loading, setLoading] = useState(true)
   const [bookNotFound, setBookNotFound] = useState(false)
-
-  useEffect(() => {
-    if (id) setReadingId(id)
-  }, [id, setReadingId])
 
   const [book] = useBook()
   const [currentLocation, setCurrentLocation] = useReadingProgress()
@@ -49,7 +44,8 @@ export default function ReadPage({ searchParams }: { searchParams: { id: string 
   if (bookNotFound || !book) return <Result icon={<FileUnknownOutlined />} title="404" subTitle="抱歉，没有找到该书籍或已删除" />
 
   const handleChapterChange = (index: number) => {
-    db.updateCurrentLocation(id, { chapterIndex: index, lineIndex: 0 })
+    if (!readingId) return
+    db.updateCurrentLocation(readingId, { chapterIndex: index, lineIndex: 0 })
     setCurrentLocation((prev) => ({
       ...prev,
       lineIndex: 0,
