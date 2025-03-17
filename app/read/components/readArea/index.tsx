@@ -12,6 +12,7 @@ export default function ReadArea({ book, currentChapter }: { book: Book, current
   const [sentences, setSentences] = useState<string[]>([])
   const [currentLineIndex, setCurrentLineIndex] = useState<number>(0)
 
+  // 获取行
   useEffect(() => {
     const allSentences: string[] = []
     paragraphs.forEach(paragraph => {
@@ -41,7 +42,7 @@ export default function ReadArea({ book, currentChapter }: { book: Book, current
       behavior: 'smooth'
     })
   }, [paragraphs, setSentences])
-
+  let lineNumber = 1
 
   // 更新阅读数据
   useEffect(() => {
@@ -52,28 +53,44 @@ export default function ReadArea({ book, currentChapter }: { book: Book, current
     console.log(`Clicked line ${index + 1}`)
     setCurrentLineIndex(index)
   }
-  console.log(111)
+
   return (
     <div ref={containerRef} className="w-full h-full overflow-auto p-2">
       <div className="text-2xl font-bold mb-4 ml-10">{title}</div>
       <div className="text-lg">
-        {sentences.map((sentence, index) => (
-          <Line sentence={sentence} index={index} key={index} handleLineClick={handleLineClick} />
-        ))}
+        {sentences.map((sentence, index) => {
+          return (
+            <Line
+              sentence={sentence}
+              index={index}
+              lineNumber={sentence ? lineNumber++ : undefined}
+              key={index}
+              handleLineClick={handleLineClick}
+            />
+          )
+        })}
       </div>
     </div>
   )
 }
 
 
-function Line({ sentence, index, handleLineClick }: { sentence: string, index: number, handleLineClick: (index: number) => void }) {
+function Line({ sentence, index, lineNumber, handleLineClick }: {
+  sentence: string,
+  index: number,
+  lineNumber?: number,
+  handleLineClick: (index: number) => void
+}) {
+  if (!sentence) {
+    return <div className="h-4" />
+  }
 
   return (
     <div className={`flex mb-1 group rounded-lg`}>
       <div className={`w-10 text-right pr-1 select-none cursor-pointer text-[var(--ant-color-primary)] hover:text-[var(--ant-color-primary-hover)]`}
         onClick={() => handleLineClick(index)}
       >
-        {index + 1}
+        {lineNumber}
       </div>
       <div className={`mx-1 select-none text-[var(--ant-color-border)]`}>|</div>
       <div className="flex-1">{sentence}</div>
