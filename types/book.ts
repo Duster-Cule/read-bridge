@@ -26,7 +26,7 @@ export interface FormattedBook {
 
 export interface PlainTextChapter {
   title: string;
-  lines: string[];
+  paragraphs: string[];
 }
 interface TocItem {
   title: string;

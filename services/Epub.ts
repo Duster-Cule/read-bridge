@@ -86,17 +86,17 @@ export function initEpubBook(buffer: Buffer): FormattedBook {
       $('h2').first().text() ||
       '';
     if (!title || title === '') continue
-    const lines: string[] = []
+    const paragraphs: string[] = []
     $('p').each((_, p) => {
       const text = $(p).text()
       if (text.trim() !== '') {
-        lines.push(text)
+        paragraphs.push(text)
       }
     })
-    if (lines.length === 0) continue
+    if (paragraphs.length === 0) continue
     chapterList.push({
       title,
-      lines
+      paragraphs
     })
   }
 

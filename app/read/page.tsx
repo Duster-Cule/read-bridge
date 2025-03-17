@@ -7,6 +7,7 @@ import ReadMenu from "./components/menu"
 import db from "@/services/DB"
 import { useReadingProgress } from "@/app/hooks/useReadingProgress"
 import { Spin, Result } from "antd"
+import ReadArea from "./components/readArea"
 
 export default function ReadPage({ searchParams }: { searchParams: { id: string } }) {
   const id = searchParams.id ?? ''
@@ -25,6 +26,7 @@ export default function ReadPage({ searchParams }: { searchParams: { id: string 
     const timer = setTimeout(() => {
       if (!book) {
         setBookNotFound(true)
+        setReadingId('')
       }
       setLoading(false)
     }, 5000)
@@ -35,12 +37,12 @@ export default function ReadPage({ searchParams }: { searchParams: { id: string 
     }
 
     return () => clearTimeout(timer)
-  }, [book])
+  }, [book, setReadingId])
 
   if (loading) return (
     <div className="w-full h-full flex items-center justify-center">
       <Spin size="large" indicator={<LoadingOutlined spin />} tip="加载中...">
-        <div className="h-[100px]"></div>
+        <div className="w-[100px] h-[100px]"></div>
       </Spin>
     </div>
   )
@@ -58,23 +60,20 @@ export default function ReadPage({ searchParams }: { searchParams: { id: string 
       }
     })
   }
+
+  const handleLineChange = (index: number) => {
+    db.updateCurrentLocation(id, { chapterIndex: readingProgress.currentLocation.chapterIndex, lineIndex: index })
+    setReadingProgress({
+      ...readingProgress,
+      bookId: id,
+    })
+  }
   return (
     <div className="w-full h-full p-2 flex flex-row">
       <ReadMenu toc={book.toc} currentChapter={readingProgress.currentLocation.chapterIndex} onChapterChange={(index: number) => {
         handleChapterChange(index)
       }} />
-      <div className="w-full overflow-auto">
-        正在阅读书籍 ID: {id}, 正在阅读书籍 title: {book.title}
-        {
-          book.chapterList[readingProgress.currentLocation.chapterIndex].lines.map((line, index) => {
-            return (
-              <div key={index}>
-                {line}
-              </div>
-            )
-          })
-        }
-      </div>
+      <ReadArea book={book} currentChapter={readingProgress.currentLocation.chapterIndex} lineChange={handleLineChange} />
     </div>
   )
 } 
