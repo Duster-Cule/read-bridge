@@ -13,6 +13,7 @@
     "@types/dexie": "^1.3.32",
     "antd": "^5.24.0",
     "cheerio": "^1.0.0",
+    "compromise": "^14.14.4",
     "dexie": "^4.0.11",
     "dexie-react-hooks": "^1.1.7",
     "emittery": "^1.1.0",

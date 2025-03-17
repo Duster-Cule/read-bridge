@@ -261,8 +261,7 @@ class BookDB extends Dexie {
    * @returns {Promise<void>}
    */
   async updateCurrentLocation(bookId: string, currentLocation: ReadingProgress['currentLocation']): Promise<void> {
-    const readingProgress = await this.readingProgress.get(bookId)
-    if (!!readingProgress) await this.readingProgress.update(bookId, { currentLocation })
+    await this.readingProgress.update(bookId, { currentLocation, lastReadTime: Date.now() })
   }
   /**
    * 删除书籍阅读信息

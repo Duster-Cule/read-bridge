@@ -1,82 +1,84 @@
 import { Book } from "@/types/book"
 import { useEffect, useRef, useState } from "react"
+import nlp from 'compromise'
+import db from "@/services/DB"
 
-export default function ReadArea({ book, currentChapter, lineChange }: { book: Book, currentChapter: number, lineChange: (index: number) => void }) {
+
+export default function ReadArea({ book, currentChapter }: { book: Book, currentChapter: number }) {
   const title = book.chapterList[currentChapter].title
   const paragraphs = book.chapterList[currentChapter].paragraphs
   const containerRef = useRef<HTMLDivElement>(null)
-  const lineRefs = useRef<(HTMLDivElement | null)[]>([])
+
   const [sentences, setSentences] = useState<string[]>([])
+  const [currentLineIndex, setCurrentLineIndex] = useState<number>(0)
 
   useEffect(() => {
     const allSentences: string[] = []
     paragraphs.forEach(paragraph => {
-      const sentencesInParagraph = paragraph.split(/(?<=([。！？.!?]|'\s*(?=\n|[A-Z])))(?<!\.{3})\s*/)
-      allSentences.push(...sentencesInParagraph.filter(s => {
-        const trimmed = s.trim()
-        return trimmed !== '' && trimmed !== '.'
-      }))
+      // 判断是否主要为中文文本
+      const isChinese = /[\u4e00-\u9fa5]/.test(paragraph)
+      let sentences: string[] = []
+      if (isChinese) sentences = paragraph.match(/[^。！？]+[。！？]/g) || []
+      else {
+        // 处理英文句子
+        const doc = nlp(paragraph)
+        sentences = doc.sentences().out('array')
+      }
+      allSentences.push(...sentences, 'EOB')
     })
-    setSentences(allSentences)
-    lineRefs.current = allSentences.map(() => null)
-  }, [paragraphs])
 
-  // 监听滚动事件，更新当前行
+    setSentences(allSentences.reduce((acc, sentence) => {
+      if (sentence === 'EOB') {
+        acc.push('')
+        return acc
+      }
+      acc.push(sentence)
+      return acc
+    }, [] as string[]))
+    // 滚动条跳转最上方
+    containerRef.current?.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    })
+  }, [paragraphs, setSentences])
+
+
+  // 更新阅读数据
   useEffect(() => {
-    const container = containerRef.current
-    if (!container) return
-
-    const handleScroll = () => {
-      const { top: containerTop } = container.getBoundingClientRect()
-      let currentLineIndex = 0
-      let minDistance = Infinity
-
-      lineRefs.current.forEach((lineRef, index) => {
-        if (!lineRef) return
-        const { top } = lineRef.getBoundingClientRect()
-        const distance = Math.abs(top - containerTop)
-
-        if (distance < minDistance) {
-          minDistance = distance
-          currentLineIndex = index
-        }
-      })
-
-      lineChange(currentLineIndex)
-    }
-
-    container.addEventListener('scroll', handleScroll)
-    return () => container.removeEventListener('scroll', handleScroll)
-  }, [lineChange, sentences.length])
+    db.updateCurrentLocation(book.id, { chapterIndex: currentChapter, lineIndex: currentLineIndex })
+  }, [currentLineIndex])
 
   const handleLineClick = (index: number) => {
     console.log(`Clicked line ${index + 1}`)
-    console.log(currentChapter)
+    setCurrentLineIndex(index)
   }
-
+  console.log(111)
   return (
     <div ref={containerRef} className="w-full h-full overflow-auto p-2">
-      <div className="text-2xl font-bold mb-4">{title}</div>
+      <div className="text-2xl font-bold mb-4 ml-10">{title}</div>
       <div className="text-lg">
         {sentences.map((sentence, index) => (
-          <div
-            key={index}
-            className={`flex mb-1 hover:bg-gray-100 dark:hover:bg-gray-800 group ${index === currentChapter ? 'bg-gray-100 dark:bg-gray-800' : ''}`}
-            ref={el => {
-              lineRefs.current[index] = el
-            }}
-          >
-            <div
-              className="w-10 text-right pr-1 text-blue-500 select-none cursor-pointer group-hover:text-blue-600 dark:text-blue-400 dark:group-hover:text-blue-300"
-              onClick={() => handleLineClick(index)}
-            >
-              {index + 1}
-            </div>
-            <div className="text-gray-300 mx-1 select-none">|</div>
-            <div className="flex-1">{sentence}</div>
-          </div>
+          <Line sentence={sentence} index={index} key={index} handleLineClick={handleLineClick} />
         ))}
       </div>
     </div>
   )
 }
+
+
+function Line({ sentence, index, handleLineClick }: { sentence: string, index: number, handleLineClick: (index: number) => void }) {
+
+  return (
+    <div className={`flex mb-1 group rounded-lg`}>
+      <div className={`w-10 text-right pr-1 select-none cursor-pointer text-[var(--ant-color-primary)] hover:text-[var(--ant-color-primary-hover)]`}
+        onClick={() => handleLineClick(index)}
+      >
+        {index + 1}
+      </div>
+      <div className={`mx-1 select-none text-[var(--ant-color-border)]`}>|</div>
+      <div className="flex-1">{sentence}</div>
+    </div>
+  )
+}
+
+

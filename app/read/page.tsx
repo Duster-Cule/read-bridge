@@ -20,7 +20,7 @@ export default function ReadPage({ searchParams }: { searchParams: { id: string 
   }, [id, setReadingId])
 
   const [book] = useBook()
-  const [readingProgress, setReadingProgress] = useReadingProgress()
+  const [currentLocation, setCurrentLocation] = useReadingProgress()
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -50,30 +50,19 @@ export default function ReadPage({ searchParams }: { searchParams: { id: string 
 
   const handleChapterChange = (index: number) => {
     db.updateCurrentLocation(id, { chapterIndex: index, lineIndex: 0 })
-    setReadingProgress({
-      ...readingProgress,
-      bookId: id,
-      lastReadTime: Date.now(),
-      currentLocation: {
-        chapterIndex: index,
-        lineIndex: 0
-      }
-    })
+    setCurrentLocation((prev) => ({
+      ...prev,
+      lineIndex: 0,
+      chapterIndex: index
+    }))
   }
 
-  const handleLineChange = (index: number) => {
-    db.updateCurrentLocation(id, { chapterIndex: readingProgress.currentLocation.chapterIndex, lineIndex: index })
-    setReadingProgress({
-      ...readingProgress,
-      bookId: id,
-    })
-  }
   return (
     <div className="w-full h-full p-2 flex flex-row">
-      <ReadMenu toc={book.toc} currentChapter={readingProgress.currentLocation.chapterIndex} onChapterChange={(index: number) => {
+      <ReadMenu toc={book.toc} currentChapter={currentLocation.chapterIndex} onChapterChange={(index: number) => {
         handleChapterChange(index)
       }} />
-      <ReadArea book={book} currentChapter={readingProgress.currentLocation.chapterIndex} lineChange={handleLineChange} />
+      <ReadArea book={book} currentChapter={currentLocation.chapterIndex} />
     </div>
   )
 } 
