@@ -2,11 +2,11 @@
 import { useBook } from "@/app/hooks/useBook"
 import { useSiderStore } from "@/store/useSiderStore"
 import { LoadingOutlined, FileUnknownOutlined } from '@ant-design/icons';
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import ReadMenu from "./components/menu"
 import db from "@/services/DB"
 import { useReadingProgress } from "@/app/hooks/useReadingProgress"
-import { Spin, Result, Skeleton } from "antd"
+import { Spin, Result } from "antd"
 import ReadArea from "./components/readArea"
 
 
@@ -15,6 +15,7 @@ export default function ReadPage() {
   const [loading, setLoading] = useState(true)
   const [bookNotFound, setBookNotFound] = useState(false)
   const [isChapterLoading, setIsChapterLoading] = useState(false)
+  const [fadeVisible, setFadeVisible] = useState(true)
   const [book] = useBook()
   const [readingProgress, updateReadingProgress] = useReadingProgress()
 
@@ -46,15 +47,19 @@ export default function ReadPage() {
 
   const handleChapterChange = async (index: number) => {
     if (!readingId) return
-    setIsChapterLoading(true)
-    const start = Date.now()
-    await db.updateCurrentLocation(readingId, { chapterIndex: index, lineIndex: 0 })
-    await updateReadingProgress()
-    const elapsed = Date.now() - start
-    if (elapsed < 300) {
-      await new Promise(resolve => setTimeout(resolve, 300 - elapsed))
-    }
-    setIsChapterLoading(false)
+    setFadeVisible(false)
+    setTimeout(async () => {
+      setIsChapterLoading(true)
+      const start = Date.now()
+      await db.updateCurrentLocation(readingId, { chapterIndex: index, lineIndex: 0 })
+      await updateReadingProgress()
+      const elapsed = Date.now() - start
+      if (elapsed < 200) {
+        await new Promise(resolve => setTimeout(resolve, 200 - elapsed))
+      }
+      setIsChapterLoading(false)
+      setFadeVisible(true)
+    }, 200)
   }
 
 
@@ -63,7 +68,9 @@ export default function ReadPage() {
       <ReadMenu toc={book.toc} currentChapter={readingProgress.currentLocation.chapterIndex} onChapterChange={(index: number) => {
         handleChapterChange(index)
       }} />
-      {isChapterLoading ? <div className="w-full h-full" /> : <ReadArea book={book} currentLocation={readingProgress} />}
+      <div className={`w-full h-full transition-opacity duration-200 ease-in-out ${fadeVisible ? 'opacity-100' : 'opacity-0'}`}>
+        {isChapterLoading ? <div className="w-full h-full" /> : <ReadArea book={book} currentLocation={readingProgress} />}
+      </div>
     </div>
   )
 } 
