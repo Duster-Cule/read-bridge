@@ -19,7 +19,6 @@ export function useReadingProgress() {
     db.getCurrentLocation(readingId).then(
       (currentLocation) => {
         setReadingProgress(currentLocation)
-        console.log(currentLocation, 'progress')
       }
     )
   }, [readingId])

@@ -1,13 +1,15 @@
 import { Book } from "@/types/book"
-import { useEffect, useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import nlp from 'compromise'
 import db from "@/services/DB"
+import { EVENT_NAMES, EventEmitter } from "@/services/EventService"
 
 
 export default function ReadArea({ book, currentChapter }: { book: Book, currentChapter: number }) {
   const title = book.chapterList[currentChapter].title
   const paragraphs = book.chapterList[currentChapter].paragraphs
   const containerRef = useRef<HTMLDivElement>(null)
+  const [selectedLine, setSelectedLine] = useState<number>(Infinity)
 
   const [sentences, setSentences] = useState<string[]>([])
   const [currentLineIndex, setCurrentLineIndex] = useState<number>(0)
@@ -49,9 +51,10 @@ export default function ReadArea({ book, currentChapter }: { book: Book, current
     db.updateCurrentLocation(book.id, { chapterIndex: currentChapter, lineIndex: currentLineIndex })
   }, [currentLineIndex])
 
-  const handleLineClick = (index: number) => {
-    console.log(`Clicked line ${index + 1}`)
+  const handleLineClick = (index: number, sentence: string) => {
     setCurrentLineIndex(index)
+    setSelectedLine(index)
+    EventEmitter.emit(EVENT_NAMES.SEND_MESSAGE, sentence)
   }
 
   return (
@@ -64,6 +67,7 @@ export default function ReadArea({ book, currentChapter }: { book: Book, current
               sentence={sentence}
               index={index}
               lineNumber={sentence ? lineNumber++ : undefined}
+              selectedLine={selectedLine}
               key={index}
               handleLineClick={handleLineClick}
             />
@@ -75,20 +79,23 @@ export default function ReadArea({ book, currentChapter }: { book: Book, current
 }
 
 
-function Line({ sentence, index, lineNumber, handleLineClick }: {
+const Line = React.memo(({ sentence, index, lineNumber, selectedLine, handleLineClick }: {
   sentence: string,
   index: number,
   lineNumber?: number,
-  handleLineClick: (index: number) => void
-}) {
+  selectedLine: number,
+  handleLineClick: (index: number, sentence: string) => void
+}) => {
   if (!sentence) {
     return <div className="h-4" />
   }
 
+  const isSelected = selectedLine === index
+
   return (
-    <div className={`flex mb-1 group rounded-lg`}>
+    <div className={`flex mb-1 group rounded-lg ${isSelected ? 'bg-[var(--ant-color-bg-text-hover)]' : ''}`}>
       <div className={`w-10 text-right pr-1 select-none cursor-pointer text-[var(--ant-color-primary)] hover:text-[var(--ant-color-primary-hover)]`}
-        onClick={() => handleLineClick(index)}
+        onClick={() => handleLineClick(index, sentence)}
       >
         {lineNumber}
       </div>
@@ -96,6 +103,5 @@ function Line({ sentence, index, lineNumber, handleLineClick }: {
       <div className="flex-1">{sentence}</div>
     </div>
   )
-}
-
+})
 
