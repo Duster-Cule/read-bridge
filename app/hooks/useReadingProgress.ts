@@ -9,20 +9,29 @@ export function useReadingProgress() {
 
   const { readingId } = useSiderStore()
 
-  const [readingProgress, setReadingProgress] = useState<ReadingProgress['currentLocation']>({
-    chapterIndex: 0,
-    lineIndex: 0
+  const [readingProgress, setReadingProgress] = useState<ReadingProgress>({
+    bookId: '',
+    lastReadTime: 0,
+    currentLocation: {
+      chapterIndex: 0,
+      lineIndex: 0
+    },
+    sentenceChapters: {}
   })
 
   useEffect(() => {
     if (!readingId) return
-    db.getCurrentLocation(readingId).then(
-      (currentLocation) => {
-        setReadingProgress(currentLocation)
-      }
-    )
+    updateReadingProgress()
   }, [readingId])
 
-  return [readingProgress, setReadingProgress] as const
+  function updateReadingProgress() {
+    if (!readingId) return
+    db.getCurrentLocation(readingId).then(
+      (res) => {
+        setReadingProgress(res)
+      }
+    )
+  }
+  return [readingProgress, updateReadingProgress] as const
 }
 

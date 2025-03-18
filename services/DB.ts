@@ -2,6 +2,7 @@
 
 import Dexie, { Table } from 'dexie'
 import { Book, BookPreview, ReadingProgress } from '@/types/book'
+import nlp from 'compromise'
 
 const DB_SEARCH_KEYS = ['&id', 'title', 'fileHash', 'author', 'createTime', 'lastReadTime', 'metadata.identifier', 'metadata.language']
 const READING_PROGRESS_KEYS = ['&bookId', 'lastReadTime', 'currentLocation']
@@ -205,7 +206,8 @@ class BookDB extends Dexie {
         currentLocation: {
           chapterIndex: 0,
           lineIndex: 0
-        }
+        },
+        sentenceChapters: {}
       }
       await this.readingProgress.add(defaultReadingProgress)
       return defaultReadingProgress
@@ -223,11 +225,11 @@ class BookDB extends Dexie {
     if (!exists) {
       throw new Error('Reading progress not found')
     }
-
     await this.readingProgress.update(bookId, {
       currentLocation,
       lastReadTime: Date.now()
     })
+    await this.updateSentenceChapters(bookId, exists)
   }
   /**
    * 获取最后阅读时间
@@ -245,13 +247,29 @@ class BookDB extends Dexie {
    * @returns {Promise<ReadingProgress['currentLocation']>} 阅读位置
    * @throws {Error} 当阅读位置不存在时抛出异常
    */
-  async getCurrentLocation(bookId: string): Promise<ReadingProgress['currentLocation']> {
-    console.log('Fetching progress for bookId:', bookId)
+  async getCurrentLocation(bookId: string): Promise<ReadingProgress> {
     const readingProgress = await this.readingProgress.get(bookId)
-    console.log('Found progress:', readingProgress)
+    if (!readingProgress) throw new Error('Reading progress not found')
+    await this.updateSentenceChapters(bookId, readingProgress)
+    return readingProgress
+  }
+  /**
+   * 更新sentenceChapters
+   * 
+   */
+  async updateSentenceChapters(bookId: string, readingProgress: ReadingProgress) {
+    const { chapterIndex } = readingProgress.currentLocation
+    const sentenceChapters = readingProgress.sentenceChapters
 
-    if (!!readingProgress) return readingProgress.currentLocation
-    else throw new Error('Reading progress not found')
+    const isLines = sentenceChapters[chapterIndex]
+    let lines: string[] = []
+    if (!isLines) {
+      const book = await this.getBook(bookId)
+      if (!book) throw new Error('Book not found')
+      lines = paragraphs2Lines(book, chapterIndex)
+      await this.readingProgress.update(bookId, { sentenceChapters: { ...sentenceChapters, [chapterIndex]: lines } })
+    }
+    else return
   }
 }
 
@@ -263,6 +281,34 @@ function getBookPreview(books: Book[]): BookPreview[] {
     cover: book.metadata.cover
   }))
 }
+
+function paragraphs2Lines(book: Book, chapterIndex: number): string[] {
+  const { paragraphs } = book.chapterList[chapterIndex]
+
+  const allSentences: string[] = []
+  paragraphs.forEach(paragraph => {
+    // 判断是否主要为中文文本
+    const isChinese = /[\u4e00-\u9fa5]/.test(paragraph)
+    let sentences: string[] = []
+    if (isChinese) sentences = paragraph.match(/[^。！？]+[。！？]/g) || []
+    else {
+      // 处理英文句子
+      const doc = nlp(paragraph)
+      sentences = doc.sentences().out('array')
+    }
+    allSentences.push(...sentences, 'EOB')
+  })
+
+  return allSentences.reduce((acc, sentence) => {
+    if (sentence === 'EOB') {
+      acc.push('')
+      return acc
+    }
+    acc.push(sentence)
+    return acc
+  }, [] as string[])
+}
+
 
 const db = new BookDB()
 

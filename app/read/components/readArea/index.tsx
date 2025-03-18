@@ -1,54 +1,28 @@
-import { Book } from "@/types/book"
+import { Book, ReadingProgress } from "@/types/book"
 import React, { useEffect, useRef, useState } from "react"
-import nlp from 'compromise'
 import db from "@/services/DB"
 import { EVENT_NAMES, EventEmitter } from "@/services/EventService"
 
 
-export default function ReadArea({ book, currentChapter }: { book: Book, currentChapter: number }) {
-  const title = book.chapterList[currentChapter].title
-  const paragraphs = book.chapterList[currentChapter].paragraphs
+export default function ReadArea({ book, currentLocation }: { book: Book, currentLocation: ReadingProgress }) {
+  const title = book.chapterList[currentLocation.currentLocation.chapterIndex].title
+  const lines = currentLocation.sentenceChapters[currentLocation.currentLocation.chapterIndex] ?? []
   const containerRef = useRef<HTMLDivElement>(null)
   const [selectedLine, setSelectedLine] = useState<number>(Infinity)
-
-  const [sentences, setSentences] = useState<string[]>([])
   const [currentLineIndex, setCurrentLineIndex] = useState<number>(0)
 
-  // 获取行
   useEffect(() => {
-    const allSentences: string[] = []
-    paragraphs.forEach(paragraph => {
-      // 判断是否主要为中文文本
-      const isChinese = /[\u4e00-\u9fa5]/.test(paragraph)
-      let sentences: string[] = []
-      if (isChinese) sentences = paragraph.match(/[^。！？]+[。！？]/g) || []
-      else {
-        // 处理英文句子
-        const doc = nlp(paragraph)
-        sentences = doc.sentences().out('array')
-      }
-      allSentences.push(...sentences, 'EOB')
-    })
-
-    setSentences(allSentences.reduce((acc, sentence) => {
-      if (sentence === 'EOB') {
-        acc.push('')
-        return acc
-      }
-      acc.push(sentence)
-      return acc
-    }, [] as string[]))
     // 滚动条跳转最上方
     containerRef.current?.scrollTo({
       top: 0,
       behavior: 'smooth'
     })
-  }, [paragraphs, setSentences])
+  }, [lines])
   let lineNumber = 1
 
   // 更新阅读数据
   useEffect(() => {
-    db.updateCurrentLocation(book.id, { chapterIndex: currentChapter, lineIndex: currentLineIndex })
+    db.updateCurrentLocation(book.id, { chapterIndex: currentLocation.currentLocation.chapterIndex, lineIndex: currentLineIndex })
   }, [currentLineIndex])
 
   const handleLineClick = (index: number, sentence: string) => {
@@ -61,7 +35,7 @@ export default function ReadArea({ book, currentChapter }: { book: Book, current
     <div ref={containerRef} className="w-full h-full overflow-auto p-2">
       <div className="text-2xl font-bold mb-4 ml-10">{title}</div>
       <div className="text-lg">
-        {sentences.map((sentence, index) => {
+        {lines.length > 0 && lines.map((sentence, index) => {
           return (
             <Line
               sentence={sentence}

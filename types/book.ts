@@ -58,4 +58,7 @@ export interface ReadingProgress {
     chapterIndex: number;
     lineIndex: number;
   };
+  sentenceChapters: {
+    [chapterIndex: number]: string[];
+  }
 }
