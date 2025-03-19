@@ -2,7 +2,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { useSiderStore } from '@/store/useSiderStore';
 import { theme } from 'antd';
 
-import StandardChat from './components/StandardChat';
+import SiderContent from './components/SiderContent';
 
 const MIN_WIDTH = 400;
 const MAX_WIDTH = 600;
@@ -59,10 +59,4 @@ export default function Sider() {
   )
 }
 
-function SiderContent() {
-  return (
-    <div className="w-full h-full p-4 flex flex-col">
-      <StandardChat />
-    </div>
-  )
-}
+
