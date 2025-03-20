@@ -16,7 +16,6 @@ export default function SiderContent() {
 
   useEffect(() => {
     const unsub = EventEmitter.on(EVENT_NAMES.SEND_LINE_INDEX, (index: number) => {
-      console.log(index, currentChapterLines[index], 'currentChapterLines[index]')
       setLine(currentChapterLines[index] || "")
     })
     return () => {
