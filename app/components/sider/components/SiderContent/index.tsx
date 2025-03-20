@@ -8,16 +8,28 @@ export default function SiderContent() {
   const [line, setLine] = useState<string>("")
   const [readingProgress, updateReadingProgress] = useReadingProgress()
 
-  const lines = useMemo(() => {
-    if (!window.location.pathname.includes('/read')) return []
-    if (!readingProgress.currentLocation?.chapterIndex) return []
-    return readingProgress.sentenceChapters[readingProgress.currentLocation?.chapterIndex ?? 0]?.filter(line => line !== '') || []
-  }, [readingProgress.currentLocation?.chapterIndex])
+  const currentChapterLines = useMemo(() => {
+    const lines = readingProgress.sentenceChapters[readingProgress.currentLocation.chapterIndex] || []
+    return lines
+
+  }, [readingProgress.sentenceChapters, readingProgress.currentLocation.chapterIndex]);
+
+  useEffect(() => {
+    const unsub = EventEmitter.on(EVENT_NAMES.SEND_LINE_INDEX, (index: number) => {
+      console.log(index, currentChapterLines[index], 'currentChapterLines[index]')
+      setLine(currentChapterLines[index] || "")
+    })
+    return () => {
+      unsub()
+    }
+  }, [currentChapterLines])
 
   const nplLine = useMemo(() => {
-    if (line.length === 0) return []
-    const doc = nlp(line)
-    return doc.terms().json()
+    if (line && line.length > 0) {
+      const doc = nlp(line)
+      return doc.terms().json()
+    }
+    return []
   }, [line])
 
   const getChunkColor = (chunk: string) => {
@@ -35,14 +47,6 @@ export default function SiderContent() {
     }
   }
 
-  useEffect(() => {
-    const unsub = EventEmitter.on(EVENT_NAMES.SEND_MESSAGE, (sentence: string) => {
-      setLine(sentence)
-    })
-    return () => {
-      unsub()
-    }
-  }, [])
   return (
     <div className="w-full h-full p-4 flex flex-col">
       <div className="space-y-2">

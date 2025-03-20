@@ -1,7 +1,8 @@
 import { Book, ReadingProgress } from "@/types/book"
-import React, { useEffect, useRef, useState } from "react"
+import React, { useCallback, useEffect, useRef, useState } from "react"
 import db from "@/services/DB"
 import { EVENT_NAMES, EventEmitter } from "@/services/EventService"
+import { Radio } from "antd"
 
 
 export default function ReadArea({ book, currentLocation }: { book: Book, currentLocation: ReadingProgress }) {
@@ -9,7 +10,7 @@ export default function ReadArea({ book, currentLocation }: { book: Book, curren
   const lines = currentLocation.sentenceChapters[currentLocation.currentLocation.chapterIndex] ?? []
   const containerRef = useRef<HTMLDivElement>(null)
   const [selectedLine, setSelectedLine] = useState<number>(Infinity)
-  const [currentLineIndex, setCurrentLineIndex] = useState<number>(0)
+
 
   useEffect(() => {
     // 滚动条跳转最上方
@@ -18,18 +19,19 @@ export default function ReadArea({ book, currentLocation }: { book: Book, curren
       behavior: 'smooth'
     })
   }, [lines])
-  let lineNumber = 1
 
   // 更新阅读数据
   useEffect(() => {
-    db.updateCurrentLocation(book.id, { chapterIndex: currentLocation.currentLocation.chapterIndex, lineIndex: currentLineIndex })
-  }, [currentLineIndex])
+    db.updateCurrentLocation(book.id, { chapterIndex: currentLocation.currentLocation.chapterIndex, lineIndex: selectedLine })
+  }, [selectedLine])
 
-  const handleLineClick = (index: number, sentence: string) => {
-    setCurrentLineIndex(index)
-    setSelectedLine(index)
-    EventEmitter.emit(EVENT_NAMES.SEND_MESSAGE, sentence)
-  }
+  const handleLineClick = useCallback((index: number) => {
+    setSelectedLine(prevSelectedLine => {
+      const newSelectedLine = prevSelectedLine === index ? Infinity : index;
+      EventEmitter.emit(EVENT_NAMES.SEND_LINE_INDEX, newSelectedLine);
+      return newSelectedLine;
+    });
+  }, []);
 
   return (
     <div
@@ -43,8 +45,7 @@ export default function ReadArea({ book, currentLocation }: { book: Book, curren
             <Line
               sentence={sentence}
               index={index}
-              lineNumber={sentence ? lineNumber++ : undefined}
-              selectedLine={selectedLine}
+              isSelected={selectedLine === index}
               key={index}
               handleLineClick={handleLineClick}
             />
@@ -56,27 +57,27 @@ export default function ReadArea({ book, currentLocation }: { book: Book, curren
 }
 
 
-const Line = React.memo(({ sentence, index, lineNumber, selectedLine, handleLineClick }: {
+const Line = React.memo(({ sentence, index, isSelected, handleLineClick }: {
   sentence: string,
   index: number,
-  lineNumber?: number,
-  selectedLine: number,
-  handleLineClick: (index: number, sentence: string) => void
+  isSelected: boolean,
+  handleLineClick: (index: number) => void
 }) => {
   if (!sentence) {
     return <div className="h-4" />
   }
 
-  const isSelected = selectedLine === index
-
   return (
-    <div className={`flex mb-1 group rounded-lg ${isSelected ? 'bg-[var(--ant-color-bg-text-hover)]' : ''}`}>
-      <div className={`w-10 text-right pr-1 select-none cursor-pointer text-[var(--ant-color-primary)] hover:text-[var(--ant-color-primary-hover)]`}
-        onClick={() => handleLineClick(index, sentence)}
+    <div className={`flex mb-1 group rounded-lg ${isSelected ? 'bg-[var(--ant-color-bg-text-hover)]' : ''} hover:bg-[var(--ant-color-bg-text-hover)]`}>
+      <div className={`w-6 flex justify-end items-center`}
+        onClick={() => handleLineClick(index)}
       >
-        {lineNumber}
+        <Radio
+          checked={isSelected}
+          className={isSelected ? "" : "hidden group-hover:block"}
+        />
       </div>
-      <div className={`mx-1 select-none text-[var(--ant-color-border)]`}>|</div>
+      <div className={`mx-1`} />
       <div className="flex-1">{sentence}</div>
     </div>
   )
