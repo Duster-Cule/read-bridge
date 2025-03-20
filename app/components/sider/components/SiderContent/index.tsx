@@ -52,8 +52,7 @@ export default function SiderContent() {
         {nplLine.map((term, i) => (
           <span
             key={i}
-            className={`${getChunkColor(term.terms[0].chunk)} hover:underline cursor-help`}
-            title={`Type: ${term.terms[0].chunk}\nTags: ${term.terms[0].tags.join(', ')}`}
+            className={`${getChunkColor(term.terms[0].chunk)} hover:underline cursor-pointer`}
           >
             {term.text}{' '}
           </span>
