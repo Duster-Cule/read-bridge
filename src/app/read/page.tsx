@@ -69,7 +69,7 @@ export default function ReadPage() {
         handleChapterChange(index)
       }} />
       <div className={`w-full h-full transition-opacity duration-200 ease-in-out ${fadeVisible ? 'opacity-100' : 'opacity-0'}`}>
-        {isChapterLoading ? <div className="w-full h-full" /> : <ReadArea book={book} currentLocation={readingProgress} />}
+        {isChapterLoading ? <div className="w-full h-full" /> : <ReadArea book={book} readingProgress={readingProgress} />}
       </div>
     </div>
   )

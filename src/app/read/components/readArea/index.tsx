@@ -5,9 +5,9 @@ import { EVENT_NAMES, EventEmitter } from "@/src/services/EventService"
 import { Radio } from "antd"
 
 
-export default function ReadArea({ book, currentLocation }: { book: Book, currentLocation: ReadingProgress }) {
-  const title = book.chapterList[currentLocation.currentLocation.chapterIndex].title
-  const lines = currentLocation.sentenceChapters[currentLocation.currentLocation.chapterIndex] ?? []
+export default function ReadArea({ book, readingProgress }: { book: Book, readingProgress: ReadingProgress }) {
+  const title = book.chapterList[readingProgress.currentLocation.chapterIndex].title
+  const lines = readingProgress.sentenceChapters[readingProgress.currentLocation.chapterIndex] ?? []
   const containerRef = useRef<HTMLDivElement>(null)
   const [selectedLine, setSelectedLine] = useState<number>(Infinity)
 
@@ -22,7 +22,7 @@ export default function ReadArea({ book, currentLocation }: { book: Book, curren
 
   // 更新阅读数据
   useEffect(() => {
-    db.updateCurrentLocation(book.id, { chapterIndex: currentLocation.currentLocation.chapterIndex, lineIndex: selectedLine })
+    db.updateCurrentLocation(book.id, { chapterIndex: readingProgress.currentLocation.chapterIndex, lineIndex: selectedLine })
   }, [selectedLine])
 
   const handleLineClick = useCallback((index: number) => {
