@@ -3,7 +3,7 @@ import * as cheerio from 'cheerio';
 import type { AnyNode } from 'domhandler';
 import { unzipSync, strFromU8, Unzipped } from 'fflate';
 
-import type { FormattedBook, PlainTextChapter, Metadata, Resource } from '@/types/book';
+import type { FormattedBook, PlainTextChapter, Metadata, Resource } from '@/app/types/book';
 
 
 interface EpubManifestItem {

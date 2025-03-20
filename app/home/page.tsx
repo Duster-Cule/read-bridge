@@ -1,4 +1,4 @@
-import db from '@/services/DB';
+import db from '@/app/services/DB';
 // import { BookPreview } from '@/types/book';
 import { useLiveQuery } from 'dexie-react-hooks';
 import BookGrid from '@/app/components/BookGrid';

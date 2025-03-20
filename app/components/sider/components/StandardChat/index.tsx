@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { EventEmitter, EVENT_NAMES } from "@/services/EventService"
+import { EventEmitter, EVENT_NAMES } from "@/app/services/EventService"
 import { Button, Input } from "antd"
 
 export default function StandardChat() {

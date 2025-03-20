@@ -1,9 +1,9 @@
 import { Row, Col } from 'antd';
-import { BookPreview, Resource } from '@/types/book';
-import BookUploader from '@/components/BookUploader';
-import { useStyleStore } from '@/store/useStyleStore';
+import { BookPreview, Resource } from '@/app/types/book';
+import BookUploader from '@/app/components/BookUploader';
+import { useStyleStore } from '@/app/store/useStyleStore';
 import { useRouter } from 'next/navigation';
-import { useSiderStore } from '@/store/useSiderStore';
+import { useSiderStore } from '@/app/store/useSiderStore';
 
 interface BookGridProps {
   books: BookPreview[];

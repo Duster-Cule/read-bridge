@@ -1,7 +1,7 @@
 // web only
 
 import Dexie, { Table } from 'dexie'
-import { Book, BookPreview, ReadingProgress } from '@/types/book'
+import { Book, BookPreview, ReadingProgress } from '@/app/types/book'
 import nlp from 'compromise'
 
 const DB_SEARCH_KEYS = ['&id', 'title', 'fileHash', 'author', 'createTime', 'lastReadTime', 'metadata.identifier', 'metadata.language']

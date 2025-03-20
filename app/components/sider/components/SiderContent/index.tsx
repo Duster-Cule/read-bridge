@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
-import { EventEmitter, EVENT_NAMES } from "@/services/EventService"
+import { EventEmitter, EVENT_NAMES } from "@/app/services/EventService"
 import nlp from 'compromise'
 import StandardChat from "../StandardChat"
 import { useReadingProgress } from "@/app/hooks/useReadingProgress"

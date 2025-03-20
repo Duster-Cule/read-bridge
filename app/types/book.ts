@@ -1,4 +1,4 @@
-import { BOOK_FORMAT } from '@/constants/book';
+import { BOOK_FORMAT } from '@/app/constants/book';
 
 export type BOOK_FORMAT_TYPE = typeof BOOK_FORMAT[keyof typeof BOOK_FORMAT];
 

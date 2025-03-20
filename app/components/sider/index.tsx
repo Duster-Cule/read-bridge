@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { useSiderStore } from '@/store/useSiderStore';
+import { useSiderStore } from '@/app/store/useSiderStore';
 import { theme } from 'antd';
 
 import SiderContent from './components/SiderContent';

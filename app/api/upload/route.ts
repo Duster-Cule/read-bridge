@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 
-import { BOOK_FORMAT } from '@/constants/book';
-import type { BOOK_FORMAT_TYPE } from '@/types/book';
-import { UPLOAD_CONFIG } from '@/constants/upload';
+import { BOOK_FORMAT } from '@/app/constants/book';
+import type { BOOK_FORMAT_TYPE } from '@/app/types/book';
+import { UPLOAD_CONFIG } from '@/app/constants/upload';
 
-import { processBook } from '@/services/BookService';
+import { processBook } from '@/app/services/BookService';
 
 export async function POST(req: NextRequest) {
   const formData = await req.formData();

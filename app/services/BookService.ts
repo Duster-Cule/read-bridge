@@ -1,9 +1,9 @@
-import { BOOK_FORMAT } from '@/constants/book';
-import type { BOOK_FORMAT_TYPE, FormattedBook } from '@/types/book';
+import { BOOK_FORMAT } from '@/app/constants/book';
+import type { BOOK_FORMAT_TYPE, FormattedBook } from '@/app/types/book';
 
-import { initEpubBook } from '@/services/Epub';
-import type { Book } from '@/types/book';
-import { saveToFile } from '@/services/Download'
+import { initEpubBook } from '@/app/services/Epub';
+import type { Book } from '@/app/types/book';
+import { saveToFile } from '@/app/services/Download'
 
 /**
  * 处理书籍

@@ -1,10 +1,10 @@
 'use client'
 import { useBook } from "@/app/hooks/useBook"
-import { useSiderStore } from "@/store/useSiderStore"
+import { useSiderStore } from "@/app/store/useSiderStore"
 import { LoadingOutlined, FileUnknownOutlined } from '@ant-design/icons';
 import { useEffect, useState } from "react"
 import ReadMenu from "./components/menu"
-import db from "@/services/DB"
+import db from "@/app/services/DB"
 import { useReadingProgress } from "@/app/hooks/useReadingProgress"
 import { Spin, Result } from "antd"
 import ReadArea from "./components/readArea"

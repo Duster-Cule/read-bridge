@@ -1,9 +1,9 @@
 import type { UploadProps } from 'antd';
 import { message, Upload } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import { BOOK_FORMAT } from '@/constants/book';
-import db from '@/services/DB';
-import { Book } from '@/types/book';
+import { BOOK_FORMAT } from '@/app/constants/book';
+import db from '@/app/services/DB';
+import { Book } from '@/app/types/book';
 
 const { Dragger } = Upload;
 function checkFileFormat(file: File): boolean {

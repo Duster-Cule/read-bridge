@@ -6,7 +6,7 @@ import { GithubOutlined, SunOutlined, MoonOutlined } from '@ant-design/icons';
 import { Button, Menu } from 'antd';
 import { useTheme } from 'next-themes';
 import { usePathname } from 'next/navigation';
-import { useSiderStore } from '@/store/useSiderStore';
+import { useSiderStore } from '@/app/store/useSiderStore';
 
 export default function Header() {
   const { token } = theme.useToken();

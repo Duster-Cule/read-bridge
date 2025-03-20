@@ -1,7 +1,7 @@
-import { Book, ReadingProgress } from "@/types/book"
+import { Book, ReadingProgress } from "@/app/types/book"
 import React, { useCallback, useEffect, useRef, useState } from "react"
-import db from "@/services/DB"
-import { EVENT_NAMES, EventEmitter } from "@/services/EventService"
+import db from "@/app/services/DB"
+import { EVENT_NAMES, EventEmitter } from "@/app/services/EventService"
 import { Radio } from "antd"
 
 

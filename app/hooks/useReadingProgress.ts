@@ -1,8 +1,8 @@
 'use client'
 
-import db from "@/services/DB";
-import { useSiderStore } from "@/store/useSiderStore";
-import { ReadingProgress } from "@/types/book";
+import db from "@/app/services/DB";
+import { useSiderStore } from "@/app/store/useSiderStore";
+import { ReadingProgress } from "@/app/types/book";
 import { useEffect, useState } from "react";
 
 export function useReadingProgress() {

@@ -2,8 +2,8 @@
 
 import { Menu, Button } from 'antd'
 import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons'
-import { Book } from '@/types/book'
-import { useSiderStore } from '@/store/useSiderStore'
+import { Book } from '@/app/types/book'
+import { useSiderStore } from '@/app/store/useSiderStore'
 interface ReadMenuProps {
   toc: Book['toc']
   currentChapter: number
