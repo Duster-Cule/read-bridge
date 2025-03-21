@@ -2,6 +2,7 @@
 
 import { Layout } from "antd";
 import HeaderContent from "@/src/components/header";
+import FooterContent from "@/src/components/footer";
 import Sider from "@/src/components/sider";
 import { CSSProperties } from "react";
 
@@ -37,6 +38,7 @@ const contentStyle: CSSProperties = {
 const footerStyle: CSSProperties = {
   position: 'sticky',
   bottom: 0,
+  padding: '0 8px',
   width: '100%',
   height: '24px',
 };
@@ -52,7 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </Content>
         <Sider />
       </div>
-      <Footer style={footerStyle}>Footer</Footer>
+      <Footer style={footerStyle}><FooterContent /></Footer>
     </Layout>
   );
 }

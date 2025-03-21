@@ -3,14 +3,25 @@
 import { ConfigProvider, theme } from 'antd';
 import { ThemeProvider as NextThemeProvider, useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
+import { useStyleStore } from '@/src/store/useStyleStore';
 
 function AntdProvider({ children }: { children: React.ReactNode }) {
   const { theme: currentTheme = '' } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const { lightModeTextColor, darkModeTextColor } = useStyleStore();
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (mounted) {
+      document.documentElement.style.setProperty(
+        '--primary-text-color',
+        currentTheme === 'dark' ? darkModeTextColor : lightModeTextColor
+      );
+    }
+  }, [currentTheme, lightModeTextColor, darkModeTextColor, mounted]);
 
   if (!mounted) {
     return null;
@@ -30,10 +41,12 @@ function AntdProvider({ children }: { children: React.ReactNode }) {
       dark: {
         colorBgLayout: '#1f1f1f',
         colorBgContainer: '#181818',
-        colorBgElevated: '#313131'
+        colorBgElevated: '#313131',
+        colorText: darkModeTextColor,
       },
       light: {
-        colorBgLayout: '#fff'
+        colorBgLayout: '#fff',
+        colorText: lightModeTextColor,
       }
     };
     return tokens[currentTheme === 'dark' ? 'dark' : 'light'];
