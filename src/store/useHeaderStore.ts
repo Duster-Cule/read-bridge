@@ -9,7 +9,7 @@ interface HeaderStore {
 
 export const useHeaderStore = create<HeaderStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       collapsed: false,
       setCollapsed: (collapsed) => set({ collapsed }),
       toggleCollapsed: () => set((state) => ({ collapsed: !state.collapsed })),

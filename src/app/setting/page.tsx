@@ -1,0 +1,85 @@
+"use client";
+
+import { useRef } from "react";
+import { Layout, Menu, Card, theme } from "antd";
+import type { MenuProps } from "antd";
+import { StarIcon } from "@/assets/icon";
+import React from "react";
+
+import AiSection from "./components/AiSection";
+
+const { Sider, Content } = Layout;
+
+
+// Settings configuration
+const settingsConfig = [
+  {
+    key: "ai",
+    icon: <StarIcon />,
+    label: "AI设置",
+    content: <AiSection />
+  }
+];
+
+export default function Setting() {
+  const { token } = theme.useToken();
+
+  // Refs for scroll targets
+  const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  // Menu items derived from config
+  const menuItems: MenuProps['items'] = settingsConfig.map(({ key, icon, label }) => ({
+    key,
+    icon: React.cloneElement(icon, { color: token.colorText }),
+    label,
+  }));
+
+  // Handle menu item click
+  const handleMenuClick = (key: string) => {
+    const ref = sectionRefs.current[key];
+    if (ref) {
+      ref.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  return (
+    <Layout className="w-full h-full p-4" >
+      <Sider
+        width={200}
+        style={{
+          background: token.colorBgContainer,
+          position: "fixed",
+          left: 0,
+          overflow: "auto",
+        }}
+      >
+        <Menu
+          mode="inline"
+          style={{ borderRight: 0 }}
+          items={menuItems}
+          onClick={({ key }) => handleMenuClick(key.toString())}
+        />
+      </Sider>
+      <Content
+        className="w-full h-full pl-[224px] m-0"
+      >
+        {settingsConfig.map(({ key, icon, label, content }) => (
+          <div
+            key={key}
+            ref={(el) => { sectionRefs.current[key] = el }}
+            id={key}
+          >
+            <div className="flex items-center gap-2 mb-4">
+              {React.cloneElement(icon, { color: token.colorText })}
+              <div className="text-[24px] font-bold">{label}</div>
+            </div>
+            <Card>
+              {content}
+            </Card>
+          </div>
+        ))}
+      </Content>
+    </Layout>
+  );
+}
+

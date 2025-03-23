@@ -2,18 +2,18 @@
 import { useRouter } from 'next/navigation';
 import { theme } from 'antd';
 import { LogoIcon } from '@/assets/icon';
-import { GithubOutlined, SunOutlined, MoonOutlined, CaretUpFilled } from '@ant-design/icons';
+import { GithubOutlined, SunOutlined, MoonOutlined, CaretUpFilled, SettingOutlined } from '@ant-design/icons';
 import { Button, Menu, Tooltip } from 'antd';
 import { useTheme } from 'next-themes';
 import { usePathname } from 'next/navigation';
 import { useSiderStore } from '@/src/store/useSiderStore';
 import { useHeaderStore } from '@/src/store/useHeaderStore';
-import { CSSProperties } from 'react';
+
 
 export default function Header() {
   const { token } = theme.useToken();
   const { theme: currentTheme, setTheme } = useTheme();
-  const { collapsed } = useHeaderStore();
+
 
   return (
     <div
@@ -23,19 +23,20 @@ export default function Header() {
         borderBottom: `1px solid ${token.colorBorder}`,
         overflow: 'hidden',
       }}>
-      <HeaderLogoArea theme={currentTheme} />
+      <HeaderLogoArea />
       <HeaderContentArea />
       <HeaderIconArea theme={currentTheme} toggleTheme={() => setTheme(currentTheme === 'dark' ? 'light' : 'dark')} />
     </div>
   );
 }
 
-function HeaderLogoArea({ theme }: { theme?: string }) {
+function HeaderLogoArea() {
   const router = useRouter();
 
+  const { token } = theme.useToken();
   return (
     <div className="flex w-[16%] min-w-[200px] h-full items-center pl-[40px] cursor-pointer" onClick={() => router.push('/')}>
-      <LogoIcon size={32} color={theme === 'dark' ? '#fff' : '#54808C'} />
+      <LogoIcon size={32} color={token.colorText} />
       <div className="text-[18px] font-bold ml-2">
         Read Bridge
       </div>
@@ -82,31 +83,40 @@ function HeaderIconArea({ theme, toggleTheme }: { theme?: string, toggleTheme: (
     toggleCollapsed();
   }
 
+  const router = useRouter();
+  function handleToSetting() {
+    router.push('/setting');
+  }
+
   return (
     <div className="flex w-[16%] h-full items-center justify-end pr-[40px]">
 
-      <Button
-        type="text"
-        size="large"
-        icon={<CaretUpFilled style={{ ...iconStyle, transition: 'transform 0.3s' }} className="transform hover:translate-y-[-2px]" />}
-        onClick={handlePutAway}
-        className="transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-      />
+
+
       <Button
         type="text"
         size="large"
         icon={<GithubOutlined style={iconStyle} />}
         onClick={handleToGithub}
-        className="transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+      />
+      <Button
+        type="text"
+        size="large"
+        icon={<SettingOutlined style={{ ...iconStyle }} />}
+        onClick={handleToSetting}
       />
       <Button
         type="text"
         size="large"
         icon={<ThemeIcon style={iconStyle} />}
         onClick={toggleTheme}
-        className="transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-800"
       />
-
+      <Button
+        type="text"
+        size="large"
+        icon={<CaretUpFilled style={{ ...iconStyle, transition: 'transform 0.3s' }} />}
+        onClick={handlePutAway}
+      />
     </div>
   )
 }
