@@ -73,9 +73,9 @@ export default function Setting() {
               {React.cloneElement(icon, { color: token.colorText })}
               <div className="text-[24px] font-bold">{label}</div>
             </div>
-            <Card>
-              {content}
-            </Card>
+
+            {content}
+
           </div>
         ))}
       </Content>
