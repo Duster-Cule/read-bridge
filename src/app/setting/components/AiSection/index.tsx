@@ -16,8 +16,10 @@ export default function AiSection() {
 
   useEffect(() => {
     setProviders([...defaultProviders])
-    setSelectedProviderId(defaultProviders[0].id)
-    setSelectedProvider(defaultProviders[0])
+    if (selectedProviderId === '') {
+      setSelectedProviderId(defaultProviders[0].id)
+      setSelectedProvider(defaultProviders[0])
+    }
   }, [defaultProviders])
 
   useEffect(() => {
