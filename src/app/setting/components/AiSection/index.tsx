@@ -1,20 +1,22 @@
 import { useEffect, useState } from 'react';
-import { Layout, Menu, Typography, theme, Badge, Button } from 'antd';
-import { defaultProviders } from '@/src/config/llm';
+import { Menu, Typography, theme, Button } from 'antd';
 import { Provider } from '@/src/types/llm';
 import { useLLMStore } from '@/src/store/useLLMStore';
 
-const { Sider } = Layout;
+
 
 export default function AiSection() {
-  const { providers: defaultProviders, customProviders, addCustomProvider } = useLLMStore()
+  const { providers: defaultProviders, addProvider } = useLLMStore()
   const [providers, setProviders] = useState<Provider[]>([])
-  const [selectedProvider, setSelectedProvider] = useState<string>('');
+  const [selectedProviderId, setSelectedProviderId] = useState<string>('');
+  const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
   const { token } = theme.useToken();
   useEffect(() => {
-    setProviders([...defaultProviders, ...customProviders])
-    setSelectedProvider(defaultProviders[0].id)
-  }, [defaultProviders, customProviders])
+    setProviders([...defaultProviders])
+    setSelectedProviderId(defaultProviders[0].id)
+    setSelectedProvider(defaultProviders[0])
+  }, [defaultProviders])
+
 
   const menuItems = providers.map((provider: Provider) => ({
     key: provider.id,
@@ -27,8 +29,10 @@ export default function AiSection() {
   }));
 
   const handleMenuSelect = ({ key }: { key: string }) => {
-    setSelectedProvider(key);
+    setSelectedProviderId(key);
+    setSelectedProvider(providers.find(p => p.id === key) || null)
   };
+
 
   return (
     <div className="h-[50vh] flex justify-between border rounded-lg overflow-hidden" style={{ borderColor: token.colorBorder }}>
@@ -36,16 +40,16 @@ export default function AiSection() {
       <div className='w-[20%] flex flex-col overflow-y-auto'>
         <Menu
           mode="inline"
-          selectedKeys={[selectedProvider]}
+          selectedKeys={[selectedProviderId]}
           className="w-full"
           items={menuItems}
           onClick={handleMenuSelect}
         />
-        <Button className='h-[10%]' type="text" onClick={addCustomProvider}>+</Button>
+        <Button className='h-[10%] mb-2' type="text" onClick={addProvider}>+</Button>
       </div>
 
       <div className="p-4 flex-1">
-        <Typography.Text>Selected: {selectedProvider}</Typography.Text>
+        <Typography.Text>Selected: {selectedProvider?.name}</Typography.Text>
       </div>
     </div>
   );

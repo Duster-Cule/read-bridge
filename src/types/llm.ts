@@ -10,6 +10,7 @@ export type Provider = {
   name: string
   baseUrl: string
   apiKey: string
+  isDefault?: boolean
   model: Model[]
 }
 

@@ -8,14 +8,10 @@ interface LLMStore {
   providers: Provider[]
   // 编辑服务商信息
   editProvider: (provider: Provider) => void
-  // 自定义LLM服务商
-  customProviders: Provider[]
   // 添加自定义LLM服务商
-  addCustomProvider: () => void
-  // 编辑自定义LLM服务商
-  editCustomProvider: (provider: Provider) => void
-  // 删除自定义LLM服务商
-  deleteCustomProvider: (providerId: string) => void
+  addProvider: () => void
+  // 删除LLM服务商
+  deleteProvider: (providerId: string) => void
 }
 
 export const useLLMStore = create<LLMStore>()(
@@ -23,10 +19,8 @@ export const useLLMStore = create<LLMStore>()(
     (set, get) => ({
       providers: defaultProviders(),
       editProvider: (provider: Provider) => set({ providers: get().providers.map(p => p.id === provider.id ? provider : p) }),
-      customProviders: [],
-      addCustomProvider: () => set({ customProviders: [...get().customProviders, newProvider()] }),
-      editCustomProvider: (provider: Provider) => set({ customProviders: get().customProviders.map(p => p.id === provider.id ? provider : p) }),
-      deleteCustomProvider: (providerId: string) => set({ customProviders: get().customProviders.filter(p => p.id !== providerId) }),
+      addProvider: () => set({ providers: [...get().providers, newProvider()] }),
+      deleteProvider: (providerId: string) => set({ providers: get().providers.filter(p => p.id !== providerId) }),
     }),
     {
       name: 'llm-storage',
