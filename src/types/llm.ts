@@ -1,6 +1,15 @@
 export type Model = {
   id: string
   name: string
-  description: string
+  temperature: number
+  topP: number
+}
+
+export type Provider = {
+  id: string
+  name: string
+  baseUrl: string
+  apiKey: string
+  model: Model[]
 }
 

@@ -1,37 +1,32 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { Model } from '@/src/types/llm'
-
+import { Provider } from '@/src/types/llm'
+import { newProvider } from '@/src/utils/provider'
+import { defaultProviders } from '@/src/config/llm'
 interface LLMStore {
-  provider: string
-  setProvider: (provider: string) => void
-  baseUrl: string
-  setBaseUrl: (baseUrl: string) => void
-  apiKey: string
-  setApiKey: (apiKey: string) => void
-  model: Model | null
-  setModel: (model: Model | null) => void
-  Temperature: number
-  setTemperature: (temperature: number) => void
-  topP: number
-  setTopP: (topP: number) => void
+  // LLM服务商列表
+  providers: Provider[]
+  // 编辑服务商信息
+  editProvider: (provider: Provider) => void
+  // 自定义LLM服务商
+  customProviders: Provider[]
+  // 添加自定义LLM服务商
+  addCustomProvider: () => void
+  // 编辑自定义LLM服务商
+  editCustomProvider: (provider: Provider) => void
+  // 删除自定义LLM服务商
+  deleteCustomProvider: (providerId: string) => void
 }
 
 export const useLLMStore = create<LLMStore>()(
   persist(
-    (set) => ({
-      provider: '',
-      setProvider: (provider) => set({ provider }),
-      baseUrl: '',
-      setBaseUrl: (baseUrl) => set({ baseUrl }),
-      apiKey: '',
-      setApiKey: (apiKey) => set({ apiKey }),
-      model: null,
-      setModel: (model) => set({ model }),
-      Temperature: 0.6,
-      setTemperature: (Temperature) => set({ Temperature }),
-      topP: 1,
-      setTopP: (topP) => set({ topP }),
+    (set, get) => ({
+      providers: defaultProviders(),
+      editProvider: (provider: Provider) => set({ providers: get().providers.map(p => p.id === provider.id ? provider : p) }),
+      customProviders: [],
+      addCustomProvider: () => set({ customProviders: [...get().customProviders, newProvider()] }),
+      editCustomProvider: (provider: Provider) => set({ customProviders: get().customProviders.map(p => p.id === provider.id ? provider : p) }),
+      deleteCustomProvider: (providerId: string) => set({ customProviders: get().customProviders.filter(p => p.id !== providerId) }),
     }),
     {
       name: 'llm-storage',
