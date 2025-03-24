@@ -37,7 +37,7 @@ export default function AiSection() {
     label: (
       <div className="flex flex-col justify-center">
         <span className="text-base font-medium">{provider.name}</span>
-        <span className="text-sm text-gray-500">{provider.model.length} Models</span>
+        <span className="text-sm text-gray-500">{provider.models.length} Models</span>
       </div>
     ),
   }));
@@ -74,12 +74,12 @@ export default function AiSection() {
     let updatedModels: Model[];
     if (currentModel) {
       // Edit existing model
-      updatedModels = selectedProvider.model.map(m =>
+      updatedModels = selectedProvider.models.map(m =>
         m.id === model.id ? model : m
       );
     } else {
       // Add new model
-      updatedModels = [...selectedProvider.model, model];
+      updatedModels = [...selectedProvider.models, model];
     }
 
     const updatedProvider = {
@@ -97,7 +97,7 @@ export default function AiSection() {
 
     const updatedProvider = {
       ...selectedProvider,
-      model: selectedProvider.model.filter(m => m.id !== modelId)
+      model: selectedProvider.models.filter(m => m.id !== modelId)
     };
 
     editProvider(updatedProvider);

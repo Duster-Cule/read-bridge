@@ -8,7 +8,7 @@ export const defaultProviders = (): Provider[] => {
       baseUrl: 'https://api.openai.com/v1',
       apiKey: '',
       isDefault: true,
-      model: [
+      models: [
         {
           id: 'gpt-4o',
           name: 'GPT-4o',
@@ -41,7 +41,7 @@ export const defaultProviders = (): Provider[] => {
       baseUrl: 'https://api.deepseek.com',
       apiKey: '',
       isDefault: true,
-      model: [
+      models: [
         {
           id: 'deepseek-chat',
           name: 'DeepSeek Chat',

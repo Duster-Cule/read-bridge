@@ -65,7 +65,7 @@ const ProviderForm = ({
           </div>
 
           <Space direction="vertical" style={{ width: '100%' }}>
-            {provider.model.map(model => (
+            {provider.models.map(model => (
               <ModelCard
                 key={model.id}
                 model={model}

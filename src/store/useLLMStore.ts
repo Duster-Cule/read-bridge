@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { Provider } from '@/src/types/llm'
+import { Model, Provider } from '@/src/types/llm'
 import { newProvider } from '@/src/utils/provider'
 import { defaultProviders } from '@/src/config/llm'
 interface LLMStore {
@@ -12,6 +12,8 @@ interface LLMStore {
   addProvider: () => void
   // 删除LLM服务商
   deleteProvider: (providerId: string) => void
+  // LLM可用列表
+  models: () => Model[]
 }
 
 export const useLLMStore = create<LLMStore>()(
@@ -21,6 +23,12 @@ export const useLLMStore = create<LLMStore>()(
       editProvider: (provider: Provider) => set({ providers: get().providers.map(p => p.id === provider.id ? provider : p) }),
       addProvider: () => set({ providers: [...get().providers, newProvider()] }),
       deleteProvider: (providerId: string) => set({ providers: get().providers.filter(p => p.id !== providerId) }),
+      models: () => get().providers.filter(p => {
+        if (!!p.baseUrl && !!p.apiKey && p.models.length > 0) {
+          return true
+        }
+        return false
+      }).map(p => p.models).flat(),
     }),
     {
       name: 'llm-storage',
