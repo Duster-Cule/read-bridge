@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Form, Input, Modal, Slider, Tooltip } from 'antd';
 import { Model } from '@/src/types/llm';
-import { InfoCircleOutlined, InfoOutlined } from '@ant-design/icons';
+import ToolTipLabel from '@/src/components/ToolTipLable';
 
 interface ModelFormModalProps {
   visible: boolean;
@@ -52,19 +52,19 @@ const ModelFormModal = ({
       onOk={handleSubmit}
     >
       <Form form={form} layout="vertical">
-        <Form.Item name="id" label={toolTip('模型ID', '例如: deepseek-chat')} rules={[{ required: true, message: '请输入模型ID' }]}>
+        <Form.Item name="id" label={ToolTipLabel('模型ID', '例如: deepseek-chat')} rules={[{ required: true, message: '请输入模型ID' }]}>
           <Input
             placeholder="输入模型ID"
             onChange={handleIdChange}
           />
         </Form.Item>
-        <Form.Item name="name" label={toolTip('模型名称', '模型名称，单纯用于显示')}>
+        <Form.Item name="name" label={ToolTipLabel('模型名称', '模型名称，单纯用于显示')}>
           <Input placeholder="输入模型名称" />
         </Form.Item>
-        <Form.Item name="temperature" label={toolTip('Temperature(温度)', '控制生成文本的随机性和创造性。值越高，回复越多样化但可能偏离主题，值为0时选择最可能的词，日常使用建议0.5-0.7')} >
+        <Form.Item name="temperature" label={ToolTipLabel('Temperature(温度)', '控制生成文本的随机性和创造性。值越高，回复越多样化但可能偏离主题，值为0时选择最可能的词，日常使用建议0.5-0.7')} >
           <Slider min={0} max={2} step={0.1} defaultValue={0.5} />
         </Form.Item>
-        <Form.Item name="topP" label={toolTip('Top P(核采样)', '控制生成文本的多样性。较高的值使用更多低概率词汇，增加创意但可能降低质量。此参数从累积概率达到p值的词汇中随机选择')} >
+        <Form.Item name="topP" label={ToolTipLabel('Top P(核采样)', '控制生成文本的多样性。较高的值使用更多低概率词汇，增加创意但可能降低质量。此参数从累积概率达到p值的词汇中随机选择')} >
           <Slider min={0} max={1} step={0.1} defaultValue={1} />
         </Form.Item>
       </Form>
@@ -72,15 +72,6 @@ const ModelFormModal = ({
   );
 };
 
-const toolTip = (label: string, text: string) => {
-  return (
-    <div className='flex items-center gap-1'>
-      <span className=''>{label}</span>
-      <Tooltip title={text}>
-        <InfoCircleOutlined className='text-gray-500' />
-      </Tooltip>
-    </div>
-  )
-}
+
 
 export default ModelFormModal; 

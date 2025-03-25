@@ -6,6 +6,6 @@ export const newProvider = (): Provider => {
     name: 'new Provider',
     baseUrl: '',
     apiKey: '',
-    model: [],
+    models: [],
   }
 }
