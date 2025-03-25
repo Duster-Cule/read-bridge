@@ -30,7 +30,7 @@ const ModelFormModal = ({
     form.validateFields().then(values => {
       const modelData: Model = {
         id: values.id,
-        name: values.name,
+        name: values.name || values.id,
         temperature: values.temperature || 0.5,
         topP: values.topP || 1
       };
@@ -52,13 +52,13 @@ const ModelFormModal = ({
       onOk={handleSubmit}
     >
       <Form form={form} layout="vertical">
-        <Form.Item name="id" label="模型ID" rules={[{ required: true, message: '请输入模型ID' }]}>
+        <Form.Item name="id" label={toolTip('模型ID', '例如: deepseek-chat')} rules={[{ required: true, message: '请输入模型ID' }]}>
           <Input
             placeholder="输入模型ID"
             onChange={handleIdChange}
           />
         </Form.Item>
-        <Form.Item name="name" label="模型名称" rules={[{ required: true, message: '请输入模型名称' }]}>
+        <Form.Item name="name" label={toolTip('模型名称', '模型名称，单纯用于显示')}>
           <Input placeholder="输入模型名称" />
         </Form.Item>
         <Form.Item name="temperature" label={toolTip('Temperature(温度)', '控制生成文本的随机性和创造性。值越高，回复越多样化但可能偏离主题，值为0时选择最可能的词，日常使用建议0.5-0.7')} >
