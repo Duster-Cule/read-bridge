@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Form, Input, Modal, Slider, Tooltip } from 'antd';
-import { Model } from '@/src/types/llm';
+import { Model, Provider } from '@/src/types/llm';
 import ToolTipLabel from '@/src/components/ToolTipLable';
 
 interface ModelFormModalProps {
@@ -8,13 +8,15 @@ interface ModelFormModalProps {
   onCancel: () => void;
   onSubmit: (model: Model) => void;
   initialValues?: Model;
+  providerId: string
 }
 
 const ModelFormModal = ({
   visible,
   onCancel,
   onSubmit,
-  initialValues
+  initialValues,
+  providerId
 }: ModelFormModalProps) => {
   const [form] = Form.useForm();
 
@@ -31,6 +33,7 @@ const ModelFormModal = ({
       const modelData: Model = {
         id: values.id,
         name: values.name || values.id,
+        providerId: providerId,
         temperature: values.temperature || 0.5,
         topP: values.topP || 1
       };

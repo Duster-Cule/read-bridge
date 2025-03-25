@@ -150,6 +150,7 @@ export default function AiSection() {
         onCancel={() => setModelModalVisible(false)}
         onSubmit={handleModelSubmit}
         initialValues={currentModel}
+        providerId={selectedProviderId}
       />
     </div>
   );
