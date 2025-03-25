@@ -4,9 +4,11 @@ import { useRef } from "react";
 import { Layout, Menu, theme } from "antd";
 import type { MenuProps } from "antd";
 import { StarIcon } from "@/assets/icon";
+import { AppstoreFilled } from "@ant-design/icons";
 import React from "react";
 
 import AiSection from "./components/AiSection";
+import DefaultModelSection from "./components/DefaultModelSection";
 
 const { Sider, Content } = Layout;
 
@@ -16,8 +18,14 @@ const settingsConfig = [
   {
     key: "ai",
     icon: <StarIcon />,
-    label: "AI设置",
+    label: "模型设置",
     content: <AiSection />
+  },
+  {
+    key: 'defaultModel',
+    icon: <AppstoreFilled style={{ fontSize: 24 }} />,
+    label: "默认模型",
+    content: <DefaultModelSection />
   }
 ];
 
@@ -69,6 +77,7 @@ export default function Setting() {
             key={key}
             ref={(el) => { sectionRefs.current[key] = el }}
             id={key}
+            className="mb-4"
           >
             <div className="flex items-center gap-2 mb-4">
               {React.cloneElement(icon, { color: token.colorText })}
