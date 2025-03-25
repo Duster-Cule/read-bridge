@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { Layout, Menu, Card, theme } from "antd";
+import { Layout, Menu, theme } from "antd";
 import type { MenuProps } from "antd";
 import { StarIcon } from "@/assets/icon";
 import React from "react";
@@ -57,6 +57,7 @@ export default function Setting() {
           mode="inline"
           style={{ borderRight: 0 }}
           items={menuItems}
+          defaultSelectedKeys={["ai"]}
           onClick={({ key }) => handleMenuClick(key.toString())}
         />
       </Sider>
