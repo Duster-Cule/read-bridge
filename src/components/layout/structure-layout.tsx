@@ -46,7 +46,7 @@ const footerStyle: CSSProperties = {
   bottom: 0,
   padding: '0',
   width: '100%',
-  height: '24px',
+  height: '28px',
 };
 
 const headerToggleButtonStyle: CSSProperties = {
