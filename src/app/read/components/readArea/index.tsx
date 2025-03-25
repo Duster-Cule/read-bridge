@@ -38,7 +38,7 @@ export default function ReadArea({ book, readingProgress }: { book: Book, readin
       ref={containerRef}
       className='w-full h-full overflow-auto p-2'
     >
-      <div className="text-2xl font-bold mb-4 ml-10">{title}</div>
+      <div className="text-2xl font-bold mb-4 ml-8">{title}</div>
       <div className="text-lg">
         {lines.length > 0 && lines.map((sentence, index) => {
           return (
