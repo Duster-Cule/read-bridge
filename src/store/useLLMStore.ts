@@ -17,7 +17,7 @@ interface LLMStore {
   // 默认模型
   defaultModel: Model | null
   // 设置默认模型
-  setDefaultModel: (model: Model) => void
+  setDefaultModel: (model: Model | null) => void
 }
 
 export const useLLMStore = create<LLMStore>()(
@@ -34,7 +34,7 @@ export const useLLMStore = create<LLMStore>()(
         return false
       }).map(p => p.models).flat(),
       defaultModel: null,
-      setDefaultModel: (model: Model) => set({ defaultModel: model }),
+      setDefaultModel: (model: Model | null) => set({ defaultModel: model }),
     }),
     {
       name: 'llm-storage',

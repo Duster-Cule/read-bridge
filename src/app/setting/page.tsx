@@ -12,19 +12,17 @@ import DefaultModelSection from "./components/DefaultModelSection";
 
 const { Sider, Content } = Layout;
 
-
-// Settings configuration
 const settingsConfig = [
   {
     key: "ai",
     icon: <StarIcon />,
-    label: "模型设置",
+    label: "AI设置",
     content: <AiSection />
   },
   {
     key: 'defaultModel',
     icon: <AppstoreFilled style={{ fontSize: 24 }} />,
-    label: "默认模型",
+    label: "模型配置",
     content: <DefaultModelSection />
   }
 ];
@@ -32,17 +30,14 @@ const settingsConfig = [
 export default function Setting() {
   const { token } = theme.useToken();
 
-  // Refs for scroll targets
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  // Menu items derived from config
   const menuItems: MenuProps['items'] = settingsConfig.map(({ key, icon, label }) => ({
     key,
     icon: React.cloneElement(icon, { color: token.colorText }),
     label,
   }));
 
-  // Handle menu item click
   const handleMenuClick = (key: string) => {
     const ref = sectionRefs.current[key];
     if (ref) {
@@ -83,9 +78,7 @@ export default function Setting() {
               {React.cloneElement(icon, { color: token.colorText })}
               <div className="text-[24px] font-bold">{label}</div>
             </div>
-
             {content}
-
           </div>
         ))}
       </Content>
