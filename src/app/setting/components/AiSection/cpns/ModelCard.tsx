@@ -32,8 +32,8 @@ const ModelCard = ({ model, onEdit, onDelete }: ModelCardProps) => {
       </div>
       <div className="mt-2">
         <div className="flex justify-between">
-          <span>Temperature: {model.temperature}</span>
-          <span>Top P: {model.topP}</span>
+          <span>Temperature(温度): {model.temperature}</span>
+          <span>Top P(核采样): {model.topP}</span>
         </div>
       </div>
     </Card>
