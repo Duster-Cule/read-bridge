@@ -44,7 +44,7 @@ const contentStyle: CSSProperties = {
 const footerStyle: CSSProperties = {
   position: 'sticky',
   bottom: 0,
-  padding: '0 8px',
+  padding: '0',
   width: '100%',
   height: '24px',
 };

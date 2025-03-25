@@ -1,14 +1,14 @@
 'use client';
 
-import { Button, ColorPicker, Space, Typography } from 'antd';
+import { Button, ColorPicker, theme } from 'antd';
 import { useTheme } from 'next-themes';
 import { useStyleStore } from '@/src/store/useStyleStore';
 import { useEffect, useState } from 'react';
 
-const { Text } = Typography;
 
 export default function Footer() {
   const { theme: currentTheme } = useTheme();
+  const { token } = theme.useToken();
   const {
     lightModeTextColor,
     darkModeTextColor,
@@ -33,8 +33,9 @@ export default function Footer() {
     }
   };
 
+
   return (
-    <div className="w-full h-full flex justify-start items-center">
+    <div className="w-full h-full flex justify-start items-center border-t pl-4 pr-4 " style={{ borderColor: token.colorBorder }}>
       <ColorPicker
         value={tempColor}
         size="small"
