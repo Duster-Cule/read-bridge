@@ -250,26 +250,33 @@ class BookDB extends Dexie {
   async getCurrentLocation(bookId: string): Promise<ReadingProgress> {
     const readingProgress = await this.readingProgress.get(bookId)
     if (!readingProgress) throw new Error('Reading progress not found')
-    await this.updateSentenceChapters(bookId, readingProgress)
-    return readingProgress
+    try {
+      await this.updateSentenceChapters(bookId, readingProgress)
+      const updatedProgress = await this.readingProgress.get(bookId)
+      if (updatedProgress) return updatedProgress
+      else throw new Error('Reading progress not found')
+    } catch (error) {
+      throw new Error("Error in getCurrentLocation:" + error)
+    }
   }
   /**
    * 更新sentenceChapters
    * 
    */
-  async updateSentenceChapters(bookId: string, readingProgress: ReadingProgress) {
-    const { chapterIndex } = readingProgress.currentLocation
-    const sentenceChapters = readingProgress.sentenceChapters
+  async updateSentenceChapters(bookId: string, readingProgress: ReadingProgress): Promise<void> {
+    return new Promise(async (resolve) => {
+      const { chapterIndex } = readingProgress.currentLocation
+      const sentenceChapters = readingProgress.sentenceChapters
 
-    const isLines = sentenceChapters[chapterIndex]
-    let lines: string[] = []
-    if (!isLines) {
-      const book = await this.getBook(bookId)
-      if (!book) throw new Error('Book not found')
-      lines = paragraphs2Lines(book, chapterIndex)
-      await this.readingProgress.update(bookId, { sentenceChapters: { ...sentenceChapters, [chapterIndex]: lines } })
-    }
-    else return
+      const isLines = sentenceChapters[chapterIndex]
+      if (!isLines) {
+        const book = await this.getBook(bookId)
+        if (!book) throw new Error('Book not found')
+        const lines = paragraphs2Lines(book, chapterIndex)
+        await this.readingProgress.update(bookId, { sentenceChapters: { ...sentenceChapters, [chapterIndex]: lines } })
+      }
+      resolve()
+    })
   }
 }
 

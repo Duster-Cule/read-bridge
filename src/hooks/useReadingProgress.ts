@@ -28,7 +28,12 @@ export function useReadingProgress() {
     if (!readingId) return
     db.getCurrentLocation(readingId).then(
       (res) => {
+        console.log(res, 'res')
         setReadingProgress(res)
+      }
+    ).catch(
+      (err) => {
+        console.error(err)
       }
     )
   }
