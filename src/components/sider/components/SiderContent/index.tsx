@@ -22,9 +22,12 @@ export default function SiderContent() {
       const text = currentChapterLines[index] || ""
       setLine(text)
       if (defaultModel) {
+        setTranslation('')
         const llmClient = createLLMClient(defaultModel, 'you are a professional translator, please translate the content I give you into Chinese')
-        const result = await llmClient.completions([{ role: 'user', content: text }])
-        setTranslation(result)
+        const generator = llmClient.completions([{ role: 'user', content: text }])
+        for await (const chunk of generator) {
+          setTranslation(prev => prev + chunk)
+        }
       }
 
     })

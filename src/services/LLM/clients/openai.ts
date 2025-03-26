@@ -11,20 +11,29 @@ export function createOpenAIClient(provider: Provider, model: Model, prompt: str
     baseURL: baseUrl,
   })
 
-  async function completions(messages: OpenAI.Chat.ChatCompletionMessageParam[]) {
-    console.log(messages)
+  async function* completions(messages: OpenAI.Chat.ChatCompletionMessageParam[]): AsyncGenerator<string, void, unknown> {
     const systemMessage = (prompt ? { role: 'system', content: prompt } : undefined) as OpenAI.Chat.ChatCompletionMessageParam
-    const completion = await sdk.chat.completions.create({
+
+    const stream = await sdk.chat.completions.create({
       model: model.id,
-      messages: [systemMessage, ...messages],
+      messages: systemMessage ? [systemMessage, ...messages] : messages,
       temperature,
       top_p: topP,
       max_tokens: 1000,
-      stream: false,
+      stream: true,
     })
-    console.log(completion, 'completion')
-    return completion.choices[0].message.content
+
+    async function* streamResponse() {
+      for await (const chunk of stream) {
+        const content = chunk.choices[0]?.delta?.content || '';
+        if (content) {
+          yield content;
+        }
+      }
+    }
+    yield* streamResponse();
   }
+
   return {
     completions
   }
