@@ -1,3 +1,5 @@
+'use client';
+
 import { Row, Col } from 'antd';
 import { BookPreview, Resource } from '@/src/types/book';
 import BookUploader from '@/src/components/BookUploader';

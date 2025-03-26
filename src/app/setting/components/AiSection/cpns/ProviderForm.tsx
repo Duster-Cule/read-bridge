@@ -1,12 +1,12 @@
-import { Form, Input, Button, Typography, Space, Popconfirm } from 'antd';
+import { Form, Input, Button, Typography, Space, Popconfirm, FormInstance } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Provider, Model } from '@/src/types/llm';
 import ModelCard from './ModelCard';
 import ToolTipLabel from '@/src/components/ToolTipLable';
 interface ProviderFormProps {
   provider: Provider;
-  form: any;
-  onProviderUpdate: (values: any) => void;
+  form: FormInstance<Provider>;
+  onProviderUpdate: (values: Provider) => void;
   onAddModel: () => void;
   onEditModel: (model: Model) => void;
   onDeleteModel: (modelId: string) => void;

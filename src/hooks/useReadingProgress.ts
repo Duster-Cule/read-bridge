@@ -22,13 +22,13 @@ export function useReadingProgress() {
   useEffect(() => {
     if (!readingId) return
     updateReadingProgress()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [readingId])
 
   function updateReadingProgress() {
     if (!readingId) return
     db.getCurrentLocation(readingId).then(
       (res) => {
-        console.log(res, 'res')
         setReadingProgress(res)
       }
     ).catch(

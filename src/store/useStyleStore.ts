@@ -19,7 +19,7 @@ interface StyleStore {
 
 export const useStyleStore = create<StyleStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       itemsPerRow: 12,
       gutterX: 16,
       gutterY: 24,

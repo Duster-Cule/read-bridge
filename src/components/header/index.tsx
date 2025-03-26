@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 import { theme } from 'antd';
 import { LogoIcon } from '@/assets/icon';
 import { GithubOutlined, SunOutlined, MoonOutlined, CaretUpFilled, SettingOutlined } from '@ant-design/icons';
-import { Button, Menu, Tooltip } from 'antd';
+import { Button, Menu } from 'antd';
 import { useTheme } from 'next-themes';
 import { usePathname } from 'next/navigation';
 import { useSiderStore } from '@/src/store/useSiderStore';

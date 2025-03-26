@@ -20,6 +20,7 @@ export default function AiSection() {
       setSelectedProviderId(defaultProviders[0].id)
       setSelectedProvider(defaultProviders[0])
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [defaultProviders])
 
   useEffect(() => {
@@ -47,7 +48,7 @@ export default function AiSection() {
     setSelectedProvider(providers.find(p => p.id === key) || null)
   };
 
-  const handleProviderUpdate = (values: any) => {
+  const handleProviderUpdate = (values: Provider) => {
     if (selectedProvider) {
       const updatedProvider = {
         ...selectedProvider,

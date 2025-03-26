@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
-import { Form, Input, Modal, Slider, Tooltip } from 'antd';
-import { Model, Provider } from '@/src/types/llm';
+import { Form, Input, Modal, Slider } from 'antd';
+import { Model } from '@/src/types/llm';
 import ToolTipLabel from '@/src/components/ToolTipLable';
 
 interface ModelFormModalProps {

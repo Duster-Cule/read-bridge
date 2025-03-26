@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { EventEmitter, EVENT_NAMES } from "@/src/services/EventService"
 import nlp from 'compromise'
 import { useReadingProgress } from "@/src/hooks/useReadingProgress"
@@ -7,7 +7,7 @@ import { useLLMStore } from "@/src/store/useLLMStore"
 
 export default function SiderContent() {
   const [line, setLine] = useState<string>("")
-  const [readingProgress, updateReadingProgress] = useReadingProgress()
+  const [readingProgress] = useReadingProgress()
   const { defaultModel } = useLLMStore()
   const [translation, setTranslation] = useState<string>("")
   const translatorClient = useMemo(() => {
@@ -40,7 +40,7 @@ export default function SiderContent() {
     return () => {
       unsub()
     }
-  }, [currentChapterLines])
+  }, [currentChapterLines, translatorClient])
 
   const nplLine = useMemo(() => {
     if (line && line.length > 0) {

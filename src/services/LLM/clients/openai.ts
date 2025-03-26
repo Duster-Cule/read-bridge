@@ -4,7 +4,6 @@ import OpenAI from "openai"
 
 export function createOpenAIClient(provider: Provider, model: Model, prompt: string): Client {
   const { baseUrl, apiKey } = provider
-  const { id, name, temperature, topP } = model
   const sdk = new OpenAI({
     dangerouslyAllowBrowser: true,
     apiKey: apiKey,
@@ -17,8 +16,8 @@ export function createOpenAIClient(provider: Provider, model: Model, prompt: str
     const stream = await sdk.chat.completions.create({
       model: model.id,
       messages: systemMessage ? [systemMessage, ...messages] : messages,
-      temperature,
-      top_p: topP,
+      temperature: model.temperature,
+      top_p: model.topP,
       max_tokens: 1000,
       stream: true,
     })

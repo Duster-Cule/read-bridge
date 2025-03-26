@@ -4,9 +4,9 @@ import { Layout } from "antd";
 import HeaderContent from "@/src/components/header";
 import FooterContent from "@/src/components/footer";
 import Sider from "@/src/components/sider";
-import { CSSProperties, useEffect, useState } from "react";
+import { CSSProperties } from "react";
 import { useHeaderStore } from "@/src/store/useHeaderStore";
-import { Button, Tooltip } from "antd";
+import { Button } from "antd";
 import { CaretDownFilled } from "@ant-design/icons";
 import { theme } from "antd";
 

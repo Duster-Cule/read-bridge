@@ -1,3 +1,5 @@
+import { OpenAI } from 'openai'
+
 export type Model = {
   id: string
   name: string
@@ -16,6 +18,6 @@ export type Provider = {
 }
 
 export type Client = {
-  completionsGenerator: (messages: any) => AsyncGenerator<string, void, unknown>
+  completionsGenerator: (messages: OpenAI.Chat.ChatCompletionMessageParam[]) => AsyncGenerator<string, void, unknown>
 }
 

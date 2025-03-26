@@ -1,5 +1,6 @@
+'use client';
+
 import db from '@/src/services/DB';
-// import { BookPreview } from '@/types/book';
 import { useLiveQuery } from 'dexie-react-hooks';
 import BookGrid from '@/src/components/BookGrid';
 
