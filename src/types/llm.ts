@@ -16,6 +16,6 @@ export type Provider = {
 }
 
 export type Client = {
-  completions: (messages: any) => any
+  completionsGenerator: (messages: any) => AsyncGenerator<string, void, unknown>
 }
 

@@ -24,7 +24,7 @@ export default function SiderContent() {
       if (defaultModel) {
         setTranslation('')
         const llmClient = createLLMClient(defaultModel, 'you are a professional translator, please translate the content I give you into Chinese')
-        const generator = llmClient.completions([{ role: 'user', content: text }])
+        const generator = llmClient.completionsGenerator([{ role: 'user', content: text }])
         for await (const chunk of generator) {
           setTranslation(prev => prev + chunk)
         }
