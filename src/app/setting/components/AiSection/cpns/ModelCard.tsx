@@ -1,4 +1,4 @@
-import { Card, Typography, Space, Button } from 'antd';
+import { Card, Typography, Space, Button, Popconfirm } from 'antd';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { Model } from '@/src/types/llm';
 
@@ -22,12 +22,18 @@ const ModelCard = ({ model, onEdit, onDelete }: ModelCardProps) => {
             size="small"
             onClick={() => onEdit(model)}
           />
-          <Button
-            danger
-            icon={<DeleteOutlined />}
-            size="small"
-            onClick={() => onDelete(model.id)}
-          />
+          <Popconfirm
+            title="确定要删除这个模型吗?"
+            onConfirm={() => onDelete(model.id)}
+            okText="确定"
+            cancelText="取消"
+          >
+            <Button
+              danger
+              icon={<DeleteOutlined />}
+              size="small"
+            />
+          </Popconfirm>
         </Space>
       </div>
       <div className="mt-2">

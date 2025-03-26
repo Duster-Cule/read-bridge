@@ -54,7 +54,7 @@ const ModelFormModal = ({
       onCancel={onCancel}
       onOk={handleSubmit}
     >
-      <Form form={form} layout="vertical">
+      <Form form={form} layout="vertical" initialValues={initialValues || { temperature: 0.5, topP: 1 }}>
         <Form.Item name="id" label={ToolTipLabel('模型ID', '例如: deepseek-chat')} rules={[{ required: true, message: '请输入模型ID' }]}>
           <Input
             placeholder="输入模型ID"
@@ -65,10 +65,10 @@ const ModelFormModal = ({
           <Input placeholder="输入模型名称" />
         </Form.Item>
         <Form.Item name="temperature" label={ToolTipLabel('Temperature(温度)', '控制生成文本的随机性和创造性。值越高，回复越多样化但可能偏离主题，值为0时选择最可能的词，日常使用建议0.5-0.7')} >
-          <Slider min={0} max={2} step={0.1} defaultValue={0.5} />
+          <Slider min={0} max={2} step={0.1} />
         </Form.Item>
         <Form.Item name="topP" label={ToolTipLabel('Top P(核采样)', '控制生成文本的多样性。较高的值使用更多低概率词汇，增加创意但可能降低质量。此参数从累积概率达到p值的词汇中随机选择')} >
-          <Slider min={0} max={1} step={0.1} defaultValue={1} />
+          <Slider min={0} max={1} step={0.1} />
         </Form.Item>
       </Form>
     </Modal>

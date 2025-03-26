@@ -69,6 +69,7 @@ export default function AiSection() {
   };
 
   const handleModelSubmit = (model: Model) => {
+    console.log(model, 'model', currentModel, 'currentModel')
     if (!selectedProvider) return;
 
     let updatedModels: Model[];
@@ -84,7 +85,7 @@ export default function AiSection() {
 
     const updatedProvider = {
       ...selectedProvider,
-      model: updatedModels
+      models: updatedModels
     };
 
     editProvider(updatedProvider);
@@ -97,7 +98,7 @@ export default function AiSection() {
 
     const updatedProvider = {
       ...selectedProvider,
-      model: selectedProvider.models.filter(m => m.id !== modelId)
+      models: selectedProvider.models.filter(m => m.id !== modelId)
     };
 
     editProvider(updatedProvider);
