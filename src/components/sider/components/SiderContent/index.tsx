@@ -3,11 +3,14 @@ import { EventEmitter, EVENT_NAMES } from "@/src/services/EventService"
 import nlp from 'compromise'
 import StandardChat from "../StandardChat"
 import { useReadingProgress } from "@/src/hooks/useReadingProgress"
+import { createLLMClient } from "@/src/services/llm"
+import { useLLMStore } from "@/src/store/useLLMStore"
 
 export default function SiderContent() {
   const [line, setLine] = useState<string>("")
   const [readingProgress, updateReadingProgress] = useReadingProgress()
-
+  const { defaultModel } = useLLMStore()
+  const [translation, setTranslation] = useState<string>("")
   const currentChapterLines = useMemo(() => {
     const lines = readingProgress.sentenceChapters[readingProgress.currentLocation.chapterIndex] || []
     return lines
@@ -15,8 +18,15 @@ export default function SiderContent() {
   }, [readingProgress.sentenceChapters, readingProgress.currentLocation.chapterIndex]);
 
   useEffect(() => {
-    const unsub = EventEmitter.on(EVENT_NAMES.SEND_LINE_INDEX, (index: number) => {
-      setLine(currentChapterLines[index] || "")
+    const unsub = EventEmitter.on(EVENT_NAMES.SEND_LINE_INDEX, async (index: number) => {
+      const text = currentChapterLines[index] || ""
+      setLine(text)
+      if (defaultModel) {
+        const llmClient = createLLMClient(defaultModel, 'you are a professional translator, please translate the content I give you into Chinese')
+        const result = await llmClient.completions([{ role: 'user', content: text }])
+        setTranslation(result)
+      }
+
     })
     return () => {
       unsub()
@@ -57,6 +67,9 @@ export default function SiderContent() {
             {term.text}{' '}
           </span>
         ))}
+      </div>
+      <div className="flex-1">
+        {translation}
       </div>
       <StandardChat />
     </div>

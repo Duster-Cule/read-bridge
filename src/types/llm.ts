@@ -15,3 +15,7 @@ export type Provider = {
   models: Model[]
 }
 
+export type Client = {
+  completions: (messages: any) => any
+}
+
