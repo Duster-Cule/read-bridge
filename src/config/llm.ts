@@ -61,6 +61,22 @@ export const defaultProviders = (): Provider[] => {
           topP: 1,
         }
       ]
+    },
+    {
+      id: 'volcengine',
+      name: '火山引擎',
+      baseUrl: 'https://ark.cn-beijing.volces.com/api/v3',
+      apiKey: '',
+      isDefault: true,
+      models: [
+        {
+          id: 'deepseek-v3-241226',
+          name: 'DeepSeek Chat',
+          providerId: 'volcengine',
+          temperature: 0.5,
+          topP: 1,
+        },
+      ],
     }
   ]
 }
