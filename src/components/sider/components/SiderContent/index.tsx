@@ -1,7 +1,6 @@
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { EventEmitter, EVENT_NAMES } from "@/src/services/EventService"
 import nlp from 'compromise'
-import StandardChat from "../StandardChat"
 import { useReadingProgress } from "@/src/hooks/useReadingProgress"
 import { createLLMClient } from "@/src/services/llm"
 import { useLLMStore } from "@/src/store/useLLMStore"
@@ -11,6 +10,11 @@ export default function SiderContent() {
   const [readingProgress, updateReadingProgress] = useReadingProgress()
   const { defaultModel } = useLLMStore()
   const [translation, setTranslation] = useState<string>("")
+  const translatorClient = useMemo(() => {
+    return defaultModel
+      ? createLLMClient(defaultModel, 'you are a professional translator, please translate the content I give you into Chinese')
+      : null
+  }, [defaultModel])
   const currentChapterLines = useMemo(() => {
     const lines = readingProgress.sentenceChapters[readingProgress.currentLocation.chapterIndex] || []
     return lines
@@ -21,12 +25,14 @@ export default function SiderContent() {
     const unsub = EventEmitter.on(EVENT_NAMES.SEND_LINE_INDEX, async (index: number) => {
       const text = currentChapterLines[index] || ""
       setLine(text)
-      if (defaultModel) {
+      if (translatorClient) {
         setTranslation('')
-        const llmClient = createLLMClient(defaultModel, 'you are a professional translator, please translate the content I give you into Chinese')
-        const generator = llmClient.completionsGenerator([{ role: 'user', content: text }])
-        for await (const chunk of generator) {
-          setTranslation(prev => prev + chunk)
+
+        const generator = translatorClient.completionsGenerator([{ role: 'user', content: text }])
+        if (generator) {
+          for await (const chunk of generator) {
+            setTranslation(prev => prev + chunk)
+          }
         }
       }
 
@@ -74,7 +80,6 @@ export default function SiderContent() {
       <div className="flex-1">
         {translation}
       </div>
-      <StandardChat />
     </div>
   )
 }
