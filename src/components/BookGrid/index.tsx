@@ -54,9 +54,8 @@ function handleBase64(base64: string) {
 }
 
 const BookCover = ({ cover, title }: { cover: Resource | undefined, title: string }) => {
-  console.log(title)
-  // eslint-disable-next-line
   const imageCSS = `
+    opacity-10
     w-full
     h-full
     object-cover
