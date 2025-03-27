@@ -1,10 +1,8 @@
 import { BOOK_FORMAT } from '@/src/constants/book';
 import type { BOOK_FORMAT_TYPE, FormattedBook } from '@/src/types/book';
-import crypto from 'crypto';
 
 import { initEpubBook } from '@/src/services/Epub';
 import type { Book } from '@/src/types/book';
-import { saveToFile } from '@/src/services/Download'
 
 /**
  * 处理书籍
@@ -31,15 +29,12 @@ export async function processBook(buffer: Buffer, format: BOOK_FORMAT_TYPE, name
   }
 
   const book = createBookModel(initFile, hash)
-  if (initFile) {
-    await saveToFile(JSON.stringify(book), `${initFile.metadata.title}.json`)
-  }
   return book
 }
 
 function createBookModel(formattedBook: FormattedBook, hash: string): Book {
   return {
-    id: crypto.randomUUID(),
+    id: self.crypto.randomUUID(),
     fileHash: hash,
     createTime: Date.now(),
     title: formattedBook.metadata.title,

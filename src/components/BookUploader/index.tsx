@@ -4,6 +4,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { BOOK_FORMAT } from '@/src/constants/book';
 import db from '@/src/services/DB';
 import { Book } from '@/src/types/book';
+import { handleFileUpload } from '@/src/services/ServerUpload';
 
 const { Dragger } = Upload;
 function checkFileFormat(file: File): boolean {
@@ -18,9 +19,14 @@ function showError(fileNames: string) {
 const props: UploadProps = {
   name: 'file',
   multiple: true,
-  action: '/api/upload',
+  action: '',
   maxCount: 1,
   showUploadList: false,
+  customRequest: async (options) => {
+    const { file } = options;
+    const result = await handleFileUpload(file as File);
+    options.onSuccess?.(result);
+  },
   accept: Object.values(BOOK_FORMAT).map(format => `.${format}`).join(','),
 
   beforeUpload: (file) => {

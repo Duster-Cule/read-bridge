@@ -49,9 +49,9 @@ export default function BookGrid({ books }: BookGridProps) {
   );
 }
 
-// function handleBase64(base64: string) {
-//   return `data:image/jpeg;base64,${base64}`
-// }
+function handleBase64(base64: string) {
+  return `data:image/jpeg;base64,${base64}`
+}
 
 const BookCover = ({ cover, title }: { cover: Resource | undefined, title: string }) => {
   console.log(title)
@@ -76,12 +76,7 @@ const BookCover = ({ cover, title }: { cover: Resource | undefined, title: strin
   `
   return (
     cover ? (
-      // TODO: 暂时不放封面
-      // // eslint-disable-next-line @next/next/no-img-element
-      // <img className={imageCSS} src={handleBase64(cover.data)} alt={title} />
-      <div className={noCoverCSS}>
-        No Cover
-      </div>
+      <img className={imageCSS} src={handleBase64(cover.data)} alt={title} />
     ) : (
       <div className={noCoverCSS}>
         No Cover
