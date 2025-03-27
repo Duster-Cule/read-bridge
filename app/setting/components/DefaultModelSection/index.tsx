@@ -1,14 +1,32 @@
 import ToolTipLabel from "@/components/ToolTipLable";
 import { useLLMStore } from "@/store/useLLMStore";
 import { Form, Select, Empty, theme } from "antd";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 export default function DefaultModelSection() {
-  const { defaultModel, setDefaultModel, models } = useLLMStore();
+  const { defaultModel, setDefaultModel, providers } = useLLMStore();
   const { token } = theme.useToken();
   const [form] = Form.useForm();
-  const availableModels = models();
-  const hasModels = availableModels.length > 0;
+  const configuredProviders = useMemo(() => {
+    return providers.filter(provider => provider.baseUrl && provider.apiKey && provider.models.length > 0);
+  }, [providers])
+  const hasModels = configuredProviders.length > 0;
+
+  // 获取所有可用模型并按提供商分组
+  const availableModelsGrouped = useMemo(() => {
+    return configuredProviders.map(provider => ({
+      label: provider.name,
+      options: provider.models.map(model => ({
+        value: model.id,
+        label: `${model.name} (${model.id})`,
+      }))
+    }));
+  }, [configuredProviders]);
+
+  // 获取所有可用模型的平铺列表
+  const availableModels = useMemo(() => {
+    return configuredProviders.flatMap(provider => provider.models);
+  }, [configuredProviders]);
 
   useEffect(() => {
     if (!hasModels && defaultModel) {
@@ -50,10 +68,8 @@ export default function DefaultModelSection() {
               onClear={handleClear}
               allowClear
               disabled={!hasModels}
-              options={availableModels.map(model => ({
-                value: model.id,
-                label: `${model.name} (${model.id})`
-              }))}
+              options={availableModelsGrouped}
+              optionFilterProp="label"
             />
           </Form.Item>
         </Form>
