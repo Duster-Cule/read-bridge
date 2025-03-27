@@ -3,6 +3,7 @@ import { Provider, Model, Client } from "@/src/types/llm"
 import OpenAI from "openai"
 
 export function createOpenAIClient(provider: Provider, model: Model, prompt: string): Client {
+
   const { baseUrl, apiKey } = provider
   const sdk = new OpenAI({
     dangerouslyAllowBrowser: true,
@@ -23,11 +24,40 @@ export function createOpenAIClient(provider: Provider, model: Model, prompt: str
     })
 
     async function* streamResponse() {
+      let isThinking = false;
+
       for await (const chunk of stream) {
-        const content = chunk.choices[0]?.delta?.content || '';
+        // 使用联合类型来处理标准Delta和扩展属性
+        type ExtendedDelta = OpenAI.Chat.ChatCompletionChunk.Choice.Delta & {
+          reasoning_content?: string;
+          reasoning?: string;
+        };
+
+        const delta = chunk.choices[0]?.delta as ExtendedDelta;
+        const think = delta?.reasoning_content || delta?.reasoning || '';
+        const content = delta?.content || '';
+
+        // 处理思考内容
+        if (think) {
+          if (!isThinking) {
+            yield '<think>';
+            isThinking = true;
+          }
+          yield think;
+        }
+
+        // 处理普通内容
         if (content) {
+          if (isThinking) {
+            yield '</think>';
+            isThinking = false;
+          }
           yield content;
         }
+      }
+
+      if (isThinking) {
+        yield '</think>';
       }
     }
     yield* streamResponse();
