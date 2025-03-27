@@ -1,5 +1,6 @@
 import { BOOK_FORMAT } from '@/src/constants/book';
 import type { BOOK_FORMAT_TYPE, FormattedBook } from '@/src/types/book';
+import crypto from 'crypto';
 
 import { initEpubBook } from '@/src/services/Epub';
 import type { Book } from '@/src/types/book';
