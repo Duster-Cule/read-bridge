@@ -6,6 +6,8 @@ import OpenAI from "openai"
 export function createOpenAIClient(provider: Provider, model: Model, prompt: string): Client {
   const { baseUrl, apiKey } = provider
 
+  const systemMessage = (prompt ? { role: 'system', content: prompt } : undefined) as OpenAI.Chat.ChatCompletionMessageParam
+
   const openaiClient = new OpenAI({
     dangerouslyAllowBrowser: true,
     apiKey: apiKey,
@@ -17,14 +19,13 @@ export function createOpenAIClient(provider: Provider, model: Model, prompt: str
     temperature: model.temperature,
     top_p: model.topP,
     max_tokens: 1000,
-    stream: true,
   }
 
   let useProxy = false;
   async function* completionsGenerator(messages: OpenAI.Chat.ChatCompletionMessageParam[]): AsyncGenerator<string, void, unknown> {
-    const systemMessage = (prompt ? { role: 'system', content: prompt } : undefined) as OpenAI.Chat.ChatCompletionMessageParam
     const params = {
       ...baseRequestParams,
+      stream: true,
       messages: systemMessage ? [systemMessage, ...messages] : messages,
     }
 
@@ -35,7 +36,7 @@ export function createOpenAIClient(provider: Provider, model: Model, prompt: str
           ...params,
         });
         if (openaiStream) {
-          yield* processOpenAIClientStream(openaiStream as AsyncIterable<OpenAI.Chat.Completions.ChatCompletionChunk>);
+          yield* processUnifiedStream(openaiStream as AsyncIterable<OpenAI.Chat.Completions.ChatCompletionChunk>);
           return;
         }
       } catch (error) {
@@ -66,122 +67,128 @@ export function createOpenAIClient(provider: Provider, model: Model, prompt: str
       throw new Error('No response body');
     }
 
-    // 处理 fetch API 的流式响应
-    yield* processFetchStream(response.body);
+    yield* processUnifiedStream(response.body);
   }
+  async function completions(messages: OpenAI.Chat.ChatCompletionMessageParam[]): Promise<string> {
+    const params = {
+      ...baseRequestParams,
+      messages: systemMessage ? [systemMessage, ...messages] : messages,
+    }
 
-  // 处理 OpenAI 客户端流
-  async function* processOpenAIClientStream(stream: AsyncIterable<OpenAI.Chat.Completions.ChatCompletionChunk>): AsyncGenerator<string, void, unknown> {
-    let isThinking = false;
-
-    try {
-      for await (const chunk of stream) {
-        // 使用联合类型来处理标准Delta和扩展属性
-        type ExtendedDelta = OpenAI.Chat.ChatCompletionChunk.Choice.Delta & {
-          reasoning_content?: string;
-          reasoning?: string;
-        };
-
-        const delta = chunk.choices[0]?.delta as ExtendedDelta;
-        const think = delta?.reasoning_content || delta?.reasoning || '';
-        const content = delta?.content || '';
-
-        // 处理思考内容
-        if (think) {
-          if (!isThinking) {
-            yield '<think>';
-            isThinking = true;
-          }
-          yield think;
-        }
-
-        // 处理普通内容
-        if (content) {
-          if (isThinking) {
-            yield '</think>';
-            isThinking = false;
-          }
-          yield content;
-        }
-      }
-    } finally {
-      // 确保最后关闭思考标签
-      if (isThinking) {
-        yield '</think>';
+    if (!useProxy) {
+      try {
+        const result = await openaiClient.chat.completions.create(params);
+        return result.choices[0].message.content || '';
+      } catch (error) {
+        console.log('本地请求失败，尝试使用代理:', error);
+        useProxy = true;
       }
     }
-  }
 
-  // 处理 fetch API 流
-  async function* processFetchStream(body: ReadableStream<Uint8Array>): AsyncGenerator<string, void, unknown> {
-    const reader = body.getReader();
-    const decoder = new TextDecoder();
-    let isThinking = false;
-    let buffer = '';
-
-    try {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-
-        // 处理可能分成多块的事件流
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
-
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6);
-
-            // 处理心跳消息
-            if (data === '[DONE]') continue;
-
-            try {
-              const chunk = JSON.parse(data);
-
-              // 使用联合类型来处理标准Delta和扩展属性
-              type ExtendedDelta = OpenAI.Chat.ChatCompletionChunk.Choice.Delta & {
-                reasoning_content?: string;
-                reasoning?: string;
-              };
-
-              const delta = chunk.choices[0]?.delta as ExtendedDelta;
-              const think = delta?.reasoning_content || delta?.reasoning || '';
-              const content = delta?.content || '';
-
-              // 处理思考内容
-              if (think) {
-                if (!isThinking) {
-                  yield '<think>';
-                  isThinking = true;
-                }
-                yield think;
-              }
-
-              // 处理普通内容
-              if (content) {
-                if (isThinking) {
-                  yield '</think>';
-                  isThinking = false;
-                }
-                yield content;
-              }
-            } catch (e) {
-              console.error('Error parsing JSON:', e, data);
-            }
-          }
-        }
-      }
-    } finally {
-      // 确保最后关闭思考标签
-      if (isThinking) {
-        yield '</think>';
-      }
+    // 使用代理请求
+    const response = await fetch(LLM_PROXY_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        url: `${baseUrl}${LLM_PROXY_PATH}`,
+        apiKey: apiKey,
+        ...params
+      }),
+    });
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`API 请求失败: ${error}`);
     }
+    if (!response.body) {
+      throw new Error('No response body');
+    }
+    const result = await response.json();
+    const thinking = result.choices[0].message.reasoning_content
+    const content = result.choices[0].message.content
+    return `${thinking}\n${content}`
   }
-
   return {
-    completionsGenerator
+    completionsGenerator,
+    completions
+  }
+}
+
+async function* processFetchStream(body: ReadableStream<Uint8Array>): AsyncGenerator<OpenAI.Chat.Completions.ChatCompletionChunk, void, unknown> {
+  const reader = body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+
+      // 处理可能分成多块的事件流
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          const data = line.slice(6);
+
+          // 处理心跳消息
+          if (data === '[DONE]') continue;
+
+          try {
+            // 将SSE数据解析为OpenAI格式的chunk
+            const chunk = JSON.parse(data);
+            yield chunk as OpenAI.Chat.Completions.ChatCompletionChunk;
+          } catch (e) {
+            console.error('Error parsing JSON:', e, data);
+          }
+        }
+      }
+    }
+  } catch (e) {
+    console.error('Error processing fetch stream:', e);
+  }
+}
+
+// 统一处理两种流的函数
+async function* processUnifiedStream(stream: AsyncIterable<OpenAI.Chat.Completions.ChatCompletionChunk> | ReadableStream<Uint8Array>): AsyncGenerator<string, void, unknown> {
+  const openAIStyleStream = stream instanceof ReadableStream ? processFetchStream(stream) : stream;
+
+  let isThinking = false;
+
+  try {
+    for await (const chunk of openAIStyleStream) {
+      type ExtendedDelta = OpenAI.Chat.ChatCompletionChunk.Choice.Delta & {
+        reasoning_content?: string;
+        reasoning?: string;
+      };
+
+      const delta = chunk.choices[0]?.delta as ExtendedDelta;
+      const think = delta?.reasoning_content || delta?.reasoning || '';
+      const content = delta?.content || '';
+
+      if (think) {
+        if (!isThinking) {
+          yield '<think>';
+          isThinking = true;
+        }
+        yield think;
+      }
+
+      if (content) {
+        if (isThinking) {
+          yield '</think>';
+          isThinking = false;
+        }
+        yield content;
+      }
+    }
+  } finally {
+    if (isThinking) {
+      yield '</think>';
+    }
   }
 }

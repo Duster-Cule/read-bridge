@@ -19,5 +19,6 @@ export type Provider = {
 
 export type Client = {
   completionsGenerator: (messages: OpenAI.Chat.ChatCompletionMessageParam[]) => AsyncGenerator<string, void, unknown>
+  completions: (messages: OpenAI.Chat.ChatCompletionMessageParam[]) => Promise<string>
 }
 

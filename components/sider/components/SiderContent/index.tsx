@@ -28,12 +28,9 @@ export default function SiderContent() {
       if (translatorClient) {
         setTranslation('')
 
-        const generator = translatorClient.completionsGenerator([{ role: 'user', content: text }])
-        if (generator) {
-          for await (const chunk of generator) {
-            setTranslation(prev => prev + chunk)
-          }
-        }
+        const result = await translatorClient.completions([{ role: 'user', content: text }])
+        setTranslation(result)
+
       }
 
     })
