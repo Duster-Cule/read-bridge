@@ -11,8 +11,9 @@ export default function SiderContent() {
   const { defaultModel } = useLLMStore()
   const [translation, setTranslation] = useState<string>("")
   const translatorClient = useMemo(() => {
+
     return defaultModel
-      ? createLLMClient(defaultModel, 'you are a professional translator, please translate the content I give you into Chinese')
+      ? createLLMClient(defaultModel)
       : null
   }, [defaultModel])
   const currentChapterLines = useMemo(() => {
@@ -28,7 +29,7 @@ export default function SiderContent() {
       if (translatorClient) {
         setTranslation('')
 
-        const result = await translatorClient.completions([{ role: 'user', content: text }])
+        const result = await translatorClient.completions([{ role: 'user', content: text }], 'you are a professional translator, please translate the content I give you into Chinese')
         setTranslation(result)
 
       }

@@ -3,11 +3,9 @@ import { Provider, Model, Client } from "@/types/llm"
 
 import OpenAI from "openai"
 
-export function createOpenAIClient(provider: Provider, model: Model, prompt: string): Client {
+export function createOpenAIClient(provider: Provider, model: Model): Client {
+
   const { baseUrl, apiKey } = provider
-
-  const systemMessage = (prompt ? { role: 'system', content: prompt } : undefined) as OpenAI.Chat.ChatCompletionMessageParam
-
   const openaiClient = new OpenAI({
     dangerouslyAllowBrowser: true,
     apiKey: apiKey,
@@ -22,7 +20,23 @@ export function createOpenAIClient(provider: Provider, model: Model, prompt: str
   }
 
   let useProxy = false;
-  async function* completionsGenerator(messages: OpenAI.Chat.ChatCompletionMessageParam[]): AsyncGenerator<string, void, unknown> {
+  // 初始更新一次useProxy
+
+  check()
+
+  async function check(): Promise<{ valid: boolean, error: Error | null }> {
+    try {
+      for await (const chunk of completionsGenerator([{ role: 'user', content: 'hi' }])) {
+        return { valid: true, error: null }
+      }
+      return { valid: false, error: new Error("No response received") };
+    } catch (error) {
+      return { valid: false, error: error as Error }
+    }
+  }
+  async function* completionsGenerator(messages: OpenAI.Chat.ChatCompletionMessageParam[], prompt?: string): AsyncGenerator<string, void, unknown> {
+
+    const systemMessage = prompt ? formatSystemMessage(prompt) : undefined
     const params = {
       ...baseRequestParams,
       stream: true,
@@ -69,7 +83,8 @@ export function createOpenAIClient(provider: Provider, model: Model, prompt: str
 
     yield* processUnifiedStream(response.body);
   }
-  async function completions(messages: OpenAI.Chat.ChatCompletionMessageParam[]): Promise<string> {
+  async function completions(messages: OpenAI.Chat.ChatCompletionMessageParam[], prompt?: string): Promise<string> {
+    const systemMessage = prompt ? formatSystemMessage(prompt) : undefined
     const params = {
       ...baseRequestParams,
       messages: systemMessage ? [systemMessage, ...messages] : messages,
@@ -111,10 +126,16 @@ export function createOpenAIClient(provider: Provider, model: Model, prompt: str
   }
   return {
     completionsGenerator,
-    completions
+    completions,
+    check
   }
 }
 
+function formatSystemMessage(prompt: string): OpenAI.Chat.ChatCompletionMessageParam {
+  return { role: 'system', content: prompt }
+}
+
+// 格式化FetchStream
 async function* processFetchStream(body: ReadableStream<Uint8Array>): AsyncGenerator<OpenAI.Chat.Completions.ChatCompletionChunk, void, unknown> {
   const reader = body.getReader();
   const decoder = new TextDecoder();
