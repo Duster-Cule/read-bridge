@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
   try {
-    // 获取原始请求体和请求头
     const requestBody = await req.json();
     const { url, apiKey, ...restBody } = requestBody;
 
@@ -24,9 +23,9 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify(restBody),
     });
 
-    // 如果是流式响应，需要特殊处理
+    // 流式响应
     if (restBody.stream) {
-      // 创建并返回一个新的流式响应
+      // 转发流
       const readable = response.body;
       if (!readable) {
         return NextResponse.json({ error: 'Failed to get response stream' }, { status: 500 });
@@ -42,7 +41,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 处理非流式响应
+    // 非流式响应
     const data = await response.json();
     return NextResponse.json(data, { status: response.status });
   } catch (error) {
