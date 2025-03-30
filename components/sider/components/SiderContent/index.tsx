@@ -10,6 +10,7 @@ export default function SiderContent() {
   const [readingProgress] = useReadingProgress()
   const { defaultModel } = useLLMStore()
   const [translation, setTranslation] = useState<string>("")
+  const [translation2, setTranslation2] = useState<string>("")
   const translatorClient = useMemo(() => {
 
     return defaultModel
@@ -28,12 +29,16 @@ export default function SiderContent() {
       setLine(text)
       if (translatorClient) {
         setTranslation('')
+        setTranslation2('')
+        translatorClient.completions([{ role: 'user', content: text }], 'you are a professional translator, please translate the content I give you into Chinese').then(result => {
+          setTranslation(result)
+        })
 
-        const result = await translatorClient.completions([{ role: 'user', content: text }], 'you are a professional translator, please translate the content I give you into Chinese')
-        setTranslation(result)
-
+        const generator = translatorClient.completionsGenerator([{ role: 'user', content: text }], 'you are a professional translator, please translate the content I give you into Chinese');
+        for await (const chunk of generator) {
+          setTranslation2(prev => prev + chunk);
+        }
       }
-
     })
     return () => {
       unsub()
@@ -77,6 +82,7 @@ export default function SiderContent() {
       </div>
       <div className="flex-1">
         {translation}
+        {translation2}
       </div>
     </div>
   )

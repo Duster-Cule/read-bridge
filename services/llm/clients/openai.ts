@@ -34,8 +34,51 @@ export function createOpenAIClient(provider: Provider, model: Model): Client {
       return { valid: false, error: error as Error }
     }
   }
-  async function* completionsGenerator(messages: OpenAI.Chat.ChatCompletionMessageParam[], prompt?: string): AsyncGenerator<string, void, unknown> {
 
+  // 统一API请求处理函数
+  async function _executeApiRequest<T>(params: any, isStream: boolean): Promise<T> {
+    if (!useProxy) {
+      try {
+        const result = await openaiClient.chat.completions.create({
+          ...params,
+        });
+        return result as T;
+      } catch (error) {
+        console.log('本地请求失败，尝试使用代理:', error);
+        useProxy = true;
+      }
+    }
+
+    // 使用代理请求
+    const response = await fetch(LLM_PROXY_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        url: `${baseUrl}${LLM_PROXY_PATH}`,
+        apiKey: apiKey,
+        ...params
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`API 请求失败: ${error}`);
+    }
+
+    if (!response.body) {
+      throw new Error('No response body');
+    }
+
+    if (isStream) {
+      return response.body as T;
+    } else {
+      return await response.json() as T;
+    }
+  }
+
+  async function* completionsGenerator(messages: OpenAI.Chat.ChatCompletionMessageParam[], prompt?: string): AsyncGenerator<string, void, unknown> {
     const systemMessage = prompt ? formatSystemMessage(prompt) : undefined
     const params = {
       ...baseRequestParams,
@@ -43,46 +86,15 @@ export function createOpenAIClient(provider: Provider, model: Model): Client {
       messages: systemMessage ? [systemMessage, ...messages] : messages,
     }
 
-    if (!useProxy) {
-      // 优先本地请求
-      try {
-        const openaiStream = await openaiClient.chat.completions.create({
-          ...params,
-        });
-        if (openaiStream) {
-          yield* processUnifiedStream(openaiStream as AsyncIterable<OpenAI.Chat.Completions.ChatCompletionChunk>);
-          return;
-        }
-      } catch (error) {
-        console.log('本地请求失败，尝试使用代理:', error);
-        useProxy = true;
-      }
+    try {
+      const stream = await _executeApiRequest<AsyncIterable<OpenAI.Chat.Completions.ChatCompletionChunk> | ReadableStream<Uint8Array>>(params, true);
+      yield* processUnifiedStream(stream);
+    } catch (error) {
+      console.error('Stream completion error:', error);
+      throw error;
     }
-
-    // 使用代理请求
-    const response = await fetch(LLM_PROXY_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        url: `${baseUrl}${LLM_PROXY_PATH}`,
-        apiKey: apiKey,
-        ...params
-      }),
-    });
-
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`API 请求失败: ${error}`);
-    }
-
-    if (!response.body) {
-      throw new Error('No response body');
-    }
-
-    yield* processUnifiedStream(response.body);
   }
+
   async function completions(messages: OpenAI.Chat.ChatCompletionMessageParam[], prompt?: string): Promise<string> {
     const systemMessage = prompt ? formatSystemMessage(prompt) : undefined
     const params = {
@@ -90,40 +102,22 @@ export function createOpenAIClient(provider: Provider, model: Model): Client {
       messages: systemMessage ? [systemMessage, ...messages] : messages,
     }
 
-    if (!useProxy) {
-      try {
-        const result = await openaiClient.chat.completions.create(params);
-        return result.choices[0].message.content || '';
-      } catch (error) {
-        console.log('本地请求失败，尝试使用代理:', error);
-        useProxy = true;
-      }
-    }
+    try {
+      const result = await _executeApiRequest<any>(params, false);
 
-    // 使用代理请求
-    const response = await fetch(LLM_PROXY_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        url: `${baseUrl}${LLM_PROXY_PATH}`,
-        apiKey: apiKey,
-        ...params
-      }),
-    });
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`API 请求失败: ${error}`);
+      if (result.choices && result.choices[0]) {
+        const thinking = result.choices[0].message.reasoning_content;
+        const content = result.choices[0].message.content;
+        return thinking ? `${thinking}\n${content}` : content;
+      }
+
+      return '';
+    } catch (error) {
+      console.error('Completion error:', error);
+      throw error;
     }
-    if (!response.body) {
-      throw new Error('No response body');
-    }
-    const result = await response.json();
-    const thinking = result.choices[0].message.reasoning_content
-    const content = result.choices[0].message.content
-    return `${thinking}\n${content}`
   }
+
   return {
     completionsGenerator,
     completions,
