@@ -23,3 +23,7 @@ export type Client = {
   check: () => Promise<{ valid: boolean, error: Error | null }>
 }
 
+export type ClientOptions = {
+  maxTokens?: number
+  [key: string]: any
+}

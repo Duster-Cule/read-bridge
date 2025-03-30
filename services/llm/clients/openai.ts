@@ -1,9 +1,9 @@
 import { LLM_PROXY_PATH, LLM_PROXY_URL } from "@/constants/llm";
-import { Provider, Model, Client } from "@/types/llm"
+import { Provider, Model, Client, ClientOptions } from "@/types/llm"
 
 import OpenAI from "openai"
 
-export function createOpenAIClient(provider: Provider, model: Model): Client {
+export function createOpenAIClient(provider: Provider, model: Model, options?: ClientOptions): Client {
 
   const { baseUrl, apiKey } = provider
   const openaiClient = new OpenAI({
@@ -16,7 +16,7 @@ export function createOpenAIClient(provider: Provider, model: Model): Client {
     model: model.id,
     temperature: model.temperature,
     top_p: model.topP,
-    max_tokens: 1000,
+    ...options
   }
 
   let useProxy = false;
