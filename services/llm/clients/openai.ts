@@ -37,6 +37,7 @@ export function createOpenAIClient(provider: Provider, model: Model, options?: C
 
   // 统一API请求处理函数
   async function _executeApiRequest<T>(params: any, isStream: boolean): Promise<T> {
+    const errorList: Error[] = []
     if (!useProxy) {
       try {
         const result = await openaiClient.chat.completions.create({
@@ -45,6 +46,7 @@ export function createOpenAIClient(provider: Provider, model: Model, options?: C
         return result as T;
       } catch (error) {
         console.log('本地请求失败，尝试使用代理:', error);
+        errorList.push(error as Error)
         useProxy = true;
       }
     }
@@ -64,11 +66,13 @@ export function createOpenAIClient(provider: Provider, model: Model, options?: C
 
     if (!response.ok) {
       const error = await response.text();
-      throw new Error(`API 请求失败: ${error}`);
+      errorList.push(new Error(`API 请求失败: ${error}`))
+      throw new Error(errorList.join('\n'));
     }
 
     if (!response.body) {
-      throw new Error('No response body');
+      errorList.push(new Error('No response body'))
+      throw new Error(errorList.join('\n'));
     }
 
     if (isStream) {
