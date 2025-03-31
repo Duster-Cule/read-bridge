@@ -4,7 +4,7 @@ import { theme } from 'antd';
 
 import SiderContent from './components/SiderContent';
 
-const MIN_WIDTH = 100;
+const MIN_WIDTH = 400;
 const MAX_WIDTH = 600;
 
 export default function Sider() {

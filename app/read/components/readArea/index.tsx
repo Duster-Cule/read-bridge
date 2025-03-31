@@ -25,8 +25,7 @@ export default function ReadArea({ book, readingProgress }: { book: Book, readin
     if (!container) return;
 
     const savedLineIndex = readingProgress.currentLocation.lineIndex;
-
-    if (savedLineIndex !== undefined && savedLineIndex !== Infinity && savedLineIndex >= 0) {
+    if (savedLineIndex !== undefined && savedLineIndex !== Infinity && savedLineIndex > 0) {
       // 等待DOM
       setTimeout(() => {
         const lineElement = lineRefsMap.current.get(savedLineIndex);
