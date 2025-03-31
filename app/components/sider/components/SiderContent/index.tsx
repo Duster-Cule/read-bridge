@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { EventEmitter } from "@/services/EventService"
 import { useLLMStore } from "@/store/useLLMStore"
 import { createLLMClient } from "@/services/llm"
-import { PROMPT_SENTENCE_ANALYSIS, PROMPT_TEXT_ANALYSIS } from "@/constants/prompt"
+import PROMPT from "@/constants/prompt"
 import nlp from "compromise"
 import { Divider, Menu, MenuProps, Tooltip } from "antd"
 
@@ -20,7 +20,7 @@ export default function SiderContent() {
   const [selectedTab, setSelectedTab] = useState<string>("sentence-analysis")
 
   const [word, setWord] = useState<string>("")
-  const [wordDetails, setWordDetails] = useState<string>("")
+  const [wordDetails, setWordDetails] = useState<{ [key: string]: string }>({})
 
   const [readingProgress, updateReadingProgress] = useReadingProgress()
   const { defaultModel } = useLLMStore()
@@ -54,14 +54,14 @@ export default function SiderContent() {
     if (!text || !defaultLLMClient) return
 
     const sentenceAnalysisPromise = (async () => {
-      const sentenceAnalysis = defaultLLMClient.completionsGenerator([{ role: 'user', content: text }], PROMPT_SENTENCE_ANALYSIS)
+      const sentenceAnalysis = defaultLLMClient.completionsGenerator([{ role: 'user', content: text }], PROMPT.SENTENCE_ANALYSIS)
       for await (const chunk of sentenceAnalysis) {
         setSentenceAnalysis((prev) => prev + chunk)
       }
     })();
 
     const wordAnalysisPromise = (async () => {
-      const wordAnalysis = defaultLLMClient.completionsGenerator([{ role: 'user', content: text }], PROMPT_TEXT_ANALYSIS)
+      const wordAnalysis = defaultLLMClient.completionsGenerator([{ role: 'user', content: text }], PROMPT.TEXT_ANALYSIS)
       for await (const chunk of wordAnalysis) {
         setwordAnalysis((prev) => prev + chunk)
       }
@@ -95,9 +95,16 @@ export default function SiderContent() {
     setSelectedTab(key)
   }, [])
 
-  function handleWord(word: string) {
+  // 处理点击单词
+  async function handleWord(word: string) {
     setWord(word)
     handleTabChange('word-details')
+    if (!defaultLLMClient) return
+    if (wordDetails[word]) return
+    const wordDetailGenerator = defaultLLMClient.completionsGenerator([{ role: 'user', content: `${word} ${sentence}` }], PROMPT.WORD_DETAILS)
+    for await (const chunk of wordDetailGenerator) {
+      setWordDetails((prev) => ({ ...prev, [word]: (prev[word] || "") + chunk }))
+    }
   }
   return (
     <div className="w-full h-full flex flex-col">
@@ -108,7 +115,7 @@ export default function SiderContent() {
         <Sentences sentenceAnalysis={sentenceAnalysis} wordAnalysis={wordAnalysis} />
       )}
       {selectedTab === 'word-details' && (
-        <WordDetails word={word} />
+        <WordDetails word={word} wordDetails={wordDetails} />
       )}
     </div>
   )
@@ -132,7 +139,7 @@ function CurrentSentence({ sentence, handleWord }: { sentence: string, handleWor
     return []
   }, [sentence])
   return (
-    <div className="w-full h-[140px] p-4">
+    <div className="w-full h-[136px] p-4 ">
       <Tooltip
         title={
           <>
@@ -147,7 +154,7 @@ function CurrentSentence({ sentence, handleWord }: { sentence: string, handleWor
           CURRENT SENTENCE
         </div>
       </Tooltip>
-      <div className="space-y-1 overflow-y-auto">
+      <div className="space-y-1 overflow-y-auto h-[76px]">
         {terms.map((term, i) => (
           <span
             key={i}
@@ -199,11 +206,11 @@ function Sentences({ sentenceAnalysis, wordAnalysis }: { sentenceAnalysis: strin
   )
 }
 
-function WordDetails({ word, wordDetails }: { word: string, wordDetails: string }) {
+function WordDetails({ word, wordDetails }: { word: string, wordDetails: { [key: string]: string } }) {
   return (
     <div>
       {word}
-      {wordDetails}
+      {wordDetails[word]}
     </div>
   )
 }

@@ -4,6 +4,8 @@ import { Model, Provider } from '@/types/llm'
 import { newProvider } from '@/utils/provider'
 import { defaultProviders } from '@/config/llm'
 interface LLMStore {
+  level: number
+  setLevel: (level: number) => void
   // LLM服务商列表
   providers: Provider[]
   // 编辑服务商信息
@@ -23,6 +25,8 @@ interface LLMStore {
 export const useLLMStore = create<LLMStore>()(
   persist(
     (set, get) => ({
+      level: 3,
+      setLevel: (level: number) => set({ level }),
       providers: defaultProviders(),
       editProvider: (provider: Provider) => set({ providers: get().providers.map(p => p.id === provider.id ? provider : p) }),
       addProvider: () => set({ providers: [...get().providers, newProvider()] }),

@@ -1,4 +1,4 @@
-export const PROMPT_SENTENCE_ANALYSIS = `
+const SENTENCE_ANALYSIS = `
 input: The ancient temple, hidden deep within the dense jungle, revealed its secrets only to those who approached with reverence and humility.
 output:
 <ul>
@@ -20,7 +20,7 @@ output:
   <li>at the clock on the wall.</li>
 </ul>
 `
-export const PROMPT_TEXT_ANALYSIS = `
+const TEXT_ANALYSIS = `
 Analyze text based on the provided difficulty level. Extract key vocabulary and expressions.
 
 Format: 
@@ -50,3 +50,8 @@ Output format:
 <li><strong>term</strong>: explanation</li>
 </ul>
 `
+const WORD_DETAILS = `
+input: [word] [sentence]
+output: word details
+`
+export default { SENTENCE_ANALYSIS, TEXT_ANALYSIS, WORD_DETAILS }
