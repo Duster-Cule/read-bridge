@@ -13,8 +13,14 @@ import { Divider, Menu, MenuProps, Tooltip } from "antd"
 
 export default function SiderContent() {
   const [sentence, setSentence] = useState<string>("")
+
   const [sentenceAnalysis, setSentenceAnalysis] = useState<string>("")
-  const [textAnalysis, setTextAnalysis] = useState<string>("")
+  const [wordAnalysis, setwordAnalysis] = useState<string>("")
+
+  const [selectedTab, setSelectedTab] = useState<string>("sentence-analysis")
+
+  const [word, setWord] = useState<string>("")
+  const [wordDetails, setWordDetails] = useState<string>("")
 
   const [readingProgress, updateReadingProgress] = useReadingProgress()
   const { defaultModel } = useLLMStore()
@@ -39,12 +45,12 @@ export default function SiderContent() {
     }
   }, [updateReadingProgress, pathname])
 
-
+  // 处理行索引
   async function handleLineIndex(index: number) {
     const text = currentChapter[index] || ""
     setSentence(text)
     setSentenceAnalysis("")
-    setTextAnalysis("")
+    setwordAnalysis("")
     if (!text || !defaultLLMClient) return
 
     const sentenceAnalysisPromise = (async () => {
@@ -54,14 +60,14 @@ export default function SiderContent() {
       }
     })();
 
-    const textAnalysisPromise = (async () => {
-      const textAnalysis = defaultLLMClient.completionsGenerator([{ role: 'user', content: text }], PROMPT_TEXT_ANALYSIS)
-      for await (const chunk of textAnalysis) {
-        setTextAnalysis((prev) => prev + chunk)
+    const wordAnalysisPromise = (async () => {
+      const wordAnalysis = defaultLLMClient.completionsGenerator([{ role: 'user', content: text }], PROMPT_TEXT_ANALYSIS)
+      for await (const chunk of wordAnalysis) {
+        setwordAnalysis((prev) => prev + chunk)
       }
     })();
 
-    await Promise.all([sentenceAnalysisPromise, textAnalysisPromise]);
+    await Promise.all([sentenceAnalysisPromise, wordAnalysisPromise]);
   }
 
   useEffect(() => {
@@ -71,20 +77,39 @@ export default function SiderContent() {
     }
   }, [currentChapter])
 
+  // 菜单项
+  const items = useCallback(() => {
+    return [
+      {
+        label: 'Sentence Analysis',
+        key: 'sentence-analysis',
+      },
+      {
+        label: 'Word Details',
+        key: 'word-details',
+        disabled: !word,
+      },
+    ]
+  }, [word])
+  const handleTabChange = useCallback((key: string) => {
+    setSelectedTab(key)
+  }, [])
+
   function handleWord(word: string) {
-    console.log(word)
+    setWord(word)
+    handleTabChange('word-details')
   }
   return (
     <div className="w-full h-full flex flex-col">
       <CurrentSentence sentence={sentence} handleWord={handleWord} />
       <Divider className="my-0" />
-      <MenuLine />
-      <div>
-        {sentenceAnalysis}
-      </div>
-      <div>
-        {textAnalysis}
-      </div>
+      <MenuLine selectedTab={selectedTab} items={items()} onTabChange={handleTabChange} />
+      {selectedTab === 'sentence-analysis' && (
+        <Sentences sentenceAnalysis={sentenceAnalysis} wordAnalysis={wordAnalysis} />
+      )}
+      {selectedTab === 'word-details' && (
+        <WordDetails word={word} />
+      )}
     </div>
   )
 }
@@ -139,28 +164,46 @@ function CurrentSentence({ sentence, handleWord }: { sentence: string, handleWor
   )
 }
 
-const items = [
-  {
-    label: 'Sentence Analysis',
-    key: 'sentence-analysis',
-  },
-  {
-    label: 'Word Details',
-    key: 'word-details',
-  },
-]
-function MenuLine() {
-  const [selectedKeys, setSelectedKeys] = useState<string>('sentence-analysis')
+
+function MenuLine({
+  selectedTab,
+  items,
+  onTabChange
+}: {
+  selectedTab: string,
+  items: { label: string, key: string, disabled?: boolean }[],
+  onTabChange: (key: string) => void
+}) {
   const onClick: MenuProps['onClick'] = (e) => {
-    setSelectedKeys(e.key);
+    onTabChange(e.key);
   };
+
   return (
     <Menu
       mode="horizontal"
       items={items}
-      selectedKeys={[selectedKeys]}
+      selectedKeys={[selectedTab]}
       onClick={onClick}
       className="w-full [&_.ant-menu-item]:flex-1 [&_.ant-menu-item]:text-center [&_.ant-menu-item::after]:!w-full [&_.ant-menu-item::after]:!left-0"
     />
+  )
+}
+
+function Sentences({ sentenceAnalysis, wordAnalysis }: { sentenceAnalysis: string, wordAnalysis: string }) {
+  return (
+    <div>
+      {sentenceAnalysis}
+      <Divider className="my-0" />
+      {wordAnalysis}
+    </div>
+  )
+}
+
+function WordDetails({ word, wordDetails }: { word: string, wordDetails: string }) {
+  return (
+    <div>
+      {word}
+      {wordDetails}
+    </div>
   )
 }
