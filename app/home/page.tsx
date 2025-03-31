@@ -2,7 +2,7 @@
 
 import db from '@/services/DB';
 import { useLiveQuery } from 'dexie-react-hooks';
-import BookGrid from '@/components/BookGrid';
+import BookGrid from '@/app/components/BookGrid';
 
 export default function Home() {
   const bookPreviews = useLiveQuery(() => db.getAllBooksPreview(), []) || []

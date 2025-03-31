@@ -1,4 +1,4 @@
-import ToolTipLabel from "@/components/ToolTipLable";
+import ToolTipLabel from "@/app/components/ToolTipLable";
 import { useLLMStore } from "@/store/useLLMStore";
 import { Form, Select, Empty, theme } from "antd";
 import { useEffect, useMemo } from "react";

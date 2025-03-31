@@ -2,7 +2,7 @@ import { Form, Input, Button, Typography, Space, Popconfirm, FormInstance } from
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Provider, Model } from '@/types/llm';
 import ModelCard from './ModelCard';
-import ToolTipLabel from '@/components/ToolTipLable';
+import ToolTipLabel from '@/app/components/ToolTipLable';
 interface ProviderFormProps {
   provider: Provider;
   form: FormInstance<Provider>;

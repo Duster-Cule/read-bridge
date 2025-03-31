@@ -2,7 +2,7 @@
 
 import { Row, Col } from 'antd';
 import { BookPreview, Resource } from '@/types/book';
-import BookUploader from '@/components/BookUploader';
+import BookUploader from '@/app/components/BookUploader';
 import { useStyleStore } from '@/store/useStyleStore';
 import { useRouter } from 'next/navigation';
 import { useSiderStore } from '@/store/useSiderStore';

@@ -1,9 +1,9 @@
 "use client"
 
 import { Layout } from "antd";
-import HeaderContent from "@/components/header";
-import FooterContent from "@/components/footer";
-import Sider from "@/components/sider";
+import HeaderContent from "@/app/components/header";
+import FooterContent from "@/app/components/footer";
+import Sider from "@/app/components/sider";
 import { CSSProperties } from "react";
 import { useHeaderStore } from "@/store/useHeaderStore";
 import { Button } from "antd";

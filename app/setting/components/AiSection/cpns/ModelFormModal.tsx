@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Form, Input, Modal, Slider } from 'antd';
 import { Model } from '@/types/llm';
-import ToolTipLabel from '@/components/ToolTipLable';
+import ToolTipLabel from '@/app/components/ToolTipLable';
 
 interface ModelFormModalProps {
   visible: boolean;

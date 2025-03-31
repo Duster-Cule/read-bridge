@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 import "./globals.css";
-import { ThemeProvider } from "@/components/layout/theme-provider";
+import { ThemeProvider } from "@/app/components/layout/theme-provider";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
-import StructureLayout from '@/components/layout/structure-layout';
+import StructureLayout from '@/app/components/layout/structure-layout';
 
 
 export const metadata: Metadata = {
