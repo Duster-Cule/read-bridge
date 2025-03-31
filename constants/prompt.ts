@@ -47,7 +47,7 @@ Analysis guidelines by level:
 
 Output format:
 <ul>
-<li><strong>term</strong>: explanation</li>
+<li>term: explanation</li>
 </ul>
 `
 const WORD_DETAILS = `
