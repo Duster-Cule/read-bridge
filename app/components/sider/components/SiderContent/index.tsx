@@ -9,19 +9,23 @@ import { useLLMStore } from "@/store/useLLMStore"
 import { createLLMClient } from "@/services/llm"
 import { PROMPT_SENTENCE_ANALYSIS, PROMPT_TEXT_ANALYSIS } from "@/constants/prompt"
 import nlp from "compromise"
-import { Tooltip } from "antd"
+import { Divider, Menu, MenuProps, Tooltip } from "antd"
 
 export default function SiderContent() {
   const [sentence, setSentence] = useState<string>("")
   const [sentenceAnalysis, setSentenceAnalysis] = useState<string>("")
   const [textAnalysis, setTextAnalysis] = useState<string>("")
+
   const [readingProgress, updateReadingProgress] = useReadingProgress()
   const { defaultModel } = useLLMStore()
-  const pathname = usePathname()
+
+  // 当前章节
   const currentChapter = useMemo(() => {
     return readingProgress.sentenceChapters[readingProgress.currentLocation.chapterIndex]
   }, [readingProgress.sentenceChapters, readingProgress.currentLocation.chapterIndex])
+  const pathname = usePathname()
 
+  // TODO: 后续增加不同功能选择LLMClient
   const defaultLLMClient = useMemo(() => {
     return defaultModel
       ? createLLMClient(defaultModel)
@@ -73,6 +77,8 @@ export default function SiderContent() {
   return (
     <div className="w-full h-full flex flex-col">
       <CurrentSentence sentence={sentence} handleWord={handleWord} />
+      <Divider className="my-0" />
+      <MenuLine />
       <div>
         {sentenceAnalysis}
       </div>
@@ -101,7 +107,7 @@ function CurrentSentence({ sentence, handleWord }: { sentence: string, handleWor
     return []
   }, [sentence])
   return (
-    <div className="w-full h-[140px] p-4 border-b border-[var(--ant-color-border)]">
+    <div className="w-full h-[140px] p-4">
       <Tooltip
         title={
           <>
@@ -130,5 +136,31 @@ function CurrentSentence({ sentence, handleWord }: { sentence: string, handleWor
         ))}
       </div>
     </div>
+  )
+}
+
+const items = [
+  {
+    label: 'Sentence Analysis',
+    key: 'sentence-analysis',
+  },
+  {
+    label: 'Word Details',
+    key: 'word-details',
+  },
+]
+function MenuLine() {
+  const [selectedKeys, setSelectedKeys] = useState<string>('sentence-analysis')
+  const onClick: MenuProps['onClick'] = (e) => {
+    setSelectedKeys(e.key);
+  };
+  return (
+    <Menu
+      mode="horizontal"
+      items={items}
+      selectedKeys={[selectedKeys]}
+      onClick={onClick}
+      className="w-full [&_.ant-menu-item]:flex-1 [&_.ant-menu-item]:text-center [&_.ant-menu-item::after]:!w-full [&_.ant-menu-item::after]:!left-0"
+    />
   )
 }
