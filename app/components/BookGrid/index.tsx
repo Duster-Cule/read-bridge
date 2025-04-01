@@ -75,6 +75,7 @@ const BookCover = ({ cover, title }: { cover: Resource | undefined, title: strin
   `
   return (
     cover ? (
+      // eslint-disable-next-line @next/next/no-img-element
       <img className={imageCSS} src={handleBase64(cover.data)} alt={title} />
     ) : (
       <div className={noCoverCSS}>

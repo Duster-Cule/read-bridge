@@ -50,7 +50,7 @@ export default function SiderContent() {
   }, [updateReadingProgress, pathname])
 
   // 处理行索引
-  async function handleLineIndex(index: number) {
+  const handleLineIndex = useCallback(async (index: number) => {
     const text = currentChapter[index] || ""
     setSelectedTab("sentence-analysis")
     setSentence(text)
@@ -86,14 +86,14 @@ export default function SiderContent() {
         fn();
       }, 500 * index);
     });
-  }
+  }, [currentChapter, defaultLLMClient])
 
   useEffect(() => {
     const unsub = EventEmitter.on(EVENT_NAMES.SEND_LINE_INDEX, handleLineIndex)
     return () => {
       unsub()
     }
-  }, [currentChapter])
+  }, [currentChapter, handleLineIndex])
 
   // 菜单项
   const items = useCallback(() => {
@@ -114,18 +114,25 @@ export default function SiderContent() {
   }, [])
 
   // 处理点击单词
-  async function handleWord(word: string) {
-    setWord(word)
+  const handleWord = useCallback(async (word: string) => {
+    let isSame = false
+    setWord((prev) => {
+      if (prev === word) {
+        isSame = true
+        return prev
+      }
+      else return word
+    })
+    if (isSame) return
     setWordDetails("")
     handleTabChange('word-details')
     if (!defaultLLMClient) return
     const wordDetailGenerator = defaultLLMClient.completionsGenerator([{ role: 'user', content: `${word} ${sentence}` }], PROMPT.WORD_DETAILS)
     for await (const chunk of wordDetailGenerator) {
-      console.log(11111)
       if (!chunk) continue
       setWordDetails((prev) => (prev || "") + chunk)
     }
-  }
+  }, [defaultLLMClient, handleTabChange, sentence])
   return (
     <div className="w-full h-full flex flex-col">
       <CurrentSentence sentence={sentence} handleWord={handleWord} />
@@ -135,7 +142,7 @@ export default function SiderContent() {
         sentence ? <Sentences sentenceAnalysis={sentenceAnalysis} wordAnalysis={wordAnalysis} sentenceRewrite={sentenceRewrite} /> : <Empty description="No sentence selected" className="flex flex-col items-center justify-center h-[262px]" />
       )}
       {selectedTab === 'word-details' && (
-        <WordDetails word={word} wordDetails={wordDetails} />
+        word ? <WordDetails wordDetails={wordDetails} /> : <Empty description="No word selected" className="flex flex-col items-center justify-center h-[262px]" />
       )}
       <Divider className="my-0" />
     </div>
@@ -143,15 +150,15 @@ export default function SiderContent() {
 }
 
 function CurrentSentence({ sentence, handleWord }: { sentence: string, handleWord: (word: string) => void }) {
-  const wordTypeColors = {
+  const wordTypeColors = useMemo(() => ({
     'Verb': 'text-[var(--ant-green-6)]',
     'Adjective': 'text-[var(--ant-purple-7)]',
     'Pivot': 'text-[var(--ant-gold-6)]',
     'Noun': 'text-[var(--ant-color-text)]',
-  };
+  }), [])
   const getChunkColor = useCallback((chunk: string) => {
     return wordTypeColors[chunk] || 'text-[var(--ant-color-text)]';
-  }, []);
+  }, [wordTypeColors]);
   const terms = useMemo(() => {
     if (sentence && sentence.length > 0) {
       const doc = nlp(sentence)
@@ -243,10 +250,10 @@ function Sentences({ sentenceAnalysis, wordAnalysis, sentenceRewrite }: { senten
   )
 }
 
-const WordDetails = React.memo(({ word, wordDetails }: { word: string, wordDetails: string }) => {
+const WordDetails = React.memo(({ wordDetails }: { wordDetails: string }) => {
   const isLoading = useMemo(() => {
     return !wordDetails
-  }, [word, wordDetails])
+  }, [wordDetails])
 
   return (
     <div className="w-full h-[262px] overflow-y-auto p-4">
@@ -257,3 +264,4 @@ const WordDetails = React.memo(({ word, wordDetails }: { word: string, wordDetai
     </div>
   )
 })
+WordDetails.displayName = 'WordDetails';
