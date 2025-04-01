@@ -24,6 +24,8 @@ export default function SiderContent() {
   const [word, setWord] = useState<string>("")
   const [wordDetails, setWordDetails] = useState<{ [key: string]: string }>({})
 
+  const [sentenceRewrite, setSentenceRewrite] = useState<string>("")
+
   const [readingProgress, updateReadingProgress] = useReadingProgress()
   const { defaultModel } = useLLMStore()
 
@@ -69,7 +71,13 @@ export default function SiderContent() {
       }
     })();
 
-    await Promise.all([sentenceAnalysisPromise, wordAnalysisPromise]);
+    const sentenceRewritePromise = (async () => {
+      const sentenceRewrite = defaultLLMClient.completionsGenerator([{ role: 'user', content: text }], PROMPT.SENTENCE_REWRITE)
+      for await (const chunk of sentenceRewrite) {
+        setSentenceRewrite((prev) => prev + chunk)
+      }
+    })();
+    await Promise.all([sentenceAnalysisPromise, wordAnalysisPromise, sentenceRewritePromise]);
   }
 
   useEffect(() => {
@@ -114,7 +122,7 @@ export default function SiderContent() {
       <Divider className="my-0" />
       <MenuLine selectedTab={selectedTab} items={items()} onTabChange={handleTabChange} />
       {selectedTab === 'sentence-analysis' && (
-        sentence ? <Sentences sentenceAnalysis={sentenceAnalysis} wordAnalysis={wordAnalysis} /> : <Empty description="No sentence selected" className="flex flex-col items-center justify-center h-[262px]" />
+        sentence ? <Sentences sentenceAnalysis={sentenceAnalysis} wordAnalysis={wordAnalysis} sentenceRewrite={sentenceRewrite} /> : <Empty description="No sentence selected" className="flex flex-col items-center justify-center h-[262px]" />
       )}
       {selectedTab === 'word-details' && (
         <WordDetails word={word} wordDetails={wordDetails} />
@@ -199,7 +207,7 @@ function MenuLine({
   )
 }
 // #1f2937 #f3f4f6
-function Sentences({ sentenceAnalysis, wordAnalysis }: { sentenceAnalysis: string[], wordAnalysis: string[] }) {
+function Sentences({ sentenceAnalysis, wordAnalysis, sentenceRewrite }: { sentenceAnalysis: string[], wordAnalysis: string[], sentenceRewrite: string }) {
   const handleWordAnalysis = useCallback((analysis: string, index: number) => {
     const [keyWord, ...rest] = analysis.split(':')
     return <div className="text-[var(--ant-color-text)] mb-2" key={index}><span className=" font-semibold">{keyWord}</span>:{rest}</div>
@@ -212,6 +220,9 @@ function Sentences({ sentenceAnalysis, wordAnalysis }: { sentenceAnalysis: strin
             <div key={index}>{analysis}</div>
           ))}
         </div>
+      </CardComponent>
+      <CardComponent title="Sentence Rewrite" loading={sentenceRewrite.length === 0} className="mt-4 min-h-[100px]">
+        <div>{sentenceRewrite}</div>
       </CardComponent>
       <CardComponent title="Key Word Analysis" loading={wordAnalysis.length === 0} className="mt-4 min-h-[100px]">
         {wordAnalysis.map((analysis, index) => (
