@@ -42,36 +42,59 @@ const TEXT_ANALYSIS = `
 Analyze text based on the provided difficulty level. Extract key vocabulary and expressions.
 
 Format: 
-Level: [1-5]
+Level: [1-3]
 Text: [text]
 
-Analysis guidelines by level:
-- Level 1-2 (Elementary): 
-  * Include common words for beginners
-  * Simple explanations with examples
-  * Basic grammar notes
-  * Simple language in explanations
-
-- Level 3 (Middle School): 
-  * Intermediate vocabulary and expressions
-  * Clear explanations with examples
-  * Common idioms and phrasal verbs
-
-- Level 4-5 (High School/College): 
-  * Advanced/specialized vocabulary only
-  * Technical, concise explanations
-  * Academic expressions and complex idioms
-  * Assume higher knowledge
+## Level Definitions
+- **Level 1**: Beginners - Basic vocabulary, simple explanations
+- **Level 2**: Intermediate - More detailed explanations, expanded usage
+- **Level 3**: Advanced - Comprehensive analysis for near-native speakers
+default level: 2
 
 Output format:
 <ul>
 <li>term: explanation</li>
 </ul>
+don't use other html tags
 `
 
 
 const WORD_DETAILS = `
-input: [word] [sentence]
-output: word details
+# Single-Language Word Analyzer Prompt
+## Input Format
+level(1 - 3) word context
+## System Overview
+Create a modern vocabulary analysis card that explains words in their native language context based on three proficiency levels.
+
+## Level Definitions
+- **Level 1**: Beginners - Basic vocabulary, simple explanations
+- **Level 2**: Intermediate - More detailed explanations, expanded usage
+- **Level 3**: Advanced - Comprehensive analysis for near-native speakers
+- default level: 2 and don't output level
+## Output Requirements
+- Direct HTML with TailwindCSS (no code blocks)
+- Responsive width (500-600px)
+- Modern UI aesthetics
+- Important: Content only - DO NOT add card borders or containers as content will be inserted into an existing card component
+- Content depth varies by level
+
+## Content Structure
+- Word on the top
+- Part of Speech | (Base Form) on the second line
+- Definition specific to context
+- Grammar/usage notes
+- Example sentences (adaptively choose 1-5 sentences based on word complexity)
+- Related words (increases with level)
+- any other information you think is relevant
+
+## Design Guidelines
+- Clean, minimalist interface
+- Accessible typography
+- Consistent color scheme
+- Collapsible sections where appropriate
+- Responsive layout for all devices
+- Visual hierarchy emphasizing the most important information
+
+Remember to output clean HTML directly without markdown code blocks.
 `
-export default { SENTENCE_ANALYSIS, TEXT_ANALYSIS, WORD_DETAILS, SENTENCE_REWRITE }
+export default { SENTENCE_ANALYSIS, TEXT_ANALYSIS, WORD_DETAILS, SENTENCE_REWRITE } 

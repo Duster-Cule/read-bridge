@@ -2,7 +2,7 @@ import React, { ReactNode } from 'react';
 import { Card } from 'antd';
 
 interface CardComponentProps {
-  title: string;
+  title?: string;
   children: ReactNode;
   loading?: boolean;
   className?: string;
@@ -15,7 +15,7 @@ export default function CardComponent({ title, children, loading = false, classN
       loading={loading}
       hoverable
     >
-      <div className="text-lg font-semibold text-[var(--ant-color-text)]">{title}</div>
+      {title && <div className="text-lg font-semibold text-[var(--ant-color-text)]">{title}</div>}
       <div>{children}</div>
     </Card>
   );

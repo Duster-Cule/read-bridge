@@ -3,7 +3,7 @@
 import { useReadingProgress } from "@/hooks/useReadingProgress"
 import { EVENT_NAMES } from "@/services/EventService"
 import { usePathname } from "next/navigation"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { EventEmitter } from "@/services/EventService"
 import { useLLMStore } from "@/store/useLLMStore"
 import { createLLMClient } from "@/services/llm"
@@ -22,7 +22,7 @@ export default function SiderContent() {
   const [selectedTab, setSelectedTab] = useState<string>("sentence-analysis")
 
   const [word, setWord] = useState<string>("")
-  const [wordDetails, setWordDetails] = useState<{ [key: string]: string }>({})
+  const [wordDetails, setWordDetails] = useState<string>("")
 
   const [sentenceRewrite, setSentenceRewrite] = useState<string>("")
 
@@ -52,32 +52,40 @@ export default function SiderContent() {
   // 处理行索引
   async function handleLineIndex(index: number) {
     const text = currentChapter[index] || ""
+    setSelectedTab("sentence-analysis")
     setSentence(text)
+    setSentenceRewrite("")
+    setWord("")
+    setWordDetails("")
     setSentenceAnalysis([])
     setwordAnalysis([])
     if (!text || !defaultLLMClient) return
 
-    const sentenceAnalysisPromise = (async () => {
+    const sentenceAnalysisPromise = async () => {
       const sentenceAnalysis = defaultLLMClient.completionsGenerator([{ role: 'user', content: text }], PROMPT.SENTENCE_ANALYSIS)
       for await (const chunk of getGeneratorHTMLULList(sentenceAnalysis)) {
         setSentenceAnalysis((prev) => [...prev, chunk])
       }
-    })();
-
-    const wordAnalysisPromise = (async () => {
-      const wordAnalysis = defaultLLMClient.completionsGenerator([{ role: 'user', content: `2 ${text}` }], PROMPT.TEXT_ANALYSIS)
-      for await (const chunk of getGeneratorHTMLULList(wordAnalysis)) {
-        setwordAnalysis((prev) => [...prev, chunk])
-      }
-    })();
-
-    const sentenceRewritePromise = (async () => {
+    };
+    const sentenceRewritePromise = async () => {
       const sentenceRewrite = defaultLLMClient.completionsGenerator([{ role: 'user', content: text }], PROMPT.SENTENCE_REWRITE)
       for await (const chunk of sentenceRewrite) {
         setSentenceRewrite((prev) => prev + chunk)
       }
-    })();
-    await Promise.all([sentenceAnalysisPromise, wordAnalysisPromise, sentenceRewritePromise]);
+    };
+    const wordAnalysisPromise = async () => {
+      const wordAnalysis = defaultLLMClient.completionsGenerator([{ role: 'user', content: `2 ${text}` }], PROMPT.TEXT_ANALYSIS)
+      for await (const chunk of getGeneratorHTMLULList(wordAnalysis)) {
+        setwordAnalysis((prev) => [...prev, chunk])
+      }
+    };
+
+
+    [sentenceAnalysisPromise, sentenceRewritePromise, wordAnalysisPromise].forEach((fn, index) => {
+      setTimeout(() => {
+        fn();
+      }, 500 * index);
+    });
   }
 
   useEffect(() => {
@@ -108,12 +116,14 @@ export default function SiderContent() {
   // 处理点击单词
   async function handleWord(word: string) {
     setWord(word)
+    setWordDetails("")
     handleTabChange('word-details')
     if (!defaultLLMClient) return
-    if (wordDetails[word]) return
     const wordDetailGenerator = defaultLLMClient.completionsGenerator([{ role: 'user', content: `${word} ${sentence}` }], PROMPT.WORD_DETAILS)
     for await (const chunk of wordDetailGenerator) {
-      setWordDetails((prev) => ({ ...prev, [word]: (prev[word] || "") + chunk }))
+      console.log(11111)
+      if (!chunk) continue
+      setWordDetails((prev) => (prev || "") + chunk)
     }
   }
   return (
@@ -233,12 +243,17 @@ function Sentences({ sentenceAnalysis, wordAnalysis, sentenceRewrite }: { senten
   )
 }
 
-function WordDetails({ word, wordDetails }: { word: string, wordDetails: { [key: string]: string } }) {
+const WordDetails = React.memo(({ word, wordDetails }: { word: string, wordDetails: string }) => {
+  const isLoading = useMemo(() => {
+    return !wordDetails
+  }, [word, wordDetails])
+
   return (
     <div className="w-full h-[262px] overflow-y-auto p-4">
-      <CardComponent title={word}>
-        <div>{wordDetails[word]}</div>
+      {isLoading}
+      <CardComponent loading={isLoading}>
+        <div className="w-full" dangerouslySetInnerHTML={{ __html: wordDetails }} />
       </CardComponent>
     </div>
   )
-}
+})
