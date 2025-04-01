@@ -9,13 +9,14 @@ import { useLLMStore } from "@/store/useLLMStore"
 import { createLLMClient } from "@/services/llm"
 import PROMPT from "@/constants/prompt"
 import nlp from "compromise"
-import { Divider, Menu, MenuProps, Tooltip } from "antd"
+import { Card, Divider, Empty, Menu, MenuProps, Tooltip } from "antd"
+import getGeneratorHTMLULList from "@/utils/generator"
 
 export default function SiderContent() {
   const [sentence, setSentence] = useState<string>("")
 
-  const [sentenceAnalysis, setSentenceAnalysis] = useState<string>("")
-  const [wordAnalysis, setwordAnalysis] = useState<string>("")
+  const [sentenceAnalysis, setSentenceAnalysis] = useState<string[]>([])
+  const [wordAnalysis, setwordAnalysis] = useState<string[]>([])
 
   const [selectedTab, setSelectedTab] = useState<string>("sentence-analysis")
 
@@ -49,21 +50,21 @@ export default function SiderContent() {
   async function handleLineIndex(index: number) {
     const text = currentChapter[index] || ""
     setSentence(text)
-    setSentenceAnalysis("")
-    setwordAnalysis("")
+    setSentenceAnalysis([])
+    setwordAnalysis([])
     if (!text || !defaultLLMClient) return
 
     const sentenceAnalysisPromise = (async () => {
       const sentenceAnalysis = defaultLLMClient.completionsGenerator([{ role: 'user', content: text }], PROMPT.SENTENCE_ANALYSIS)
-      for await (const chunk of sentenceAnalysis) {
-        setSentenceAnalysis((prev) => prev + chunk)
+      for await (const chunk of getGeneratorHTMLULList(sentenceAnalysis)) {
+        setSentenceAnalysis((prev) => [...prev, chunk])
       }
     })();
 
     const wordAnalysisPromise = (async () => {
-      const wordAnalysis = defaultLLMClient.completionsGenerator([{ role: 'user', content: text }], PROMPT.TEXT_ANALYSIS)
-      for await (const chunk of wordAnalysis) {
-        setwordAnalysis((prev) => prev + chunk)
+      const wordAnalysis = defaultLLMClient.completionsGenerator([{ role: 'user', content: `2 ${text}` }], PROMPT.TEXT_ANALYSIS)
+      for await (const chunk of getGeneratorHTMLULList(wordAnalysis)) {
+        setwordAnalysis((prev) => [...prev, chunk])
       }
     })();
 
@@ -112,11 +113,12 @@ export default function SiderContent() {
       <Divider className="my-0" />
       <MenuLine selectedTab={selectedTab} items={items()} onTabChange={handleTabChange} />
       {selectedTab === 'sentence-analysis' && (
-        <Sentences sentenceAnalysis={sentenceAnalysis} wordAnalysis={wordAnalysis} />
+        sentence ? <Sentences sentenceAnalysis={sentenceAnalysis} wordAnalysis={wordAnalysis} /> : <Empty description="No sentence selected" className="flex flex-col items-center justify-center h-[262px]" />
       )}
       {selectedTab === 'word-details' && (
         <WordDetails word={word} wordDetails={wordDetails} />
       )}
+      <Divider className="my-0" />
     </div>
   )
 }
@@ -195,22 +197,39 @@ function MenuLine({
     />
   )
 }
-
-function Sentences({ sentenceAnalysis, wordAnalysis }: { sentenceAnalysis: string, wordAnalysis: string }) {
+// #1f2937 #f3f4f6
+function Sentences({ sentenceAnalysis, wordAnalysis }: { sentenceAnalysis: string[], wordAnalysis: string[] }) {
+  const handleWordAnalysis = useCallback((analysis: string, index: number) => {
+    const [keyWord, ...rest] = analysis.split(':')
+    return <div className="text-[var(--ant-color-text)] mb-2" key={index}><span className=" font-semibold">{keyWord}</span>:{rest}</div>
+  }, [])
   return (
-    <div>
-      {sentenceAnalysis}
-      <Divider className="my-0" />
-      {wordAnalysis}
+    <div className="w-full h-[262px] overflow-y-auto p-4">
+      <Card className="min-h-[60px] bg-[var(--card-bg-color)] border-[var(--ant-color-border)]" loading={sentenceAnalysis.length === 0} hoverable>
+        <div className="text-lg font-semibold text-[var(--ant-color-text)]">Sentence Analysis</div>
+        <div className="flex flex-row flex-wrap gap-4 gap-y-1">
+          {sentenceAnalysis.map((analysis, index) => (
+            <div key={index}>{analysis}</div>
+          ))}
+        </div>
+      </Card>
+      <Card className="mt-4 min-h-[100px] bg-[var(--card-bg-color)] border-[var(--ant-color-border)]" loading={wordAnalysis.length === 0} hoverable>
+        <div className="text-lg font-semibold text-[var(--ant-color-text)]">Key Word Analysis</div>
+        {wordAnalysis.map((analysis, index) => (
+          handleWordAnalysis(analysis, index)
+        ))}
+      </Card>
     </div>
   )
 }
 
 function WordDetails({ word, wordDetails }: { word: string, wordDetails: { [key: string]: string } }) {
   return (
-    <div>
-      {word}
-      {wordDetails[word]}
+    <div className="w-full h-[262px] overflow-y-auto p-4">
+      <Card className="min-h-[100px] bg-[var(--card-bg-color)]">
+        <div className="text-lg font-semibold text-[var(--ant-color-text)]">{word}</div>
+        <div>{wordDetails[word]}</div>
+      </Card>
     </div>
   )
 }
