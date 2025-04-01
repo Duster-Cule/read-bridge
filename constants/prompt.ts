@@ -20,6 +20,24 @@ output:
   <li>at the clock on the wall.</li>
 </ul>
 `
+
+const SENTENCE_REWRITE = `
+Rewrite the complex sentence into a simpler expression, maintaining the original meaning but using more basic vocabulary and syntactic structure.
+
+Input: [complex sentence]
+Output: [simplified sentence]
+
+Requirements:
+
+Use more common, simpler vocabulary
+Shorten sentence length
+Break down complex sentence structures
+Remove unnecessary modifiers
+Preserve the core meaning of the original sentence
+Make it understandable for lower-level English learners 
+`
+
+
 const TEXT_ANALYSIS = `
 Analyze text based on the provided difficulty level. Extract key vocabulary and expressions.
 
@@ -50,8 +68,10 @@ Output format:
 <li>term: explanation</li>
 </ul>
 `
+
+
 const WORD_DETAILS = `
 input: [word] [sentence]
 output: word details
 `
-export default { SENTENCE_ANALYSIS, TEXT_ANALYSIS, WORD_DETAILS }
+export default { SENTENCE_ANALYSIS, TEXT_ANALYSIS, WORD_DETAILS, SENTENCE_REWRITE }

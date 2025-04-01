@@ -9,8 +9,9 @@ import { useLLMStore } from "@/store/useLLMStore"
 import { createLLMClient } from "@/services/llm"
 import PROMPT from "@/constants/prompt"
 import nlp from "compromise"
-import { Card, Divider, Empty, Menu, MenuProps, Tooltip } from "antd"
+import { Divider, Empty, Menu, MenuProps, Tooltip } from "antd"
 import getGeneratorHTMLULList from "@/utils/generator"
+import CardComponent from "@/app/components/common/CardComponent"
 
 export default function SiderContent() {
   const [sentence, setSentence] = useState<string>("")
@@ -205,20 +206,18 @@ function Sentences({ sentenceAnalysis, wordAnalysis }: { sentenceAnalysis: strin
   }, [])
   return (
     <div className="w-full h-[262px] overflow-y-auto p-4">
-      <Card className="min-h-[60px] bg-[var(--card-bg-color)] border-[var(--ant-color-border)]" loading={sentenceAnalysis.length === 0} hoverable>
-        <div className="text-lg font-semibold text-[var(--ant-color-text)]">Sentence Analysis</div>
+      <CardComponent title="Sentence Analysis" loading={sentenceAnalysis.length === 0}>
         <div className="flex flex-row flex-wrap gap-4 gap-y-1">
           {sentenceAnalysis.map((analysis, index) => (
             <div key={index}>{analysis}</div>
           ))}
         </div>
-      </Card>
-      <Card className="mt-4 min-h-[100px] bg-[var(--card-bg-color)] border-[var(--ant-color-border)]" loading={wordAnalysis.length === 0} hoverable>
-        <div className="text-lg font-semibold text-[var(--ant-color-text)]">Key Word Analysis</div>
+      </CardComponent>
+      <CardComponent title="Key Word Analysis" loading={wordAnalysis.length === 0} className="mt-4 min-h-[100px]">
         {wordAnalysis.map((analysis, index) => (
           handleWordAnalysis(analysis, index)
         ))}
-      </Card>
+      </CardComponent>
     </div>
   )
 }
@@ -226,10 +225,9 @@ function Sentences({ sentenceAnalysis, wordAnalysis }: { sentenceAnalysis: strin
 function WordDetails({ word, wordDetails }: { word: string, wordDetails: { [key: string]: string } }) {
   return (
     <div className="w-full h-[262px] overflow-y-auto p-4">
-      <Card className="min-h-[100px] bg-[var(--card-bg-color)]">
-        <div className="text-lg font-semibold text-[var(--ant-color-text)]">{word}</div>
+      <CardComponent title={word}>
         <div>{wordDetails[word]}</div>
-      </Card>
+      </CardComponent>
     </div>
   )
 }
