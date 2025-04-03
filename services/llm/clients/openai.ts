@@ -36,7 +36,14 @@ export function createOpenAIClient(provider: Provider, model: Model, options?: C
   }
 
   // 统一API请求处理函数
-  async function _executeApiRequest<T>(params: any, isStream: boolean): Promise<T> {
+  async function _executeApiRequest<T>(params: {
+    model: string,
+    temperature: number,
+    top_p: number,
+    stream?: boolean,
+    messages: OpenAI.Chat.ChatCompletionMessageParam[],
+    [key: string]: number | string | boolean | OpenAI.Chat.ChatCompletionMessageParam[] | undefined
+  }, isStream: boolean): Promise<T> {
     const errorList: Error[] = []
     if (!useProxy) {
       try {
@@ -107,12 +114,13 @@ export function createOpenAIClient(provider: Provider, model: Model, options?: C
     }
 
     try {
-      const result = await _executeApiRequest<any>(params, false);
+      const result = await _executeApiRequest<{ choices: { message: { reasoning_content?: string, reasoning?: string, content?: string } }[] }>(params, false);
 
       if (result.choices && result.choices[0]) {
-        const thinking = result.choices[0].message.reasoning_content;
-        const content = result.choices[0].message.content;
-        return thinking ? `${thinking}\n${content}` : content;
+        const choice = result.choices[0]
+        const thinking = choice.message.reasoning_content || choice.message.reasoning;
+        const content = choice.message.content;
+        return thinking ? `${thinking}\n${content}` : content || '';
       }
 
       return '';

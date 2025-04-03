@@ -1,22 +1,13 @@
 'use client'
 
 import { useReadingProgress } from "@/hooks/useReadingProgress"
-import { EVENT_NAMES } from "@/services/EventService"
 import { usePathname } from "next/navigation"
-import React, { useCallback, useEffect, useMemo, useState } from "react"
-import { EventEmitter } from "@/services/EventService"
-import { useLLMStore } from "@/store/useLLMStore"
-import { createLLMClient } from "@/services/llm"
-import PROMPT from "@/constants/prompt"
-import nlp from "compromise"
-import { Divider, Empty, Menu, MenuProps, Tooltip } from "antd"
-import getGeneratorHTMLULList from "@/utils/generator"
-import CardComponent from "@/app/components/common/CardComponent"
+import React, { useEffect, useMemo } from "react"
+
 import SiderContent from "@/app/components/sider/components/SiderContent"
 import SiderChat from "@/app/components/sider/components/SiderChat"
 
 export default function Sider() {
-  const [lineIndex, setLineIndex] = useState<number>(Infinity)
   const [readingProgress, updateReadingProgress] = useReadingProgress()
   // 当前章节
   const currentChapter = useMemo(() => {
