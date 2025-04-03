@@ -12,6 +12,7 @@ import nlp from "compromise"
 import { Divider, Empty, Menu, MenuProps, Tooltip } from "antd"
 import getGeneratorHTMLULList from "@/utils/generator"
 import CardComponent from "@/app/components/common/CardComponent"
+import SiderChat from "@/app/components/sider/components/SiderChat"
 
 export default function SiderContent() {
   const [sentence, setSentence] = useState<string>("")
@@ -145,6 +146,7 @@ export default function SiderContent() {
         word ? <WordDetails wordDetails={wordDetails} /> : <Empty description="No word selected" className="flex flex-col items-center justify-center h-[262px]" />
       )}
       <Divider className="my-0" />
+      <SiderChat />
     </div>
   )
 }
@@ -223,7 +225,6 @@ function MenuLine({
     />
   )
 }
-// #1f2937 #f3f4f6
 function Sentences({ sentenceAnalysis, wordAnalysis, sentenceRewrite }: { sentenceAnalysis: string[], wordAnalysis: string[], sentenceRewrite: string }) {
   const handleWordAnalysis = useCallback((analysis: string, index: number) => {
     const [keyWord, ...rest] = analysis.split(':')
@@ -257,7 +258,6 @@ const WordDetails = React.memo(({ wordDetails }: { wordDetails: string }) => {
 
   return (
     <div className="w-full h-[262px] overflow-y-auto p-4">
-      {isLoading}
       <CardComponent loading={isLoading}>
         <div className="w-full" dangerouslySetInnerHTML={{ __html: wordDetails }} />
       </CardComponent>
