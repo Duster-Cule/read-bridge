@@ -56,7 +56,6 @@ export function createOpenAIClient(provider: Provider, model: Model, options?: C
         return result as T;
       } catch (error) {
         if (signal?.aborted) {
-          console.log('请求被中止')
           return null as T
         }
         else {
@@ -113,10 +112,9 @@ export function createOpenAIClient(provider: Provider, model: Model, options?: C
 
     try {
       const stream = await _executeApiRequest<AsyncIterable<OpenAI.Chat.Completions.ChatCompletionChunk> | ReadableStream<Uint8Array>>(params, true, signal);
-      yield* processUnifiedStream(stream);
+      yield* processUnifiedStream(stream, signal);
     } catch (error) {
       if (signal?.aborted) {
-        console.log('请求被中止')
         return
       }
       console.error('Stream completion error:', error);
@@ -148,7 +146,6 @@ export function createOpenAIClient(provider: Provider, model: Model, options?: C
       return '';
     } catch (error) {
       if (signal?.aborted) {
-        console.log('请求被中止')
         return ''
       }
       console.error('Completion error:', error);
@@ -201,12 +198,13 @@ async function* processFetchStream(body: ReadableStream<Uint8Array>, signal?: Ab
         }
       }
     }
-  } catch (e) {
+  } catch (error) {
     if (signal?.aborted) {
-      console.log('请求被中止')
+      await reader.cancel();
       return
     }
-    console.error('Error processing fetch stream:', e);
+    console.error('Error processing fetch stream:', error);
+    throw error;
   }
 }
 
@@ -243,6 +241,12 @@ async function* processUnifiedStream(stream: AsyncIterable<OpenAI.Chat.Completio
         yield content;
       }
     }
+  } catch (error) {
+    if (signal?.aborted) {
+      return
+    }
+    console.error('Stream completion error:', error);
+    throw error;
   } finally {
     if (isThinking) {
       yield '</think>';
