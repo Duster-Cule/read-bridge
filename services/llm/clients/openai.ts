@@ -89,7 +89,7 @@ export function createOpenAIClient(provider: Provider, model: Model, options?: C
     }
   }
 
-  async function* completionsGenerator(messages: OpenAI.Chat.ChatCompletionMessageParam[], prompt?: string): AsyncGenerator<string, void, unknown> {
+  async function* completionsGenerator(messages: OpenAI.Chat.ChatCompletionMessageParam[], prompt = ''): AsyncGenerator<string, void, unknown> {
     const systemMessage = prompt ? formatSystemMessage(prompt) : undefined
     const params = {
       ...baseRequestParams,
@@ -106,7 +106,7 @@ export function createOpenAIClient(provider: Provider, model: Model, options?: C
     }
   }
 
-  async function completions(messages: OpenAI.Chat.ChatCompletionMessageParam[], prompt?: string): Promise<string> {
+  async function completions(messages: OpenAI.Chat.ChatCompletionMessageParam[], prompt = ''): Promise<string> {
     const systemMessage = prompt ? formatSystemMessage(prompt) : undefined
     const params = {
       ...baseRequestParams,

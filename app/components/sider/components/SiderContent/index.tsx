@@ -3,7 +3,7 @@ import { createLLMClient } from "@/services/llm"
 import { useLLMStore } from "@/store/useLLMStore"
 import getGeneratorHTMLULList from "@/utils/generator"
 import { Divider, Empty } from "antd"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { CurrentSentence, MenuLine, Sentences, WordDetails } from "./cpns"
 import PROMPT from "@/constants/prompt"
 
@@ -26,6 +26,7 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
 
   const { defaultModel } = useLLMStore()
 
+  const controllerRef = useRef<AbortController | null>(null);
   // TODO: 后续增加不同功能选择LLMClient
   const defaultLLMClient = useMemo(() => {
     return defaultModel
@@ -35,6 +36,16 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
 
   // 处理行索引
   const handleLineIndex = useCallback(async (index: number) => {
+    // 取消之前的请求
+    if (controllerRef.current) {
+      controllerRef.current.abort();
+    }
+
+    // 创建新的 controller
+    controllerRef.current = new AbortController();
+    const { signal } = controllerRef.current;
+
+
     const text = currentChapter[index] || ""
     setSelectedTab("sentence-analysis")
     setSentence(text)
@@ -46,19 +57,19 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
     if (!text || !defaultLLMClient) return
 
     const sentenceAnalysisPromise = async () => {
-      const sentenceAnalysis = defaultLLMClient.completionsGenerator([{ role: 'user', content: text }], PROMPT.SENTENCE_ANALYSIS)
+      const sentenceAnalysis = defaultLLMClient.completionsGenerator([{ role: 'user', content: text }], PROMPT.SENTENCE_ANALYSIS, signal)
       for await (const chunk of getGeneratorHTMLULList(sentenceAnalysis)) {
         setSentenceAnalysis((prev) => [...prev, chunk])
       }
     };
     const sentenceRewritePromise = async () => {
-      const sentenceRewrite = defaultLLMClient.completionsGenerator([{ role: 'user', content: text }], PROMPT.SENTENCE_REWRITE)
+      const sentenceRewrite = defaultLLMClient.completionsGenerator([{ role: 'user', content: text }], PROMPT.SENTENCE_REWRITE, signal)
       for await (const chunk of sentenceRewrite) {
         setSentenceRewrite((prev) => prev + chunk)
       }
     };
     const wordAnalysisPromise = async () => {
-      const wordAnalysis = defaultLLMClient.completionsGenerator([{ role: 'user', content: `2 ${text}` }], PROMPT.TEXT_ANALYSIS)
+      const wordAnalysis = defaultLLMClient.completionsGenerator([{ role: 'user', content: `2 ${text}` }], PROMPT.TEXT_ANALYSIS, signal)
       for await (const chunk of getGeneratorHTMLULList(wordAnalysis)) {
         setwordAnalysis((prev) => [...prev, chunk])
       }
@@ -76,6 +87,9 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
     const unsub = EventEmitter.on(EVENT_NAMES.SEND_LINE_INDEX, handleLineIndex)
     return () => {
       unsub()
+      if (controllerRef.current) {
+        controllerRef.current.abort();
+      }
     }
   }, [currentChapter, handleLineIndex])
 
@@ -97,8 +111,15 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
     setSelectedTab(key)
   }, [])
 
+  const wordAbortControllerRef = useRef<AbortController | null>(null)
   // 处理点击单词
   const handleWord = useCallback(async (word: string) => {
+    if (wordAbortControllerRef.current) {
+      wordAbortControllerRef.current.abort();
+    }
+    wordAbortControllerRef.current = new AbortController();
+    const { signal } = wordAbortControllerRef.current;
+
     let isSame = false
     setWord((prev) => {
       if (prev === word) {
@@ -111,7 +132,7 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
     setWordDetails("")
     handleTabChange('word-details')
     if (!defaultLLMClient) return
-    const wordDetailGenerator = defaultLLMClient.completionsGenerator([{ role: 'user', content: `${word} ${sentence}` }], PROMPT.WORD_DETAILS)
+    const wordDetailGenerator = defaultLLMClient.completionsGenerator([{ role: 'user', content: `${word} ${sentence}` }], PROMPT.WORD_DETAILS, signal)
     for await (const chunk of wordDetailGenerator) {
       if (!chunk) continue
       setWordDetails((prev) => (prev || "") + chunk)

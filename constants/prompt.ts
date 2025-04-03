@@ -97,4 +97,4 @@ Create a modern vocabulary analysis card that explains words in their native lan
 
 Remember to output clean HTML directly without markdown code blocks.
 `
-export default { SENTENCE_ANALYSIS, TEXT_ANALYSIS, WORD_DETAILS, SENTENCE_REWRITE } 
+export default { SENTENCE_ANALYSIS, TEXT_ANALYSIS, WORD_DETAILS, SENTENCE_REWRITE } as const;

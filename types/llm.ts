@@ -18,8 +18,16 @@ export type Provider = {
 }
 
 export type Client = {
-  completionsGenerator: (messages: OpenAI.Chat.ChatCompletionMessageParam[], prompt?: string) => AsyncGenerator<string, void, unknown>
-  completions: (messages: OpenAI.Chat.ChatCompletionMessageParam[], prompt?: string) => Promise<string>
+  completionsGenerator: (
+    messages: OpenAI.Chat.ChatCompletionMessageParam[],
+    prompt?: string,
+    signal?: AbortSignal
+  ) => AsyncGenerator<string, void, unknown>
+  completions: (
+    messages: OpenAI.Chat.ChatCompletionMessageParam[],
+    prompt?: string,
+    signal?: AbortSignal
+  ) => Promise<string>
   check: () => Promise<{ valid: boolean, error: Error | null }>
 }
 

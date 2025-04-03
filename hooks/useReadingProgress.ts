@@ -3,7 +3,7 @@
 import db from "@/services/DB";
 import { useSiderStore } from "@/store/useSiderStore";
 import { ReadingProgress } from "@/types/book";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export function useReadingProgress() {
 
@@ -25,7 +25,7 @@ export function useReadingProgress() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [readingId])
 
-  function updateReadingProgress() {
+  const updateReadingProgress = useCallback(() => {
     if (!readingId) return
     db.getCurrentLocation(readingId).then(
       (res) => {
@@ -36,7 +36,7 @@ export function useReadingProgress() {
         console.error(err)
       }
     )
-  }
+  }, [readingId])
   return [readingProgress, updateReadingProgress] as const
 }
 
