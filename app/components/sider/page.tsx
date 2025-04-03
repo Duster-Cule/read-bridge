@@ -14,7 +14,7 @@ import getGeneratorHTMLULList from "@/utils/generator"
 import CardComponent from "@/app/components/common/CardComponent"
 import SiderChat from "@/app/components/sider/components/SiderChat"
 
-export default function SiderContent() {
+export default function Sider() {
   const [sentence, setSentence] = useState<string>("")
 
   const [sentenceAnalysis, setSentenceAnalysis] = useState<string[]>([])
