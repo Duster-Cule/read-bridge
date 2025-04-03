@@ -43,18 +43,27 @@ export function createOpenAIClient(provider: Provider, model: Model, options?: C
     stream?: boolean,
     messages: OpenAI.Chat.ChatCompletionMessageParam[],
     [key: string]: number | string | boolean | OpenAI.Chat.ChatCompletionMessageParam[] | undefined
-  }, isStream: boolean): Promise<T> {
+  }, isStream: boolean, signal?: AbortSignal): Promise<T> {
     const errorList: Error[] = []
     if (!useProxy) {
       try {
-        const result = await openaiClient.chat.completions.create({
-          ...params,
-        });
+        const result = await openaiClient.chat.completions.create(
+          {
+            ...params,
+          },
+          { signal }
+        );
         return result as T;
       } catch (error) {
-        console.log('本地请求失败，尝试使用代理:', error);
-        errorList.push(error as Error)
-        useProxy = true;
+        if (signal?.aborted) {
+          console.log('请求被中止')
+          return null as T
+        }
+        else {
+          console.log('本地请求失败，尝试使用代理:', error);
+          errorList.push(error as Error)
+          useProxy = true;
+        }
       }
     }
 
@@ -69,6 +78,7 @@ export function createOpenAIClient(provider: Provider, model: Model, options?: C
         apiKey: apiKey,
         ...params
       }),
+      signal,
     });
 
     if (!response.ok) {
@@ -89,7 +99,11 @@ export function createOpenAIClient(provider: Provider, model: Model, options?: C
     }
   }
 
-  async function* completionsGenerator(messages: OpenAI.Chat.ChatCompletionMessageParam[], prompt = ''): AsyncGenerator<string, void, unknown> {
+  async function* completionsGenerator(
+    messages: OpenAI.Chat.ChatCompletionMessageParam[],
+    prompt = '',
+    signal?: AbortSignal
+  ): AsyncGenerator<string, void, unknown> {
     const systemMessage = prompt ? formatSystemMessage(prompt) : undefined
     const params = {
       ...baseRequestParams,
@@ -98,15 +112,23 @@ export function createOpenAIClient(provider: Provider, model: Model, options?: C
     }
 
     try {
-      const stream = await _executeApiRequest<AsyncIterable<OpenAI.Chat.Completions.ChatCompletionChunk> | ReadableStream<Uint8Array>>(params, true);
+      const stream = await _executeApiRequest<AsyncIterable<OpenAI.Chat.Completions.ChatCompletionChunk> | ReadableStream<Uint8Array>>(params, true, signal);
       yield* processUnifiedStream(stream);
     } catch (error) {
+      if (signal?.aborted) {
+        console.log('请求被中止')
+        return
+      }
       console.error('Stream completion error:', error);
       throw error;
     }
   }
 
-  async function completions(messages: OpenAI.Chat.ChatCompletionMessageParam[], prompt = ''): Promise<string> {
+  async function completions(
+    messages: OpenAI.Chat.ChatCompletionMessageParam[],
+    prompt = '',
+    signal?: AbortSignal
+  ): Promise<string> {
     const systemMessage = prompt ? formatSystemMessage(prompt) : undefined
     const params = {
       ...baseRequestParams,
@@ -114,7 +136,7 @@ export function createOpenAIClient(provider: Provider, model: Model, options?: C
     }
 
     try {
-      const result = await _executeApiRequest<{ choices: { message: { reasoning_content?: string, reasoning?: string, content?: string } }[] }>(params, false);
+      const result = await _executeApiRequest<{ choices: { message: { reasoning_content?: string, reasoning?: string, content?: string } }[] }>(params, false, signal);
 
       if (result.choices && result.choices[0]) {
         const choice = result.choices[0]
@@ -125,6 +147,10 @@ export function createOpenAIClient(provider: Provider, model: Model, options?: C
 
       return '';
     } catch (error) {
+      if (signal?.aborted) {
+        console.log('请求被中止')
+        return ''
+      }
       console.error('Completion error:', error);
       throw error;
     }
@@ -142,7 +168,7 @@ function formatSystemMessage(prompt: string): OpenAI.Chat.ChatCompletionMessageP
 }
 
 // 格式化FetchStream
-async function* processFetchStream(body: ReadableStream<Uint8Array>): AsyncGenerator<OpenAI.Chat.Completions.ChatCompletionChunk, void, unknown> {
+async function* processFetchStream(body: ReadableStream<Uint8Array>, signal?: AbortSignal): AsyncGenerator<OpenAI.Chat.Completions.ChatCompletionChunk, void, unknown> {
   const reader = body.getReader();
   const decoder = new TextDecoder();
   let buffer = '';
@@ -176,13 +202,17 @@ async function* processFetchStream(body: ReadableStream<Uint8Array>): AsyncGener
       }
     }
   } catch (e) {
+    if (signal?.aborted) {
+      console.log('请求被中止')
+      return
+    }
     console.error('Error processing fetch stream:', e);
   }
 }
 
 // 统一处理两种流的函数
-async function* processUnifiedStream(stream: AsyncIterable<OpenAI.Chat.Completions.ChatCompletionChunk> | ReadableStream<Uint8Array>): AsyncGenerator<string, void, unknown> {
-  const openAIStyleStream = stream instanceof ReadableStream ? processFetchStream(stream) : stream;
+async function* processUnifiedStream(stream: AsyncIterable<OpenAI.Chat.Completions.ChatCompletionChunk> | ReadableStream<Uint8Array>, signal?: AbortSignal): AsyncGenerator<string, void, unknown> {
+  const openAIStyleStream = stream instanceof ReadableStream ? processFetchStream(stream, signal) : stream;
 
   let isThinking = false;
 
