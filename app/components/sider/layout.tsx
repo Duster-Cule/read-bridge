@@ -1,4 +1,4 @@
-
+'use client'
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useSiderStore } from '@/store/useSiderStore';
 import { theme } from 'antd';
