@@ -3,7 +3,7 @@
 export default function StandardChat() {
 
   return (
-    <div className="w-full h-[382px]">
+    <div className="w-full h-full">
       123
     </div>
   )
