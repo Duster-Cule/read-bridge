@@ -1,4 +1,5 @@
 import { OpenAI } from 'openai'
+import { OutputType } from '@/types/prompt'
 
 export type Model = {
   id: string
@@ -35,3 +36,12 @@ export type ClientOptions = {
   maxTokens?: number
   [key: string]: number | string | undefined
 }
+
+
+export type OutputOption = {
+  name: string
+  type: OutputType
+  rulePrompt: string
+  outputPrompt: string
+}
+

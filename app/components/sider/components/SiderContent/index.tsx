@@ -5,24 +5,23 @@ import getGeneratorHTMLULList from "@/utils/generator"
 import { Divider, Empty } from "antd"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { CurrentSentence, MenuLine, Sentences, WordDetails } from "./cpns"
-import PROMPT from "@/constants/prompt"
+import { useOutputOptions } from "@/store/useOutputOptions"
+import { assemblePrompt, contextMessages, INPUT_PROMPT, OUTPUT_TYPE } from "@/constants/prompt"
+
 
 interface SiderContentProps {
   currentChapter: string[]
 }
 
 export default function SiderContent({ currentChapter }: SiderContentProps) {
+  const [sentenceProcessingList, setSentenceProcessingList] = useState<{ name: string, type: string, generator: AsyncGenerator<string, void, unknown> }[]>([])
+  const { sentenceOptions } = useOutputOptions()
   const [sentence, setSentence] = useState<string>("")
-
-  const [sentenceAnalysis, setSentenceAnalysis] = useState<string[]>([])
-  const [wordAnalysis, setwordAnalysis] = useState<string[]>([])
 
   const [selectedTab, setSelectedTab] = useState<string>("sentence-analysis")
 
   const [word, setWord] = useState<string>("")
   const [wordDetails, setWordDetails] = useState<string>("")
-
-  const [sentenceRewrite, setSentenceRewrite] = useState<string>("")
 
   const { defaultModel } = useLLMStore()
 
@@ -49,39 +48,51 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
     const text = currentChapter[index] || ""
     setSelectedTab("sentence-analysis")
     setSentence(text)
-    setSentenceRewrite("")
     setWord("")
     setWordDetails("")
-    setSentenceAnalysis([])
-    setwordAnalysis([])
     if (!text || !defaultLLMClient) return
 
-    const sentenceAnalysisPromise = async () => {
-      const sentenceAnalysis = defaultLLMClient.completionsGenerator([{ role: 'user', content: text }], PROMPT.SENTENCE_ANALYSIS, signal)
-      for await (const chunk of getGeneratorHTMLULList(sentenceAnalysis)) {
-        setSentenceAnalysis((prev) => [...prev, chunk])
-      }
-    };
-    const sentenceRewritePromise = async () => {
-      const sentenceRewrite = defaultLLMClient.completionsGenerator([{ role: 'user', content: text }], PROMPT.SENTENCE_REWRITE, signal)
-      for await (const chunk of sentenceRewrite) {
-        setSentenceRewrite((prev) => prev + chunk)
-      }
-    };
-    const wordAnalysisPromise = async () => {
-      const wordAnalysis = defaultLLMClient.completionsGenerator([{ role: 'user', content: `2 ${text}` }], PROMPT.TEXT_ANALYSIS, signal)
-      for await (const chunk of getGeneratorHTMLULList(wordAnalysis)) {
-        setwordAnalysis((prev) => [...prev, chunk])
-      }
-    };
+    // 清空现有列表
+    setSentenceProcessingList([])
 
+    const addProcessorsWithDelay = async () => {
+      for (let i = 0; i < sentenceOptions.length; i++) {
+        const option = sentenceOptions[i]
+        const { name, type, rulePrompt, outputPrompt } = option
 
-    [sentenceAnalysisPromise, sentenceRewritePromise, wordAnalysisPromise].forEach((fn, index) => {
-      setTimeout(() => {
-        fn();
-      }, 500 * index);
-    });
-  }, [currentChapter, defaultLLMClient])
+        let generator: AsyncGenerator<string, void, unknown> | null = null
+        try {
+          switch (type) {
+            case OUTPUT_TYPE.BULLET_LIST:
+              generator = getGeneratorHTMLULList(defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, outputPrompt), signal))
+              break
+            case OUTPUT_TYPE.TEXT:
+              generator = defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, outputPrompt), signal)
+              break
+            case OUTPUT_TYPE.KEY_VALUE_LIST:
+              generator = getGeneratorHTMLULList(defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, outputPrompt), signal))
+              break
+            default:
+              generator = defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, outputPrompt), signal)
+              break
+          }
+        } catch (error) {
+          console.log('句子请求失败', error, index, name, type, text)
+        }
+
+        if (generator) {
+          setSentenceProcessingList(prev => [...prev, { name, type, generator }])
+        }
+
+        if (i < sentenceOptions.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 50))
+        }
+      }
+    }
+
+    // 执行添加处理器的函数
+    addProcessorsWithDelay()
+  }, [currentChapter, defaultLLMClient, sentenceOptions, setSentenceProcessingList])
 
   useEffect(() => {
     const unsub = EventEmitter.on(EVENT_NAMES.SEND_LINE_INDEX, handleLineIndex)
@@ -132,7 +143,7 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
     setWordDetails("")
     handleTabChange('word-details')
     if (!defaultLLMClient) return
-    const wordDetailGenerator = defaultLLMClient.completionsGenerator([{ role: 'user', content: `${word} ${sentence}` }], PROMPT.WORD_DETAILS, signal)
+    const wordDetailGenerator = defaultLLMClient.completionsGenerator([{ role: 'user', content: `${word} ${sentence}` }], INPUT_PROMPT.WORD_DETAILS, signal)
     for await (const chunk of wordDetailGenerator) {
       if (!chunk) continue
       setWordDetails((prev) => (prev || "") + chunk)
@@ -144,7 +155,7 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
       <Divider className="my-0" />
       <MenuLine selectedTab={selectedTab} items={items()} onTabChange={handleTabChange} />
       {selectedTab === 'sentence-analysis' && (
-        sentence ? <Sentences sentenceAnalysis={sentenceAnalysis} wordAnalysis={wordAnalysis} sentenceRewrite={sentenceRewrite} /> : <Empty description="No sentence selected" className="flex flex-col items-center justify-center h-[262px]" />
+        sentence ? <Sentences sentenceProcessingList={sentenceProcessingList} /> : <Empty description="No sentence selected" className="flex flex-col items-center justify-center h-[262px]" />
       )}
       {selectedTab === 'word-details' && (
         word ? <WordDetails wordDetails={wordDetails} /> : <Empty description="No word selected" className="flex flex-col items-center justify-center h-[262px]" />
