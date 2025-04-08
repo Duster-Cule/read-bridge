@@ -45,3 +45,13 @@ export type OutputOption = {
   outputPrompt: string
 }
 
+
+export type LLMHistory = {
+  id: string
+  title: string
+  timestamp: number
+  prompt: string
+  messages: OpenAI.Chat.ChatCompletionMessageParam[]
+}
+
+
