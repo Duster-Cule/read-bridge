@@ -55,11 +55,16 @@ Remove unnecessary modifiers
 Preserve the core meaning of the original sentence
 Make it understandable for lower-level English learners 
 `
+
+const CHAT_PROMPT = `
+You are a helpful assistant.
+`
 export const INPUT_PROMPT = {
   WORD_DETAILS,
   SENTENCE_REWRITE,
   EXTRACT_KEY_WORDS,
   SENTENCE_STRUCTURE_ANALYSIS,
+  CHAT_PROMPT
 } as const;
 
 const TEXT = ``

@@ -51,7 +51,11 @@ export type LLMHistory = {
   title: string
   timestamp: number
   prompt: string
-  messages: OpenAI.Chat.ChatCompletionMessageParam[]
+  messages: {
+    role: 'user' | 'assistant' | 'system'
+    content: string
+    timestamp: number
+  }[]
 }
 
 
