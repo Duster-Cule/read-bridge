@@ -1,22 +1,22 @@
 "use client"
 
-import React, { Suspense } from 'react';
+import React, { useEffect } from 'react';
 import HomeContent from '@/app/home/page';
 
-// 预加载其他路由组件
-const ReadContent = React.lazy(() => import('@/app/read/page'));
-const SettingContent = React.lazy(() => import('@/app/setting/page'));
-
 export default function Home() {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // 预加载路由
+      import('@/app/read/page');
+      import('@/app/setting/page');
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <>
       <HomeContent />
-      <Suspense fallback={null}>
-        <div style={{ display: 'none' }}>
-          <ReadContent />
-          <SettingContent />
-        </div>
-      </Suspense>
     </>
   );
 }
