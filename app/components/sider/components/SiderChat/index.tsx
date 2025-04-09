@@ -107,6 +107,7 @@ function ChatTools({ onPlus, onHistory, historys }: { onPlus: () => void, onHist
 
 function ChatContent({ history, containerRef }: { history: LLMHistory, containerRef: RefObject<HTMLDivElement> }) {
   const [height, setHeight] = useState(0);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -114,8 +115,27 @@ function ChatContent({ history, containerRef }: { history: LLMHistory, container
     setHeight(height - 142);
   }, []);
 
+  useEffect(() => {
+    if (!contentRef.current) return;
+
+    const observer = new MutationObserver(() => {
+      contentRef.current?.scrollTo({
+        top: contentRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
+    });
+
+    observer.observe(contentRef.current, {
+      childList: true,
+      subtree: true,
+      characterData: true
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className="overflow-y-auto" style={{ height: Math.max(0, height) }}>
+    <div ref={contentRef} className="overflow-y-auto" style={{ height: Math.max(0, height) }}>
       {history.messages.map((msg) => {
         return <div key={msg.timestamp}>{msg.content}</div>
       })}
