@@ -1,5 +1,5 @@
 import { Button, Divider, Popover } from "antd"
-import { PlusOutlined, HistoryOutlined, SendOutlined } from "@ant-design/icons"
+import { PlusOutlined, HistoryOutlined, SendOutlined, ArrowUpOutlined } from "@ant-design/icons"
 import { useHistoryStore } from "@/store/useHistoryStore"
 import { LLMHistory } from "@/types/llm"
 import { Input } from "postcss"
@@ -17,7 +17,6 @@ export default function StandardChat() {
       <ChatTools onPlus={handlePlus} onHistory={handleHistory} historys={historys} />
       <Divider className="my-0" />
       <ChatContent />
-      <Divider className="my-0" />
       <ChatInput />
     </div>
   )
@@ -51,15 +50,25 @@ function ChatContent() {
 function ChatInput() {
   const [input, setInput] = useState('')
   return (
-    <div className="w-full min-h-[50px] flex items-center flex-col justify-between">
-      <div className="w-full h-[16px]">
-
+    <div className="w-full min-h-[58px] box-border flex items-center flex-col justify-between border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+      <div className="w-full h-[24px] pl-2 pr-2 pt-1">
+        <Button icon={<>@</>} size="small" />
       </div>
-      <div className=" flex-1 w-full flex items-end justify-between">
-        <TextArea value={input} onChange={(e) => setInput(e.target.value)} />
-        <Button className="ml-2" type="text" icon={<SendOutlined />} disabled={input.length === 0} />
+      <div className="flex-1 w-full flex items-end justify-between p-2 relative">
+        <TextArea
+          className="resize-none pr-16"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          autoSize={{ minRows: 2, maxRows: 2 }}
+        />
+        <Button
+          className="absolute top-1/2 right-4 transform -translate-y-1/2"
+          type="primary"
+          shape="circle"
+          icon={<ArrowUpOutlined />}
+          disabled={input.length === 0}
+        />
       </div>
-
     </div>
   )
 }
