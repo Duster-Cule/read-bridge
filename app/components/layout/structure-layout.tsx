@@ -9,6 +9,7 @@ import { useHeaderStore } from "@/store/useHeaderStore";
 import { Button } from "antd";
 import { CaretDownFilled } from "@ant-design/icons";
 import { theme } from "antd";
+import Preload from "@/app/components/preload";
 
 const { Header, Content, Footer } = Layout;
 
@@ -96,6 +97,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <Layout style={layoutStyle}>
+      <Preload />
       <Header style={dynamicHeaderStyle}><HeaderContent /></Header>
       {collapsed && (
         <Button
