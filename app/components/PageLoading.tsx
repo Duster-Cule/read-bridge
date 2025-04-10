@@ -11,7 +11,7 @@ interface PageLoadingProps {
 }
 
 export default function PageLoading({
-  tip = "加载中...",
+  tip = "loading...",
   size = 40,
   fullScreen = true
 }: PageLoadingProps) {
