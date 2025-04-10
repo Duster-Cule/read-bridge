@@ -70,7 +70,6 @@ export default function AiSection() {
   };
 
   const handleModelSubmit = (model: Model) => {
-    console.log(model, 'model', currentModel, 'currentModel')
     if (!selectedProvider) return;
 
     let updatedModels: Model[];
