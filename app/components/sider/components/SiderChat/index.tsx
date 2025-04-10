@@ -9,6 +9,7 @@ import { useLLMStore } from "@/store/useLLMStore"
 import { createLLMClient } from "@/services/llm"
 import { INPUT_PROMPT } from "@/constants/prompt"
 import dayjs from "dayjs"
+import { useTheme } from "next-themes"
 
 export default function StandardChat() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -137,63 +138,56 @@ function ChatContent({ history, containerRef }: { history: LLMHistory, container
 
   return (
     <div ref={contentRef} className="overflow-y-auto p-2" style={{ height: Math.max(0, height) }}>
-      <div className="text-sm text-gray-500 border rounded-md p-2 line-clamp-2 overflow-hidden text-ellipsis mb-2">{history.prompt}</div>
+      <div className="text-sm text-gray-500 rounded-md
+       p-2 line-clamp-2 overflow-hidden text-ellipsis mb-2 border border-[var(--ant-color-border)]">{history.prompt}</div>
       {history.messages.map((msg) => {
         if (msg.role === 'user') {
-          return <UserMessage key={msg.timestamp} msg={msg} />
+          return <MessageBubble key={msg.timestamp} msg={msg} isUser={true} />
         } else {
-          return <LLMMessage key={msg.timestamp} msg={msg} />
+          return <MessageBubble key={msg.timestamp} msg={msg} isUser={false} />
         }
       })}
     </div>
   )
 }
 
-function UserMessage({ msg }: { msg: LLMHistory['messages'][number] }) {
-  return (
-    <div className="flex flex-row justify-end mb-3 items-start">
-      <div className="max-w-[90%]">
-        <div className="flex justify-end mb-1">
-          <span className="text-xs text-gray-500 mr-1">
-            {dayjs(msg.timestamp).format('MM-DD HH:mm')}
-          </span>
-        </div>
-        <div className="bg-blue-50 p-2 rounded-md rounded-tr-none border text-sm">
-          {msg.content}
-        </div>
-        <div className="flex justify-end mt-1 space-x-2">
-          <Button
-            type="text"
-            size="small"
-            icon={<CopyIcon />}
-            onClick={() => {
-              navigator.clipboard.writeText(msg.content)
-              message.success('Copied to clipboard')
-            }}
-          />
-        </div>
-      </div>
-    </div>
-  )
-}
+function MessageBubble({
+  msg,
+  isUser
+}: {
+  msg: LLMHistory['messages'][number],
+  isUser: boolean
+}) {
+  const { theme } = useTheme();
+  const isDarkMode = useMemo(() => theme === 'dark', [theme])
+  const commonClasses = useMemo(() => {
+    return {
+      container: "flex flex-row mb-3 items-start" + (isUser ? ' justify-end' : ' justify-start'),
+      bubbleWrapper: "max-w-[90%]" + (isUser ? ' ml-auto' : ' mr-auto'),
+      timestampWrapper: "flex mb-1" + (isUser ? ' justify-end' : ' justify-start'),
+      bubble: "p-2 rounded-md border border-[var(--ant-color-border)] text-sm" +
+        (isUser
+          ? isDarkMode ? ' bg-blue-300/40' : ' bg-blue-100'
+          : isDarkMode ? ' bg-gray-800' : ' bg-gray-100 '),
+      actionsWrapper: "flex mt-1 space-x-2" + (isUser ? ' justify-end' : ' justify-start'),
+      name: "text-xs font-semibold",
+      timestamp: "text-xs text-gray-500"
+    };
+  }, [isUser, isDarkMode])
 
-function LLMMessage({ msg }: { msg: LLMHistory['messages'][number] }) {
   return (
-    <div className="flex flex-row justify-start mb-3 items-start">
-      {/* <div className="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center mr-1">
-        <span className="text-xs"></span>
-      </div> */}
-      <div className="max-w-[90%]">
-        <div className="flex justify-start mb-1">
-          <span className="text-xs font-semibold">{msg.name}</span>
-          <span className="text-xs text-gray-500 ml-1">
+    <div className={commonClasses.container}>
+      <div className={commonClasses.bubbleWrapper}>
+        <div className={commonClasses.timestampWrapper}>
+          {!isUser && <span className={commonClasses.name}>{msg.name}</span>}
+          <span className={commonClasses.timestamp}>
             {dayjs(msg.timestamp).format('MM-DD HH:mm')}
           </span>
         </div>
-        <div className="bg-white p-2 rounded-md rounded-tl-none border text-sm">
+        <div className={commonClasses.bubble}>
           {msg.content}
         </div>
-        <div className="flex justify-start mt-1 space-x-2">
+        <div className={commonClasses.actionsWrapper}>
           <Button
             type="text"
             size="small"
@@ -216,7 +210,8 @@ function ChatInput({ onSent }: { onSent: (input: string) => void }) {
     setInput('')
   }
   return (
-    <div className="box-border w-full h-[100px] flex items-center flex-col justify-between border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+    <div className="box-border w-full h-[100px] flex items-center flex-col
+     justify-between border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
       <div className="w-full h-[28px] pl-2 pr-2 pt-1 flex items-center">
         <Button icon={<>@</>} size="small" />
       </div>
