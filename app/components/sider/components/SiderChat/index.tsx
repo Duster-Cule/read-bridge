@@ -1,5 +1,6 @@
-import { Button, Divider, Popover } from "antd"
+import { Button, message, Popover } from "antd"
 import { PlusOutlined, HistoryOutlined, ArrowUpOutlined } from "@ant-design/icons"
+import { CopyIcon } from "@/assets/icon"
 import { useHistoryStore } from "@/store/useHistoryStore"
 import { LLMHistory } from "@/types/llm"
 import TextArea from "antd/es/input/TextArea"
@@ -7,6 +8,7 @@ import { useCallback, useMemo, useState, useRef, useEffect, RefObject } from "re
 import { useLLMStore } from "@/store/useLLMStore"
 import { createLLMClient } from "@/services/llm"
 import { INPUT_PROMPT } from "@/constants/prompt"
+import dayjs from "dayjs"
 
 export default function StandardChat() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -32,12 +34,12 @@ export default function StandardChat() {
     setStoreHistory([])
   }
 
-  const handleMessage = useCallback((messages: LLMHistory['messages'], chunk: string) => {
+  const handleMessage = useCallback((messages: LLMHistory['messages'], chunk: string, name: string) => {
     const endMessage = messages[messages.length - 1]
     if (endMessage?.role === 'assistant') {
       return [...messages.slice(0, -1), { ...endMessage, content: endMessage.content + chunk }]
     } else {
-      return [...messages, { role: 'assistant' as const, content: chunk, timestamp: new Date().getTime() }]
+      return [...messages, { role: 'assistant' as const, content: chunk, timestamp: new Date().getTime(), name }]
     }
   }, [])
 
@@ -54,7 +56,7 @@ export default function StandardChat() {
     let currentMessages = newHistory.messages;
 
     for await (const chunk of responseGenerator) {
-      currentMessages = handleMessage(currentMessages, chunk);
+      currentMessages = handleMessage(currentMessages, chunk, defaultLLMClient.name);
       setHistory(prev => ({
         ...prev,
         messages: currentMessages
@@ -93,14 +95,13 @@ function ChatTools({ onPlus, onHistory, historys }: { onPlus: () => void, onHist
   }
   return (
     <>
-      <div className="w-full h-[42px] flex items-center justify-end p-2">
+      <div className="w-full h-[42px] flex items-center justify-end p-2 shadow-md">
         <div className="mr-auto text-sm font-bold">Reading Assistant</div>
         <Button type="text" icon={<PlusOutlined />} onClick={onPlus} />
         <Popover content={historyContent()} placement="leftTop" trigger="click">
           <Button type="text" icon={<HistoryOutlined />} onClick={onHistory} />
         </Popover>
       </div>
-      <Divider className="my-0" />
     </>
   )
 }
@@ -135,10 +136,75 @@ function ChatContent({ history, containerRef }: { history: LLMHistory, container
   }, []);
 
   return (
-    <div ref={contentRef} className="overflow-y-auto" style={{ height: Math.max(0, height) }}>
+    <div ref={contentRef} className="overflow-y-auto p-2" style={{ height: Math.max(0, height) }}>
+      <div className="text-sm text-gray-500 border rounded-md p-2 line-clamp-2 overflow-hidden text-ellipsis mb-2">{history.prompt}</div>
       {history.messages.map((msg) => {
-        return <div key={msg.timestamp}>{msg.content}</div>
+        if (msg.role === 'user') {
+          return <UserMessage key={msg.timestamp} msg={msg} />
+        } else {
+          return <LLMMessage key={msg.timestamp} msg={msg} />
+        }
       })}
+    </div>
+  )
+}
+
+function UserMessage({ msg }: { msg: LLMHistory['messages'][number] }) {
+  return (
+    <div className="flex flex-row justify-end mb-3 items-start">
+      <div className="max-w-[90%]">
+        <div className="flex justify-end mb-1">
+          <span className="text-xs text-gray-500 mr-1">
+            {dayjs(msg.timestamp).format('MM-DD HH:mm')}
+          </span>
+        </div>
+        <div className="bg-blue-50 p-2 rounded-md rounded-tr-none border text-sm">
+          {msg.content}
+        </div>
+        <div className="flex justify-end mt-1 space-x-2">
+          <Button
+            type="text"
+            size="small"
+            icon={<CopyIcon />}
+            onClick={() => {
+              navigator.clipboard.writeText(msg.content)
+              message.success('Copied to clipboard')
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function LLMMessage({ msg }: { msg: LLMHistory['messages'][number] }) {
+  return (
+    <div className="flex flex-row justify-start mb-3 items-start">
+      {/* <div className="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center mr-1">
+        <span className="text-xs"></span>
+      </div> */}
+      <div className="max-w-[90%]">
+        <div className="flex justify-start mb-1">
+          <span className="text-xs font-semibold">{msg.name}</span>
+          <span className="text-xs text-gray-500 ml-1">
+            {dayjs(msg.timestamp).format('MM-DD HH:mm')}
+          </span>
+        </div>
+        <div className="bg-white p-2 rounded-md rounded-tl-none border text-sm">
+          {msg.content}
+        </div>
+        <div className="flex justify-start mt-1 space-x-2">
+          <Button
+            type="text"
+            size="small"
+            icon={<CopyIcon />}
+            onClick={() => {
+              navigator.clipboard.writeText(msg.content)
+              message.success('Copied to clipboard')
+            }}
+          />
+        </div>
+      </div>
     </div>
   )
 }

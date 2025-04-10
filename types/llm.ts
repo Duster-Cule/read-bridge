@@ -19,6 +19,9 @@ export type Provider = {
 }
 
 export type Client = {
+  name: string,
+  id: string,
+  Provider: Provider,
   completionsGenerator: (
     messages: OpenAI.Chat.ChatCompletionMessageParam[],
     prompt?: string,
@@ -55,6 +58,7 @@ export type LLMHistory = {
     role: 'user' | 'assistant' | 'system'
     content: string
     timestamp: number
+    name?: string // 模型名称
   }[]
 }
 

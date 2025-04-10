@@ -154,9 +154,12 @@ export function createOpenAIClient(provider: Provider, model: Model, options?: C
   }
 
   return {
+    name: model.name,
+    id: model.id,
+    Provider: provider,
     completionsGenerator,
     completions,
-    check
+    check,
   }
 }
 
