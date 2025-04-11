@@ -53,7 +53,7 @@ export default function StandardChat() {
       content: msg.content
     }))
     const prompt = newHistory.prompt
-    const responseGenerator = await defaultLLMClient.completionsGenerator(messages, prompt)
+    const responseGenerator = defaultLLMClient.completionsGenerator(messages, prompt)
     let currentMessages = newHistory.messages;
 
     for await (const chunk of responseGenerator) {
