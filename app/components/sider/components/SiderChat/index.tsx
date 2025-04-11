@@ -171,7 +171,7 @@ function MessageBubble({
           : isDarkMode ? ' bg-gray-800' : ' bg-gray-100 '),
       actionsWrapper: "flex mt-1 space-x-2" + (isUser ? ' justify-end' : ' justify-start'),
       name: "text-xs font-semibold",
-      timestamp: "text-xs text-gray-500"
+      timestamp: "text-xs text-gray-500 ml-2"
     };
   }, [isUser, isDarkMode])
 
