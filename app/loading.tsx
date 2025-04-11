@@ -2,6 +2,6 @@
 
 import PageLoading from '@/app/components/PageLoading';
 
-export default function HomeLoading() {
+export default function Loading() {
   return <PageLoading />;
 } 
