@@ -35,12 +35,19 @@ export default function StandardChat() {
     setStoreHistory([])
   }
 
-  const handleMessage = useCallback((messages: LLMHistory['messages'], chunk: string, name: string) => {
+  const handleMessage = useCallback((messages: LLMHistory['messages'], chunk: string, name: string, isThinking: boolean, thinkingTime: number | null) => {
     const endMessage = messages[messages.length - 1]
+    let updateMessage = { ...endMessage }
     if (endMessage?.role === 'assistant') {
-      return [...messages.slice(0, -1), { ...endMessage, content: endMessage.content + chunk }]
+      if (isThinking) updateMessage.reasoningContent += chunk
+      else updateMessage.content += chunk
+      if (thinkingTime) updateMessage.thinkingTime = thinkingTime
+      return [...messages.slice(0, -1), updateMessage]
     } else {
-      return [...messages, { role: 'assistant' as const, content: chunk, timestamp: new Date().getTime(), name }]
+      updateMessage = { role: 'assistant' as const, content: '', reasoningContent: '', timestamp: dayjs().unix(), name }
+      if (isThinking) updateMessage.reasoningContent = chunk
+      else updateMessage.content = chunk
+      return [...messages, updateMessage]
     }
   }, [])
 
@@ -55,9 +62,22 @@ export default function StandardChat() {
     const prompt = newHistory.prompt
     const responseGenerator = defaultLLMClient.completionsGenerator(messages, prompt)
     let currentMessages = newHistory.messages;
-
+    let isThinking = false
+    let thinkingStartTime: number | null = null
+    let thinkingTime: number | null = null
     for await (const chunk of responseGenerator) {
-      currentMessages = handleMessage(currentMessages, chunk, defaultLLMClient.name);
+      if (chunk === '<think>') {
+        isThinking = true
+        thinkingStartTime = dayjs().unix()
+        continue
+      }
+      if (chunk === '</think>') {
+        isThinking = false
+        thinkingTime = thinkingStartTime ? (dayjs().unix() - thinkingStartTime) : null
+        continue
+      }
+      currentMessages = handleMessage(currentMessages, chunk, defaultLLMClient.name, isThinking, thinkingTime);
+      thinkingTime = null
       setHistory(prev => ({
         ...prev,
         messages: currentMessages
@@ -71,7 +91,7 @@ export default function StandardChat() {
     setHistory((prev) => {
       const newHistory = {
         ...prev,
-        messages: [...(prev?.messages ?? []), { role: 'user', content: input, timestamp: new Date().getTime() }]
+        messages: [...(prev?.messages ?? []), { role: 'user', content: input, timestamp: dayjs().unix() }]
       } as LLMHistory
       handleChat(newHistory)
       return newHistory
@@ -185,6 +205,8 @@ function MessageBubble({
           </span>
         </div>
         <div className={commonClasses.bubble}>
+          {msg.thinkingTime && <div>Thinking Time: {msg.thinkingTime}</div>}
+          {msg.reasoningContent && <div>Reasoning: {msg.reasoningContent}</div>}
           {msg.content}
         </div>
         <div className={commonClasses.actionsWrapper}>

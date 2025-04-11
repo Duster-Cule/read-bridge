@@ -59,6 +59,8 @@ export type LLMHistory = {
     content: string
     timestamp: number
     name?: string // 模型名称
+    reasoningContent?: string // 思考内容
+    thinkingTime?: number // 思考时间
   }[]
 }
 
