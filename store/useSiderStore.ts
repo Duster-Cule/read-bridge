@@ -8,6 +8,8 @@ interface SiderStore {
   setSiderWidth: (width: number) => void
   collapsed: boolean
   setCollapsed: (collapsed: boolean) => void
+  thinkingExpanded: boolean
+  setThinkingExpanded: (expanded: boolean) => void
 }
 
 export const useSiderStore = create<SiderStore>()(
@@ -19,6 +21,8 @@ export const useSiderStore = create<SiderStore>()(
       setSiderWidth: (width) => set({ siderWidth: width }),
       collapsed: false,
       setCollapsed: (collapsed) => set({ collapsed }),
+      thinkingExpanded: true,
+      setThinkingExpanded: (expanded) => set({ thinkingExpanded: expanded }),
     }),
     {
       name: 'sider-storage',
