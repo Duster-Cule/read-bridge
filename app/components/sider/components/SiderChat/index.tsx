@@ -1,5 +1,5 @@
 import { Button, message, Popover, Tag, Collapse } from "antd"
-import { PlusOutlined, HistoryOutlined, ArrowUpOutlined, CopyOutlined, SyncOutlined } from "@ant-design/icons"
+import { PlusOutlined, HistoryOutlined, ArrowUpOutlined, PauseOutlined, SyncOutlined } from "@ant-design/icons"
 import { CopyIcon } from "@/assets/icon"
 import { useHistoryStore } from "@/store/useHistoryStore"
 import { LLMHistory } from "@/types/llm"
@@ -30,6 +30,9 @@ export default function StandardChat() {
       ? createLLMClient(defaultModel)
       : null
   }, [defaultModel])
+  const [isGenerating, setIsGenerating] = useState(false)
+  const abortControllerRef = useRef<AbortController | null>(null)
+
   function handlePlus() {
   }
   function handleHistory() {
@@ -56,35 +59,67 @@ export default function StandardChat() {
     if (!newHistory) throw new Error('newHistory is undefined')
     if (!defaultLLMClient) throw new Error('defaultLLMClient is undefined')
     if (newHistory.messages.length === 0) throw new Error('newHistory.messages is empty')
+
+    setIsGenerating(true)
+
+    // Create a new AbortController for this chat
+    abortControllerRef.current = new AbortController()
+    const signal = abortControllerRef.current.signal
+
     const messages = newHistory.messages.map((msg) => ({
       role: msg.role,
       content: msg.content
     }))
     const prompt = newHistory.prompt
-    const responseGenerator = defaultLLMClient.completionsGenerator(messages, prompt)
-    let currentMessages = newHistory.messages;
     let isThinking = false
     let thinkingStartTime: number | null = null
     let thinkingTime: number | null = null
-    for await (const chunk of responseGenerator) {
-      if (chunk === '<think>') {
-        isThinking = true
-        thinkingStartTime = dayjs().unix()
-        continue
+    try {
+      const responseGenerator = defaultLLMClient.completionsGenerator(messages, prompt, signal)
+      let currentMessages = newHistory.messages;
+
+      for await (const chunk of responseGenerator) {
+        if (chunk === '<think>') {
+          isThinking = true
+          thinkingStartTime = dayjs().unix()
+          continue
+        }
+        if (chunk === '</think>') {
+          isThinking = false
+          thinkingTime = thinkingStartTime ? (dayjs().unix() - thinkingStartTime) : null
+          continue
+        }
+        currentMessages = handleMessage(currentMessages, chunk, defaultLLMClient.name, isThinking, thinkingTime);
+        thinkingTime = null
+        setHistory(prev => ({
+          ...prev,
+          messages: currentMessages
+        }));
       }
-      if (chunk === '</think>') {
-        isThinking = false
-        thinkingTime = thinkingStartTime ? (dayjs().unix() - thinkingStartTime) : null
-        continue
+    } catch (error: any) {
+      console.error('Chat generation error:', error)
+      message.error('聊天生成出错')
+    } finally {
+      const wasAborted = abortControllerRef.current?.signal.aborted || false;
+
+      if (wasAborted) {
+        message.info('已中断聊天生成')
+        setHistory(prev => ({
+          ...prev,
+          messages: handleMessage(prev.messages, '已中断聊天生成', defaultLLMClient.name, false, thinkingStartTime ? (dayjs().unix() - thinkingStartTime) : null)
+        }));
       }
-      currentMessages = handleMessage(currentMessages, chunk, defaultLLMClient.name, isThinking, thinkingTime);
-      thinkingTime = null
-      setHistory(prev => ({
-        ...prev,
-        messages: currentMessages
-      }));
+
+      setIsGenerating(false)
+      abortControllerRef.current = null
     }
   }, [defaultLLMClient, setHistory, handleMessage])
+
+  const handleStopGeneration = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+    }
+  }, [])
 
   const handleSend = useCallback((input: string) => {
     if (input.length === 0) return
@@ -104,7 +139,11 @@ export default function StandardChat() {
     <div ref={containerRef} className="w-full h-full flex flex-col text-[var(--ant-color-text)]">
       <ChatTools onPlus={handlePlus} onHistory={handleHistory} historys={historys} />
       <ChatContent containerRef={containerRef} history={history} />
-      <ChatInput onSent={handleSend} />
+      <ChatInput
+        onSent={handleSend}
+        isGenerating={isGenerating}
+        onStopGeneration={handleStopGeneration}
+      />
     </div>
   )
 }
@@ -161,11 +200,11 @@ function ChatContent({ history, containerRef }: { history: LLMHistory, container
     <div ref={contentRef} className="overflow-y-auto p-2" style={{ height: Math.max(0, height) }}>
       <div className="text-sm text-gray-500 rounded-md
        p-2 line-clamp-2 overflow-hidden text-ellipsis mb-2 border border-[var(--ant-color-border)]">{history.prompt}</div>
-      {history.messages.map((msg) => {
+      {history.messages.map((msg, index) => {
         if (msg.role === 'user') {
-          return <MessageBubble key={msg.timestamp} msg={msg} isUser={true} />
+          return <MessageBubble key={index} msg={msg} isUser={true} />
         } else {
-          return <MessageBubble key={msg.timestamp} msg={msg} isUser={false} />
+          return <MessageBubble key={index} msg={msg} isUser={false} />
         }
       })}
     </div>
@@ -313,7 +352,15 @@ function MessageBubble({
   )
 }
 
-function ChatInput({ onSent }: { onSent: (input: string) => void }) {
+function ChatInput({
+  onSent,
+  isGenerating = false,
+  onStopGeneration
+}: {
+  onSent: (input: string) => void,
+  isGenerating?: boolean,
+  onStopGeneration?: () => void
+}) {
   const [input, setInput] = useState('')
   const [tags, setTags] = useState<Array<{ label: string, value: string }>>([])
   const [tagSelectorOpen, setTagSelectorOpen] = useState(false)
@@ -395,20 +442,32 @@ function ChatInput({ onSent }: { onSent: (input: string) => void }) {
           onKeyDown={(e) => {
             if (e.key === 'Enter' && e.ctrlKey) {
               e.preventDefault();
-              if (input.length > 0) {
+              if (input.length > 0 && !isGenerating) {
                 handleSend();
               }
             }
           }}
+          disabled={isGenerating}
         />
-        <Button
-          className="absolute top-1/2 right-4 transform -translate-y-1/2"
-          type="primary"
-          shape="circle"
-          icon={<ArrowUpOutlined />}
-          disabled={input.length === 0}
-          onClick={handleSend}
-        />
+        {isGenerating ? (
+          <Button
+            className="absolute top-1/2 right-4 transform -translate-y-1/2"
+            type="primary"
+            danger
+            shape="circle"
+            icon={<PauseOutlined />}
+            onClick={onStopGeneration}
+          />
+        ) : (
+          <Button
+            className="absolute top-1/2 right-4 transform -translate-y-1/2"
+            type="primary"
+            shape="circle"
+            icon={<ArrowUpOutlined />}
+            disabled={input.length === 0}
+            onClick={handleSend}
+          />
+        )}
       </div>
     </div>
   )
