@@ -25,7 +25,6 @@ export default function StandardChat() {
   )
   const { historys, setHistory: setStoreHistory } = useHistoryStore()
   const { defaultModel } = useLLMStore()
-  const { thinkingExpanded } = useSiderStore()
   const defaultLLMClient = useMemo(() => {
     return defaultModel
       ? createLLMClient(defaultModel)
@@ -263,7 +262,7 @@ function MessageBubble({
               activeKey={activeKey}
               onChange={handleCollapseChange}
               bordered={false}
-              className={`mb-3 overflow-hidden ${commonClasses.collapsePanel}`}
+              className={`mb-4 overflow-hidden ${commonClasses.collapsePanel}`}
               items={[
                 {
                   key: 'thinking',
@@ -296,7 +295,7 @@ function MessageBubble({
               ]}
             />
           )}
-          <div className="mt-2">{msg.content}</div>
+          <div>{msg.content}</div>
         </div>
         <div className={commonClasses.actionsWrapper}>
           <Button
