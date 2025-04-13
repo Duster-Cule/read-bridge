@@ -96,7 +96,7 @@ export default function StandardChat() {
           messages: currentMessages
         }));
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Chat generation error:', error)
       message.error('聊天生成出错')
     } finally {
@@ -175,7 +175,7 @@ function ChatContent({ history, containerRef }: { history: LLMHistory, container
     if (!containerRef.current) return;
     const height = containerRef.current.getBoundingClientRect().height;
     setHeight(height - 142);
-  }, []);
+  }, [containerRef]);
 
   useEffect(() => {
     if (!contentRef.current) return;
