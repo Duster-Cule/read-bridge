@@ -11,7 +11,7 @@ export default function Sider() {
   const [readingProgress, updateReadingProgress] = useReadingProgress()
   // 当前章节
   const currentChapter = useMemo(() => {
-    return readingProgress.sentenceChapters[readingProgress.currentLocation.chapterIndex]
+    return readingProgress.sentenceChapters[readingProgress.currentLocation.chapterIndex] || []
   }, [readingProgress.sentenceChapters, readingProgress.currentLocation.chapterIndex])
   const pathname = usePathname()
 
@@ -26,7 +26,7 @@ export default function Sider() {
   return (
     <div className="w-full h-full flex flex-col">
       <SiderContent currentChapter={currentChapter} />
-      <SiderChat />
+      <SiderChat currentChapter={currentChapter} lineIndex={readingProgress.currentLocation.lineIndex} />
     </div>
   )
 }

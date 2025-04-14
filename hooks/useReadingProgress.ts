@@ -6,7 +6,6 @@ import { ReadingProgress } from "@/types/book";
 import { useCallback, useEffect, useState } from "react";
 
 export function useReadingProgress() {
-
   const { readingId } = useSiderStore()
 
   const [readingProgress, setReadingProgress] = useState<ReadingProgress>({

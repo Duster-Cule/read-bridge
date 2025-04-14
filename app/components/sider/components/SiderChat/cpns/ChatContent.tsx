@@ -23,10 +23,17 @@ export default function ChatContent({ history, containerRef }: { history: LLMHis
     if (!contentRef.current) return;
 
     const observer = new MutationObserver(() => {
-      contentRef.current?.scrollTo({
-        top: contentRef.current.scrollHeight,
-        behavior: 'smooth'
-      });
+      if (!contentRef.current) return;
+
+      const { scrollTop, scrollHeight, clientHeight } = contentRef.current;
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+
+      if (isNearBottom) {
+        contentRef.current.scrollTo({
+          top: contentRef.current.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
     });
 
     observer.observe(contentRef.current, {
@@ -41,7 +48,7 @@ export default function ChatContent({ history, containerRef }: { history: LLMHis
   return (
     <div ref={contentRef} className="overflow-y-auto p-2" style={{ height: Math.max(0, height) }}>
       <div className="text-sm text-gray-500 rounded-md
-       p-2 line-clamp-2 overflow-hidden text-ellipsis mb-2 border border-[var(--ant-color-border)]">{history.prompt}</div>
+       p-2  text-ellipsis mb-2 border border-[var(--ant-color-border)]">{history.prompt}</div>
       {history.messages.map((msg, index) => {
         if (msg.role === 'user') {
           return <MessageBubble key={index} msg={msg} isUser={true} />

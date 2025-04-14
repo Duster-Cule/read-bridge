@@ -7,7 +7,7 @@ export default function WordDetails({ wordDetails }: { wordDetails: string }) {
   }, [wordDetails])
 
   return (
-    <div className="w-full h-[350px] overflow-y-auto p-4">
+    <div className="w-full h-[262px] overflow-y-auto p-4">
       <CardComponent loading={isLoading}>
         <div className="w-full" dangerouslySetInnerHTML={{ __html: wordDetails }} />
       </CardComponent>

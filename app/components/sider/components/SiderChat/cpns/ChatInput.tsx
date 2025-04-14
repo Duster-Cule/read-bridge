@@ -1,14 +1,19 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button, Popover, Tag } from "antd"
 import { ArrowUpOutlined, PauseOutlined } from "@ant-design/icons"
 import TextArea from "antd/es/input/TextArea"
 
 export default function ChatInput({
   onSent,
+  tagOptions,
   isGenerating = false,
   onStopGeneration
 }: {
-  onSent: (input: string) => void,
+  onSent: (input: string, tags: string[]) => void,
+  tagOptions: {
+    label: string,
+    value: string
+  }[],
   isGenerating?: boolean,
   onStopGeneration?: () => void
 }) {
@@ -16,22 +21,18 @@ export default function ChatInput({
   const [tags, setTags] = useState<Array<{ label: string, value: string }>>([])
   const [tagSelectorOpen, setTagSelectorOpen] = useState(false)
 
+  useEffect(() => {
+    if (tagOptions.length > 0) {
+      setTags([tagOptions[0]])
+    }
+  }, [tagOptions])
+
   const handleSend = () => {
-    onSent(input)
+    onSent(input, tags.map(tag => tag.value))
     setInput('')
   }
 
   function content(onAddTag: (tag: { label: string, value: string }) => void) {
-    const tagOptions = [
-      {
-        label: '周围文本',
-        value: 'base_context'
-      },
-      {
-        label: '当前章节',
-        value: 'current_chapter'
-      }
-    ]
     return (
       <div className="flex flex-col gap-2">
         {tagOptions.map((tag) => {

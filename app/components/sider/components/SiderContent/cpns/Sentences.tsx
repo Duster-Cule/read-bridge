@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react"
 
 export default function Sentences({ sentenceProcessingList }: { sentenceProcessingList: { name: string, type: string, generator: AsyncGenerator<string, void, unknown> }[] }) {
   return (
-    <div className="w-full h-[350px] overflow-y-auto p-4">
+    <div className="w-full h-[262px] overflow-y-auto p-4">
       {
         sentenceProcessingList.map((item) => (
           <CardComponent className="mb-2" key={item.name} title={item.name} loading={!item.generator}>

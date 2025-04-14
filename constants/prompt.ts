@@ -57,8 +57,10 @@ Make it understandable for lower-level English learners
 `
 
 const CHAT_PROMPT = `
-You are a helpful assistant.
+You are a helpful reading assistant for n+1 language learning through reading. 
+Help users understand book content that's slightly above their current language level. Explain unfamiliar words or phrases when asked, provide simple clarifications of complex passages, and engage in natural discussion about the text to reinforce comprehension while keeping conversations encouraging and supportive.
 `
+
 export const INPUT_PROMPT = {
   WORD_DETAILS,
   SENTENCE_REWRITE,

@@ -10,8 +10,12 @@ import { INPUT_PROMPT } from "@/constants/prompt"
 import dayjs from "dayjs"
 
 import { ChatTools, ChatContent, ChatInput } from "./cpns"
-
-export default function StandardChat() {
+import { ChatCompletionMessageParam } from "openai/resources/index.mjs"
+interface SiderChatProps {
+  currentChapter: string[]
+  lineIndex: number
+}
+export default function StandardChat({ currentChapter, lineIndex }: SiderChatProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [history, setHistory] = useState<LLMHistory>(
     {
@@ -38,6 +42,17 @@ export default function StandardChat() {
     setStoreHistory([])
   }
 
+  const tagOptions = useMemo(() => [
+    {
+      label: '周围文本',
+      value: 'base_context'
+    },
+    {
+      label: '当前章节',
+      value: 'current_chapter'
+    }
+  ], [])
+
   const handleMessage = useCallback((messages: LLMHistory['messages'], chunk: string, name: string, isThinking: boolean, thinkingTime: number | null) => {
     const endMessage = messages[messages.length - 1]
     let updateMessage = { ...endMessage }
@@ -54,21 +69,47 @@ export default function StandardChat() {
     }
   }, [])
 
-  const handleChat = useCallback(async (newHistory: LLMHistory) => {
+  const handleTags = useCallback((tags: string[]): ChatCompletionMessageParam[] => {
+    const tagContext = tags.map(tag => {
+      switch (tag) {
+        case 'base_context':
+          if (tags.includes('current_chapter')) return null
+          if (currentChapter.length === 0) return null
+          const bookContext = currentChapter.length > 0 ? currentChapter.slice(Math.max(lineIndex - 20, 0), Math.min(lineIndex + 20, currentChapter.length)).join('\n\n') : ''
+          return {
+            role: 'user',
+            content: `I'm providing the following excerpt from a book as context:\n\n${bookContext}\n\nBased on this context, please answer: [user question]`
+          }
+        case 'current_chapter':
+          if (tags.includes('base_context')) return null
+          return {
+            role: 'user',
+            content: `I'm providing the following excerpt from a book as context:\n\n${currentChapter.join('\n\n')}\n\nBased on this context, please answer: [user question]`
+          }
+      }
+    })
+    return tagContext.filter(Boolean) as ChatCompletionMessageParam[]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentChapter, lineIndex])
+
+  const handleChat = useCallback(async (newHistory: LLMHistory, tags: string[]) => {
     if (!newHistory) throw new Error('newHistory is undefined')
     if (!defaultLLMClient) throw new Error('defaultLLMClient is undefined')
     if (newHistory.messages.length === 0) throw new Error('newHistory.messages is empty')
 
     setIsGenerating(true)
 
-    // Create a new AbortController for this chat
+    // 中断控制
     abortControllerRef.current = new AbortController()
     const signal = abortControllerRef.current.signal
 
-    const messages = newHistory.messages.map((msg) => ({
+    // 处理tag
+    const tagContext = tags.length > 0 ? handleTags(tags) : []
+
+    const messages = [...tagContext, ...newHistory.messages.map((msg) => ({
       role: msg.role,
       content: msg.content
-    }))
+    }))]
     const prompt = newHistory.prompt
     let isThinking = false
     let thinkingStartTime: number | null = null
@@ -112,7 +153,7 @@ export default function StandardChat() {
       setIsGenerating(false)
       abortControllerRef.current = null
     }
-  }, [defaultLLMClient, setHistory, handleMessage])
+  }, [defaultLLMClient, setHistory, handleMessage, handleTags])
 
   const handleStopGeneration = useCallback(() => {
     if (abortControllerRef.current) {
@@ -120,7 +161,7 @@ export default function StandardChat() {
     }
   }, [])
 
-  const handleSend = useCallback((input: string) => {
+  const handleSend = useCallback((input: string, tags: string[]) => {
     if (input.length === 0) return
     if (!defaultLLMClient) throw new Error('defaultLLMClient is undefined')
     setHistory((prev) => {
@@ -128,11 +169,13 @@ export default function StandardChat() {
         ...prev,
         messages: [...(prev?.messages ?? []), { role: 'user', content: input, timestamp: dayjs().unix() }]
       } as LLMHistory
-      handleChat(newHistory)
+      handleChat(newHistory, tags)
       return newHistory
     })
 
   }, [defaultLLMClient, setHistory, handleChat])
+
+
 
   return (
     <div ref={containerRef} className="w-full h-full flex flex-col text-[var(--ant-color-text)]">
@@ -140,6 +183,7 @@ export default function StandardChat() {
       <ChatContent containerRef={containerRef} history={history} />
       <ChatInput
         onSent={handleSend}
+        tagOptions={tagOptions}
         isGenerating={isGenerating}
         onStopGeneration={handleStopGeneration}
       />
