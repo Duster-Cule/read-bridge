@@ -13,7 +13,7 @@ function MenuLine({
   const onClick: MenuProps['onClick'] = (e) => {
     onTabChange(e.key);
   };
-
+  console.log(items, 'MenuLine items')
   return (
     <Menu
       mode="horizontal"
