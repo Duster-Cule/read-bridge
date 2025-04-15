@@ -88,8 +88,16 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
           }
       }
     })
-    return tagContext.filter(Boolean) as ChatCompletionMessageParam[]
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const filteredContext = tagContext.filter(Boolean) as ChatCompletionMessageParam[]
+    const finalContext: ChatCompletionMessageParam[] = []
+    filteredContext.forEach(ctx => {
+      finalContext.push(ctx);
+      finalContext.push({
+        role: 'assistant',
+        content: 'I\'ve received the context. Ready for your question.'
+      });
+    });
+    return finalContext
   }, [currentChapter, lineIndex])
 
   const handleChat = useCallback(async (newHistory: LLMHistory, tags: string[]) => {
