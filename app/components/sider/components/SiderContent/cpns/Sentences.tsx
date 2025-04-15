@@ -24,51 +24,65 @@ export default function Sentences({ sentenceProcessingList }: { sentenceProcessi
 function TextGenerator({ generator }: { generator: AsyncGenerator<string, void, unknown> }) {
   const [text, setText] = useState<string>("")
   useEffect(() => {
+    setText("");
     (async () => {
       for await (const chunk of generator) {
         setText((prev) => prev + chunk)
       }
     })()
+
   }, [generator])
   return <div>{text}</div>
 }
 
-function BulletListGenerator({ generator }: { generator: AsyncGenerator<string, void, unknown> }) {
-  const [list, setList] = useState<string[]>([])
-  useEffect(() => {
-    (async () => {
-      for await (const chunk of generator) {
-        setList((prev) => [...prev, chunk])
-      }
-    })()
-  }, [generator])
-  return (
-    <div>
-      {list.map((item) => (
-        <div key={item}>{item}</div>
-      ))}
-    </div>
-  )
-}
-
-function KeyValueListGenerator({ generator }: { generator: AsyncGenerator<string, void, unknown> }) {
+function ListGenerator({ generator, type }: { generator: AsyncGenerator<string, void, unknown>, type: string }) {
   const handleWordAnalysis = useCallback((analysis: string, index: number) => {
     const [keyWord, ...rest] = analysis.split(':')
     return <div className="text-[var(--ant-color-text)] mb-2" key={index}><span className=" font-semibold">{keyWord}</span>:{rest}</div>
   }, [])
+
   const [list, setList] = useState<string[]>([])
+  const [thinkContext, setThinkContext] = useState<string>('')
+
   useEffect(() => {
+    let thinking = false
+    setList([]);
+    setThinkContext('');
+    let buffer = '';
     (async () => {
       for await (const chunk of generator) {
-        setList((prev) => [...prev, chunk])
+        buffer += chunk
+        if (chunk === '<think>') {
+          thinking = true
+        }
+        if (thinking) {
+          setThinkContext((prev) => prev + chunk)
+        } else {
+          setList((prev) => [...prev, chunk])
+        }
+        if (chunk === '</think>') {
+          thinking = false
+        }
       }
+      console.log(buffer, `${type}GeneratorBuffer`)
     })()
-  }, [generator])
+  }, [generator, type])
+
   return (
     <div>
-      {list.map((item, index) => (
-        handleWordAnalysis(item, index)
-      ))}
+      {thinkContext && <div>{thinkContext}</div>}
+      {type === OUTPUT_TYPE.KEY_VALUE_LIST
+        ? list.map((item, index) => handleWordAnalysis(item, index))
+        : list.map((item) => <div key={item}>{item}</div>)
+      }
     </div>
   )
+}
+
+function BulletListGenerator({ generator }: { generator: AsyncGenerator<string, void, unknown> }) {
+  return <ListGenerator generator={generator} type={OUTPUT_TYPE.BULLET_LIST} />
+}
+
+function KeyValueListGenerator({ generator }: { generator: AsyncGenerator<string, void, unknown> }) {
+  return <ListGenerator generator={generator} type={OUTPUT_TYPE.KEY_VALUE_LIST} />
 }

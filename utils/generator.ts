@@ -57,4 +57,41 @@ async function* getGeneratorHTMLULList(generator: AsyncGenerator<string, void, u
   }
 }
 
-export default getGeneratorHTMLULList
+async function* getGeneratorThink(generator: AsyncGenerator<string, void, unknown>): AsyncGenerator<string, void, unknown> {
+  // 获取第一个数据块
+  const firstChunk = await generator.next()
+
+  // 检查第一个数据块是否包含<think>标签
+  if (firstChunk.done) {
+    return; // 如果生成器已结束，直接返回
+  }
+
+  if (firstChunk.value?.includes("<think>")) {
+    yield firstChunk.value
+
+    // 继续获取直到</think>标签
+    for await (const chunk of generator) {
+      yield chunk
+      if (chunk.includes("</think>")) {
+        break
+      }
+    }
+
+    // 处理剩余的HTML列表 TODO 这种方式不行 待修改
+    yield* getGeneratorHTMLULList((async function* () {
+      yield* generator
+    })())
+  } else {
+    // 如果不包含<think>标签，直接处理为HTML列表
+    // 创建一个新的生成器，包含第一个数据块和原生成器的内容
+    yield* getGeneratorHTMLULList((async function* () {
+      if (firstChunk.value) {
+        yield firstChunk.value
+      }
+      yield* generator
+    })());
+  }
+}
+
+
+export default getGeneratorThink

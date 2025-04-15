@@ -1,7 +1,7 @@
 import { EVENT_NAMES, EventEmitter } from "@/services/EventService"
 import { createLLMClient } from "@/services/llm"
 import { useLLMStore } from "@/store/useLLMStore"
-import getGeneratorHTMLULList from "@/utils/generator"
+import getGeneratorThink from "@/utils/generator"
 import { Divider, Empty } from "antd"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { CurrentSentence, MenuLine, Sentences, WordDetails } from "./cpns"
@@ -64,13 +64,13 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
         try {
           switch (type) {
             case OUTPUT_TYPE.BULLET_LIST:
-              generator = getGeneratorHTMLULList(defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, outputPrompt), signal))
+              generator = getGeneratorThink(defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, outputPrompt), signal))
               break
             case OUTPUT_TYPE.TEXT:
               generator = defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, outputPrompt), signal)
               break
             case OUTPUT_TYPE.KEY_VALUE_LIST:
-              generator = getGeneratorHTMLULList(defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, outputPrompt), signal))
+              generator = getGeneratorThink(defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, outputPrompt), signal))
               break
             default:
               generator = defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, outputPrompt), signal)
@@ -123,23 +123,28 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
   }, [])
 
   const wordAbortControllerRef = useRef<AbortController | null>(null)
+  const isSameWord = useCallback((newWord: string) => {
+    return new Promise((resolve) => {
+      setWord((prev) => {
+        if (prev === newWord) {
+          resolve(true)
+          return prev
+        }
+        else return newWord
+      })
+      resolve(false)
+    })
+  }, [setWord])
+
   // 处理点击单词
   const handleWord = useCallback(async (word: string) => {
+    if (await isSameWord(word)) return
     if (wordAbortControllerRef.current) {
       wordAbortControllerRef.current.abort();
     }
     wordAbortControllerRef.current = new AbortController();
     const { signal } = wordAbortControllerRef.current;
 
-    let isSame = false
-    setWord((prev) => {
-      if (prev === word) {
-        isSame = true
-        return prev
-      }
-      else return word
-    })
-    if (isSame) return
     setWordDetails("")
     handleTabChange('word-details')
     if (!defaultLLMClient) return
