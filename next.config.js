@@ -8,6 +8,7 @@ const nextConfig = {
       skipDefaultConversion: true,
     },
   },
+  // output: 'export', // 输出纯静态
   webpack: (config) => {
     return config;
   },

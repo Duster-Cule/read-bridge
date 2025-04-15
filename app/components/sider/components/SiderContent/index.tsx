@@ -105,7 +105,7 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
   }, [currentChapter, handleLineIndex])
 
   // 菜单项
-  const items = useCallback(() => {
+  const items = useMemo(() => {
     return [
       {
         label: 'Sentence Analysis',
@@ -116,8 +116,8 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
         key: 'word-details',
         disabled: !word,
       },
-    ]
-  }, [word])
+    ];
+  }, [word]);
   const handleTabChange = useCallback((key: string) => {
     setSelectedTab(key)
   }, [])
@@ -158,7 +158,7 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
     <div className="w-full h-[534px] flex flex-col">
       <CurrentSentence sentence={sentence} handleWord={handleWord} />
       <Divider className="my-0" />
-      <MenuLine selectedTab={selectedTab} items={items()} onTabChange={handleTabChange} />
+      <MenuLine selectedTab={selectedTab} items={items} onTabChange={handleTabChange} />
       {selectedTab === 'sentence-analysis' && (
         sentence ? <Sentences sentenceProcessingList={sentenceProcessingList} /> : <Empty description="No sentence selected" className="flex flex-col items-center justify-center h-[262px]" />
       )}
