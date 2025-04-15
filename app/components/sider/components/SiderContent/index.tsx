@@ -153,7 +153,7 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
       if (!chunk) continue
       setWordDetails((prev) => (prev || "") + chunk)
     }
-  }, [defaultLLMClient, handleTabChange, sentence])
+  }, [defaultLLMClient, handleTabChange, sentence, isSameWord])
   return (
     <div className="w-full h-[534px] flex flex-col">
       <CurrentSentence sentence={sentence} handleWord={handleWord} />

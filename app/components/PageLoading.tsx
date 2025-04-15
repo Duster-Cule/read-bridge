@@ -20,7 +20,9 @@ export default function PageLoading({
   return (
     <div className={`flex items-center justify-center ${fullScreen ? 'w-full h-full min-h-[400px]' : ''}`}>
       <Space direction="vertical" align="center">
-        <Spin indicator={antIcon} tip={tip} size="large" />
+        <Spin indicator={antIcon} tip={tip} size="large">
+          <div style={{ padding: '30px' }}></div>
+        </Spin>
       </Space>
     </div>
   );
