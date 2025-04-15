@@ -161,7 +161,7 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
       <Divider className="my-0" />
       <MenuLine selectedTab={selectedTab} items={items} onTabChange={handleTabChange} />
       <div className={`${selectedTab === 'sentence-analysis' ? 'block' : 'hidden'}`}>
-        <Sentences sentenceProcessingList={sentenceProcessingList} />
+        {sentenceProcessingList.length > 0 ? <Sentences sentenceProcessingList={sentenceProcessingList} /> : <Empty description="No sentence selected" className="flex flex-col items-center justify-center h-[262px]" />}
       </div>
       {selectedTab === 'word-details' && (
         word ? <WordDetails wordDetails={wordDetails} /> : <Empty description="No word selected" className="flex flex-col items-center justify-center h-[262px]" />
