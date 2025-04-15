@@ -22,7 +22,10 @@ export async function handleFileUpload(
   }
   const { name, size, type } = file
   const format = type.split('/')[1];
-
+  console.log(name, 'name')
+  console.log(size, 'size')
+  console.log(type, 'type')
+  console.log(format, 'format')
   if (!isValidBookFormat(format)) {
     throw new Error('Invalid file format');
   }

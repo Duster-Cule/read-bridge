@@ -130,7 +130,7 @@ class BookDB extends Dexie {
    * @returns 按最后阅读时间(当没阅读过则使用创建时间)返回liveQuery
    */
   async getBooksPreview(type: typeof DB_SEARCH_KEYS[number], value: string, reverse = true): Promise<BookPreview[]> {
-    const books = await this.getBooks(type, value, reverse)
+    const books = (await this.getBooks(type, value, reverse)) || []
     return new Promise((resolve) => {
       resolve(getBookPreview(books))
     })
