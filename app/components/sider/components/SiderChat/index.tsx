@@ -71,17 +71,16 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
 
   const handleTags = useCallback((tags: string[]): ChatCompletionMessageParam[] => {
     const tagContext = tags.map(tag => {
+      if (currentChapter.length === 0) return null
       switch (tag) {
         case 'base_context':
           if (tags.includes('current_chapter')) return null
-          if (currentChapter.length === 0) return null
           const bookContext = currentChapter.length > 0 ? currentChapter.slice(Math.max(lineIndex - 20, 0), Math.min(lineIndex + 20, currentChapter.length)).join('\n\n') : ''
           return {
             role: 'user',
             content: `I'm providing the following excerpt from a book as context:\n\n${bookContext}\n\nBased on this context, please answer: [user question]`
           }
         case 'current_chapter':
-          if (tags.includes('base_context')) return null
           return {
             role: 'user',
             content: `I'm providing the following excerpt from a book as context:\n\n${currentChapter.join('\n\n')}\n\nBased on this context, please answer: [user question]`

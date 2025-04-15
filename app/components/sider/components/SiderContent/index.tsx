@@ -121,7 +121,7 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
   }, [word]);
   const handleTabChange = useCallback((key: string) => {
     setSelectedTab(key)
-  }, [])
+  }, [setSelectedTab])
 
   const wordAbortControllerRef = useRef<AbortController | null>(null)
   const isSameWord = useCallback((newWord: string) => {
