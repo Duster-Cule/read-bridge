@@ -106,6 +106,7 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
 
   // 菜单项
   const items = useMemo(() => {
+    console.log('items发生变化', word)
     return [
       {
         label: 'Sentence Analysis',
@@ -159,9 +160,9 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
       <CurrentSentence sentence={sentence} handleWord={handleWord} />
       <Divider className="my-0" />
       <MenuLine selectedTab={selectedTab} items={items} onTabChange={handleTabChange} />
-      {selectedTab === 'sentence-analysis' && (
-        sentence ? <Sentences sentenceProcessingList={sentenceProcessingList} /> : <Empty description="No sentence selected" className="flex flex-col items-center justify-center h-[262px]" />
-      )}
+      <div className={`${selectedTab === 'sentence-analysis' ? 'block' : 'hidden'}`}>
+        <Sentences sentenceProcessingList={sentenceProcessingList} />
+      </div>
       {selectedTab === 'word-details' && (
         word ? <WordDetails wordDetails={wordDetails} /> : <Empty description="No word selected" className="flex flex-col items-center justify-center h-[262px]" />
       )}

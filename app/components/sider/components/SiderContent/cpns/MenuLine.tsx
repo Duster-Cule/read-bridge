@@ -1,6 +1,7 @@
 import { Menu, MenuProps } from "antd";
+import React from "react";
 
-export default function MenuLine({
+function MenuLine({
   selectedTab,
   items,
   onTabChange
@@ -23,3 +24,8 @@ export default function MenuLine({
     />
   )
 }
+
+const MemoizedMenuLine = React.memo(MenuLine);
+MemoizedMenuLine.displayName = 'MenuLine';
+
+export default MemoizedMenuLine;
