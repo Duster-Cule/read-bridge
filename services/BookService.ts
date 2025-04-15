@@ -17,7 +17,7 @@ export async function processBook(buffer: Buffer, format: BOOK_FORMAT_TYPE, name
   let initFile: FormattedBook | null = null
   try {
     switch (format) {
-      case BOOK_FORMAT.EPUB:
+      case BOOK_FORMAT.EPUB || BOOK_FORMAT.EPUBZIP:
         initFile = initEpubBook(buffer)
         break
       default:
