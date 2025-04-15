@@ -15,11 +15,10 @@ import type { Book } from '@/types/book';
  */
 export async function processBook(buffer: Buffer, format: BOOK_FORMAT_TYPE, name: string, hash: string): Promise<Book> {
   let initFile: FormattedBook | null = null
-  console.log(format, 'processBookformat')
   try {
     switch (format) {
-      case BOOK_FORMAT.EPUB || BOOK_FORMAT.EPUBZIP:
-        console.log(format, 'format')
+      case BOOK_FORMAT.EPUB:
+      case BOOK_FORMAT.EPUBZIP:
         initFile = initEpubBook(buffer)
         break
       default:
