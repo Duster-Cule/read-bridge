@@ -69,7 +69,13 @@ export const INPUT_PROMPT = {
   CHAT_PROMPT
 } as const;
 
-const TEXT = ``
+const TEXT = `
+INPUT: {INPUT}
+OUTPUT: 
+HTML Text with Content
+<p>...</p>
+don't use other html tags
+`
 
 const SIMPLE_LIST = `
 INPUT: {SENTENCE}

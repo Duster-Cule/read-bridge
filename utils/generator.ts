@@ -2,12 +2,30 @@ async function* getGeneratorHTMLULList(generator: AsyncGenerator<string, void, u
   let buffer = ""
   let content = ""
   let inLiTag = false
+  let inPTag = false
   let collectingContent = false
 
   for await (const chunk of generator) {
     buffer += chunk
-
     while (buffer.length > 0) {
+      // 处理p
+      if (!inPTag && buffer.includes("<p>")) {
+        const startIndex = buffer.indexOf("<p>")
+        inPTag = true
+        collectingContent = true
+        buffer = buffer.substring(startIndex + 3)
+        continue
+      }
+      if (inPTag && buffer.includes('</')) {
+        const endIndex = buffer.indexOf('</')
+        yield buffer.substring(0, endIndex)
+        return
+      }
+      if (inPTag) {
+        yield buffer
+        buffer = ""
+        continue
+      }
       // 检测是否遇到开始标签
       if (!inLiTag && buffer.includes("<li>")) {
         const startIndex = buffer.indexOf("<li>")
@@ -57,7 +75,7 @@ async function* getGeneratorHTMLULList(generator: AsyncGenerator<string, void, u
   }
 }
 
-async function* getGeneratorThink(generator: AsyncGenerator<string, void, unknown>): AsyncGenerator<string, void, unknown> {
+async function* getGeneratorThinkAndHTMLTag(generator: AsyncGenerator<string, void, unknown>): AsyncGenerator<string, void, unknown> {
   // 获取第一个数据块
   const firstChunk = await generator.next()
 
@@ -77,7 +95,7 @@ async function* getGeneratorThink(generator: AsyncGenerator<string, void, unknow
       }
     }
 
-    // 处理剩余的HTML列表 TODO 这种方式不行 待修改
+    // 处理剩余的HTML列表
     yield* getGeneratorHTMLULList((async function* () {
       yield* generator
     })())
@@ -94,4 +112,4 @@ async function* getGeneratorThink(generator: AsyncGenerator<string, void, unknow
 }
 
 
-export default getGeneratorThink
+export default getGeneratorThinkAndHTMLTag

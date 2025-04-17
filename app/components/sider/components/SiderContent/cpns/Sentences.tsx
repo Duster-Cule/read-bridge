@@ -23,14 +23,15 @@ export default function Sentences({ sentenceProcessingList }: { sentenceProcessi
 
 function TextGenerator({ generator }: { generator: AsyncGenerator<string, void, unknown> }) {
   const [text, setText] = useState<string>("")
+  const [thinkContext, setThinkContext] = useState<string>('')
+
   useEffect(() => {
     setText("");
-    (async () => {
-      for await (const chunk of generator) {
-        setText((prev) => prev + chunk)
-      }
-    })()
-
+    setThinkContext('')
+    handleThink(generator,
+      (value) => setText((prev) => prev + value),
+      (value) => setThinkContext((prev) => prev + value)
+    )
   }, [generator])
   return <div>{text}</div>
 }
@@ -45,27 +46,12 @@ function ListGenerator({ generator, type }: { generator: AsyncGenerator<string, 
   const [thinkContext, setThinkContext] = useState<string>('')
 
   useEffect(() => {
-    let thinking = false
-    setList([]);
-    setThinkContext('');
-    let buffer = '';
-    (async () => {
-      for await (const chunk of generator) {
-        buffer += chunk
-        if (chunk === '<think>') {
-          thinking = true
-        }
-        if (thinking) {
-          setThinkContext((prev) => prev + chunk)
-        } else {
-          setList((prev) => [...prev, chunk])
-        }
-        if (chunk === '</think>') {
-          thinking = false
-        }
-      }
-      console.log(buffer, `${type}GeneratorBuffer`)
-    })()
+    setList([])
+    setThinkContext('')
+    handleThink(generator,
+      (value) => setList((prev) => [...prev, value]),
+      (value) => setThinkContext((prev) => prev + value)
+    )
   }, [generator, type])
 
   return (
@@ -79,6 +65,28 @@ function ListGenerator({ generator, type }: { generator: AsyncGenerator<string, 
   )
 }
 
+function handleThink(generator: AsyncGenerator<string, void, unknown>, onValue: (value: string) => void, onThinkContext: (value: string) => void) {
+  let thinking = false
+  let buffer = '';
+  (async () => {
+    for await (const chunk of generator) {
+      buffer += chunk
+      if (chunk === '<think>') {
+        thinking = true
+      }
+      if (thinking) {
+        onThinkContext(chunk)
+        buffer = ''
+      } else {
+        onValue(chunk)
+        buffer = ''
+      }
+      if (chunk === '</think>') {
+        thinking = false
+      }
+    }
+  })()
+}
 function BulletListGenerator({ generator }: { generator: AsyncGenerator<string, void, unknown> }) {
   return <ListGenerator generator={generator} type={OUTPUT_TYPE.BULLET_LIST} />
 }

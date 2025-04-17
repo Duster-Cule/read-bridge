@@ -1,7 +1,7 @@
 import { EVENT_NAMES, EventEmitter } from "@/services/EventService"
 import { createLLMClient } from "@/services/llm"
 import { useLLMStore } from "@/store/useLLMStore"
-import getGeneratorThink from "@/utils/generator"
+import getGeneratorThinkAndHTMLTag from "@/utils/generator"
 import { Divider, Empty } from "antd"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { CurrentSentence, MenuLine, Sentences, WordDetails } from "./cpns"
@@ -62,20 +62,7 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
 
         let generator: AsyncGenerator<string, void, unknown> | null = null
         try {
-          switch (type) {
-            case OUTPUT_TYPE.BULLET_LIST:
-              generator = getGeneratorThink(defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, outputPrompt), signal))
-              break
-            case OUTPUT_TYPE.TEXT:
-              generator = defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, outputPrompt), signal)
-              break
-            case OUTPUT_TYPE.KEY_VALUE_LIST:
-              generator = getGeneratorThink(defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, outputPrompt), signal))
-              break
-            default:
-              generator = defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, outputPrompt), signal)
-              break
-          }
+          generator = getGeneratorThinkAndHTMLTag(defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, outputPrompt), signal))
         } catch (error) {
           console.log('句子请求失败', error, index, name, type, text)
         }
