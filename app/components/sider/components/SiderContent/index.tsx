@@ -6,7 +6,7 @@ import { Divider, Empty } from "antd"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { CurrentSentence, MenuLine, Sentences, WordDetails } from "./cpns"
 import { useOutputOptions } from "@/store/useOutputOptions"
-import { assemblePrompt, contextMessages, INPUT_PROMPT, OUTPUT_TYPE } from "@/constants/prompt"
+import { assemblePrompt, contextMessages, INPUT_PROMPT } from "@/constants/prompt"
 
 
 interface SiderContentProps {
@@ -93,7 +93,6 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
 
   // 菜单项
   const items = useMemo(() => {
-    console.log('items发生变化', word)
     return [
       {
         label: 'Sentence Analysis',
