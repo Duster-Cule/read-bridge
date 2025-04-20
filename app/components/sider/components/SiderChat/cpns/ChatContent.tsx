@@ -3,10 +3,10 @@ import { useSiderStore } from "@/store/useSiderStore"
 
 import { LLMHistory } from "@/types/llm";
 import { RefObject, useEffect, useMemo, useRef, useState } from "react";
-import { Button, message, Collapse } from "antd"
+import { Button, message, Collapse, Tooltip } from "antd"
 import dayjs from 'dayjs'
 
-import { SyncOutlined } from "@ant-design/icons"
+import { SyncOutlined, LoadingOutlined } from "@ant-design/icons"
 import { CopyIcon } from "@/assets/icon"
 
 export default function ChatContent({ history, containerRef }: { history: LLMHistory, containerRef: RefObject<HTMLDivElement> }) {
@@ -46,9 +46,16 @@ export default function ChatContent({ history, containerRef }: { history: LLMHis
   }, []);
 
   return (
-    <div ref={contentRef} className="overflow-y-auto p-2" style={{ height: Math.max(0, height) }}>
-      <div className="text-sm text-gray-500 rounded-md
-       p-2  text-ellipsis mb-2 border border-[var(--ant-color-border)]">{history.prompt}</div>
+    <div ref={contentRef} className="overflow-y-auto p-2 w-full overflow-x-hidden" style={{ height: Math.max(0, height) }}>
+      <Tooltip
+        title={<div className="text-sm text-[var(--ant-color-text)]">{history.prompt}</div>}
+        placement="top"
+        color="rgba(0, 0, 0, 0.75)"
+      >
+        <div className="text-sm text-gray-500 rounded-md p-2 mb-2 border border-[var(--ant-color-border)] line-clamp-3 overflow-hidden cursor-pointer">
+          {history.prompt}
+        </div>
+      </Tooltip>
       {history.messages.map((msg, index) => {
         if (msg.role === 'user') {
           return <MessageBubble key={index} msg={msg} isUser={true} />
@@ -90,46 +97,15 @@ function MessageBubble({
     };
   }, [isUser, isDarkMode])
 
-  // Handle collapse change and update the store
   const handleCollapseChange = (key: string | string[]) => {
     setActiveKey(key);
-    // Only update the store if this is an assistant message
     if (!isUser) {
       const isExpanded = Array.isArray(key) ? key.includes('thinking') : key === 'thinking';
       setThinkingExpanded(isExpanded);
     }
   };
 
-  // Don't show the collapse panel for user messages
-  if (isUser) {
-    return (
-      <div className={commonClasses.container}>
-        <div className={commonClasses.bubbleWrapper}>
-          <div className={commonClasses.timestampWrapper}>
-            <span className={commonClasses.timestamp}>
-              {dayjs(msg.timestamp).format('MM-DD HH:mm')}
-            </span>
-          </div>
-          <div className={commonClasses.bubble}>
-            {msg.content}
-          </div>
-          <div className={commonClasses.actionsWrapper}>
-            <Button
-              type="text"
-              size="small"
-              icon={<CopyIcon />}
-              onClick={() => {
-                navigator.clipboard.writeText(msg.content)
-                message.success('Copied to clipboard')
-              }}
-            />
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  const hasThinkingContent = !!msg.reasoningContent;
+  const hasThinkingContent = !isUser && !!msg.reasoningContent;
   const isThinking = hasThinkingContent && !msg.thinkingTime;
   const thinkingLabel = isThinking
     ? '思考中...'
@@ -139,7 +115,7 @@ function MessageBubble({
     <div className={commonClasses.container}>
       <div className={commonClasses.bubbleWrapper}>
         <div className={commonClasses.timestampWrapper}>
-          <span className={commonClasses.name}>{msg.name}</span>
+          {!isUser && <span className={commonClasses.name}>{msg.name}</span>}
           <span className={commonClasses.timestamp}>
             {dayjs(msg.timestamp).format('MM-DD HH:mm')}
           </span>
@@ -158,7 +134,7 @@ function MessageBubble({
                     <div className="flex items-center justify-between w-full">
                       <div className="flex items-center">
                         {isThinking && <SyncOutlined spin className="mr-1 text-blue-500" />}
-                        <span >
+                        <span>
                           {thinkingLabel}
                         </span>
                       </div>
@@ -175,7 +151,7 @@ function MessageBubble({
                     </div>
                   ),
                   children: (
-                    <div >
+                    <div>
                       {msg.reasoningContent}
                     </div>
                   )
@@ -183,7 +159,13 @@ function MessageBubble({
               ]}
             />
           )}
-          <div>{msg.content}</div>
+          <div>
+            {msg.content.length === 0 ? (
+              <LoadingOutlined />
+            ) : (
+              msg.content
+            )}
+          </div>
         </div>
         <div className={commonClasses.actionsWrapper}>
           <Button
@@ -192,7 +174,7 @@ function MessageBubble({
             icon={<CopyIcon />}
             onClick={() => {
               navigator.clipboard.writeText(msg.content)
-              message.success('回复已复制')
+              message.success(isUser ? 'Copied to clipboard' : '回复已复制')
             }}
           />
         </div>
@@ -200,3 +182,4 @@ function MessageBubble({
     </div>
   )
 }
+

@@ -123,8 +123,7 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
     let thinkingTime: number | null = null
     try {
       const responseGenerator = defaultLLMClient.completionsGenerator(messages, prompt, signal)
-      let currentMessages = newHistory.messages;
-
+      let currentMessages = newHistory.messages
       for await (const chunk of responseGenerator) {
         if (chunk === '<think>') {
           isThinking = true
@@ -168,13 +167,13 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
     }
   }, [])
 
-  const handleSend = useCallback((input: string, tags: string[]) => {
+  const handleSend = useCallback(async (input: string, tags: string[]) => {
     if (input.length === 0) return
     if (!defaultLLMClient) throw new Error('defaultLLMClient is undefined')
     setHistory((prev) => {
       const newHistory = {
         ...prev,
-        messages: [...(prev?.messages ?? []), { role: 'user', content: input, timestamp: dayjs().unix() }]
+        messages: [...prev.messages, { role: 'user', content: input, timestamp: dayjs().unix() }]
       } as LLMHistory
       handleChat(newHistory, tags)
       return newHistory
