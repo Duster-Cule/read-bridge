@@ -1,7 +1,7 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { OutputOption } from "@/types/llm";
+import { OutputOption, PromptOption } from "@/types/llm";
 import { OUTPUT_TYPE, OUTPUT_PROMPT, INPUT_PROMPT } from "@/constants/prompt";
 function defaultSentenceOutputOption(): OutputOption[] {
   return [
@@ -26,11 +26,24 @@ function defaultSentenceOutputOption(): OutputOption[] {
   ]
 }
 
+function defaultPromptOutputOption(): PromptOption[] {
+  return [
+    {
+      name: 'default chat',
+      prompt: INPUT_PROMPT.CHAT_PROMPT,
+    }
+  ]
+}
+
 interface OutputOptionsStore {
   sentenceOptions: OutputOption[]
   addSentenceOptions: (options: OutputOption) => void
   deleteSentenceOptions: (options: OutputOption) => void
   updateSentenceOptions: (options: OutputOption) => void
+  promptOptions: PromptOption[]
+  addPromptOptions: (options: PromptOption) => void
+  deletePromptOptions: (options: PromptOption) => void
+  updatePromptOptions: (options: PromptOption) => void
 }
 
 export const useOutputOptions = create<OutputOptionsStore>()(
@@ -40,6 +53,10 @@ export const useOutputOptions = create<OutputOptionsStore>()(
       addSentenceOptions: (options) => set((state) => ({ sentenceOptions: [...state.sentenceOptions, options] })),
       deleteSentenceOptions: (options) => set((state) => ({ sentenceOptions: state.sentenceOptions.filter((option) => option.name !== options.name) })),
       updateSentenceOptions: (options) => set((state) => ({ sentenceOptions: state.sentenceOptions.map((option) => option.name === options.name ? options : option) })),
+      promptOptions: defaultPromptOutputOption(),
+      addPromptOptions: (options) => set((state) => ({ promptOptions: [...state.promptOptions, options] })),
+      deletePromptOptions: (options) => set((state) => ({ promptOptions: state.promptOptions.filter((option) => option.name !== options.name) })),
+      updatePromptOptions: (options) => set((state) => ({ promptOptions: state.promptOptions.map((option) => option.name === options.name ? options : option) })),
     }),
     {
       name: 'output-options-storage',

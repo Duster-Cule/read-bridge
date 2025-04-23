@@ -48,6 +48,11 @@ export type OutputOption = {
   outputPrompt: string
 }
 
+export type PromptOption = {
+  name: string
+  prompt: string
+}
+
 
 export type LLMHistory = {
   id: string
