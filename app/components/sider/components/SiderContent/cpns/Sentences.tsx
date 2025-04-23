@@ -33,7 +33,10 @@ function TextGenerator({ generator }: { generator: AsyncGenerator<string, void, 
       (value) => setThinkContext((prev) => prev + value)
     )
   }, [generator])
-  return <div>{text}</div>
+  return <div>
+    <div>{thinkContext && <div>{thinkContext}</div>}</div>
+    <div>{text}</div>
+  </div>
 }
 
 function ListGenerator({ generator, type }: { generator: AsyncGenerator<string, void, unknown>, type: string }) {
@@ -66,20 +69,16 @@ function ListGenerator({ generator, type }: { generator: AsyncGenerator<string, 
 }
 
 function handleThink(generator: AsyncGenerator<string, void, unknown>, onValue: (value: string) => void, onThinkContext: (value: string) => void) {
-  let thinking = false
-  let buffer = '';
+  let thinking: boolean = false;
   (async () => {
     for await (const chunk of generator) {
-      buffer += chunk
       if (chunk === '<think>') {
         thinking = true
       }
       if (thinking) {
         onThinkContext(chunk)
-        buffer = ''
       } else {
         onValue(chunk)
-        buffer = ''
       }
       if (chunk === '</think>') {
         thinking = false
