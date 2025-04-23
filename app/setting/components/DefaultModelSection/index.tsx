@@ -1,11 +1,11 @@
 import ToolTipLabel from "@/app/components/ToolTipLable";
 import { useLLMStore } from "@/store/useLLMStore";
-import { Form, Select, Empty, theme } from "antd";
+import { Form, Select, Empty } from "antd";
 import { useEffect, useMemo } from "react";
+import Card from "../Card";
 
 export default function DefaultModelSection() {
   const { defaultModel, setDefaultModel, providers } = useLLMStore();
-  const { token } = theme.useToken();
   const [form] = Form.useForm();
   const configuredProviders = useMemo(() => {
     return providers.filter(provider => provider.baseUrl && provider.apiKey && provider.models.length > 0);
@@ -53,8 +53,7 @@ export default function DefaultModelSection() {
   };
 
   return (
-    <div className="w-full p-4 border rounded-lg" style={{ borderColor: token.colorBorder }}>
-
+    <Card>
       {hasModels ? (
         <Form form={form} layout="vertical">
           <Form.Item
@@ -79,6 +78,6 @@ export default function DefaultModelSection() {
           className="py-6"
         />
       )}
-    </div>
+    </Card>
   );
 }

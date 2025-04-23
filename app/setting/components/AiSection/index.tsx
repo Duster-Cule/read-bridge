@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
-import { Menu, theme, Button, Form } from 'antd';
+import { Menu, Button, Form } from 'antd';
 import { Provider, Model } from '@/types/llm';
 import { useLLMStore } from '@/store/useLLMStore';
 import { ModelFormModal, ProviderForm } from './cpns';
+import Card from '../Card';
 
 export default function AiSection() {
   const { providers: defaultProviders, addProvider, editProvider, deleteProvider } = useLLMStore()
   const [providers, setProviders] = useState<Provider[]>([])
   const [selectedProviderId, setSelectedProviderId] = useState<string>('');
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
-  const { token } = theme.useToken();
   const [form] = Form.useForm();
   const [modelModalVisible, setModelModalVisible] = useState(false);
   const [currentModel, setCurrentModel] = useState<Model | undefined>(undefined);
@@ -120,7 +120,7 @@ export default function AiSection() {
   };
 
   return (
-    <div className="h-[50vh] flex justify-between border rounded-lg overflow-hidden" style={{ borderColor: token.colorBorder }}>
+    <Card className='h-[50vh] flex justify-between overflow-hidden'>
       <div className='w-[20%] flex flex-col overflow-y-auto'>
         <Menu
           mode="inline"
@@ -153,7 +153,7 @@ export default function AiSection() {
         initialValues={currentModel}
         providerId={selectedProviderId}
       />
-    </div>
+    </Card>
   );
 }
 

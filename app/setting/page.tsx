@@ -4,11 +4,10 @@ import { useRef } from "react";
 import { Layout, Menu, theme } from "antd";
 import type { MenuProps } from "antd";
 import { StarIcon } from "@/assets/icon";
-import { AppstoreFilled } from "@ant-design/icons";
+import { AppstoreFilled, AlignLeftOutlined } from "@ant-design/icons";
 import React from "react";
 
-import AiSection from "./components/AiSection";
-import DefaultModelSection from "./components/DefaultModelSection";
+import { AiSection, DefaultModelSection, PromptSection } from "./components";
 
 const { Sider, Content } = Layout;
 
@@ -24,6 +23,12 @@ const settingsConfig = [
     icon: <AppstoreFilled style={{ fontSize: 24 }} />,
     label: "模型配置",
     content: <DefaultModelSection />
+  },
+  {
+    key: 'prompt',
+    icon: <AlignLeftOutlined style={{ fontSize: 24 }} />,
+    label: "提示词配置",
+    content: <PromptSection />
   }
 ];
 
