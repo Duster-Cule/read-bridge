@@ -11,18 +11,20 @@ import dayjs from "dayjs"
 
 import { ChatTools, ChatContent, ChatInput } from "./cpns"
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs"
+import { useOutputOptions } from "@/store/useOutputOptions"
 interface SiderChatProps {
   currentChapter: string[]
   lineIndex: number
 }
 export default function StandardChat({ currentChapter, lineIndex }: SiderChatProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const { selectedId, promptOptions } = useOutputOptions()
   const [history, setHistory] = useState<LLMHistory>(
     {
       id: self.crypto.randomUUID(),
       title: 'New Chat',
       timestamp: new Date().getTime(),
-      prompt: INPUT_PROMPT.CHAT_PROMPT,
+      prompt: promptOptions.find(option => option.id === selectedId)?.prompt || INPUT_PROMPT.CHAT_PROMPT,
       messages: []
     }
   )
@@ -39,7 +41,7 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
   function handlePlus() {
   }
   function handleHistory() {
-    setStoreHistory([])
+    setStoreHistory(history)
   }
 
   const tagOptions = useMemo(() => [
@@ -188,10 +190,15 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
   }, [defaultLLMClient, setHistory, handleChat])
 
 
-
+  function handleChangePrompt(id: string) {
+    setHistory(prev => ({
+      ...prev,
+      prompt: promptOptions.find(option => option.id === id)?.prompt || INPUT_PROMPT.CHAT_PROMPT,
+    }))
+  }
   return (
     <div ref={containerRef} className="w-full h-full flex flex-col text-[var(--ant-color-text)]">
-      <ChatTools onPlus={handlePlus} onHistory={handleHistory} historys={historys} />
+      <ChatTools onPlus={handlePlus} onHistory={handleHistory} historys={historys} onChangePrompt={handleChangePrompt} />
       <ChatContent containerRef={containerRef} history={history} />
       <ChatInput
         onSent={handleSend}
