@@ -42,6 +42,7 @@ export type ClientOptions = {
 
 
 export type OutputOption = {
+  id: string
   name: string
   type: OutputType
   rulePrompt: string
@@ -49,6 +50,7 @@ export type OutputOption = {
 }
 
 export type PromptOption = {
+  id: string
   name: string
   prompt: string
 }
