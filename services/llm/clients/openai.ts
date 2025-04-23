@@ -1,6 +1,6 @@
 import { LLM_PROXY_PATH, LLM_PROXY_URL } from "@/constants/llm";
 import { Provider, Model, Client, ClientOptions } from "@/types/llm"
-
+import { message } from 'antd'
 import OpenAI from "openai"
 
 export function createOpenAIClient(provider: Provider, model: Model, options?: ClientOptions): Client {
@@ -117,7 +117,9 @@ export function createOpenAIClient(provider: Provider, model: Model, options?: C
       if (signal?.aborted) {
         return
       }
+
       console.error('Stream completion error:', error);
+      message.error(String(error))
       throw error;
     }
   }
@@ -149,6 +151,7 @@ export function createOpenAIClient(provider: Provider, model: Model, options?: C
         return ''
       }
       console.error('Completion error:', error);
+      message.error(String(error))
       throw error;
     }
   }
