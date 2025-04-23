@@ -88,9 +88,8 @@ export default function ChatContent({ history, containerRef }: { history: LLMHis
   return (
     <div ref={contentRef} className="overflow-y-auto p-2 w-full overflow-x-hidden" style={{ height: Math.max(0, height) }}>
       <Tooltip
-        title={<div className="text-sm text-[var(--ant-color-text)]">{prompt}</div>}
+        title={<div className="text-sm">{prompt}</div>}
         placement="top"
-        color="rgba(0, 0, 0, 0.75)"
       >
         <div className="text-sm text-gray-500 rounded-md p-2 mb-2 border border-[var(--ant-color-border)] line-clamp-3 overflow-hidden cursor-pointer">
           {prompt}
