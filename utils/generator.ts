@@ -89,18 +89,17 @@ async function* getGeneratorThinkAndHTMLTag(generator: AsyncGenerator<string, vo
   if (firstChunk.value?.includes("<think>")) {
     yield firstChunk.value
     let thinking = true
-    setTimeout(() => {
-      if (thinking) {
-        thinking = false
+    try {
+      while (thinking) {
+        const chunk = await generator.next()
+        yield chunk.value || ""
+        if (chunk.value?.includes("</think>")) {
+          thinking = false
+          break
+        }
       }
-    }, 10000)
-    while (thinking) {
-      const chunk = await generator.next()
-      yield chunk.value || ""
-      if (chunk.value?.includes("</think>")) {
-        thinking = false
-        break
-      }
+    } catch (error) {
+      return
     }
     console.log('thinking end')
     yield* getGeneratorHTMLULList((async function* () {

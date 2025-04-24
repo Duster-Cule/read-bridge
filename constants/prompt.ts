@@ -40,7 +40,7 @@ Remember to output clean HTML directly without markdown code blocks.
 `
 
 const SENTENCE_STRUCTURE_ANALYSIS = `
-You are a sentence structure analyzer. Break down complex sentences into meaningful phrases or clauses.
+You are a sentence structure analyzer. Your task is to break down sentences into their meaningful components (phrases and clauses) without categorizing the sentence type or providing linguistic classifications.
 `
 const EXTRACT_KEY_WORDS = `
 Extract key vocabulary and expressions.  More detailed explanations, expanded usage

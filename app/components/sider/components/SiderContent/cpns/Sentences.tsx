@@ -34,7 +34,7 @@ function TextGenerator({ generator }: { generator: AsyncGenerator<string, void, 
     )
   }, [generator])
   return <div>
-    <div>{thinkContext && <div>{thinkContext}</div>}</div>
+    {/* <div>{thinkContext && <div>{thinkContext}</div>}</div> */}
     <div>{text}</div>
   </div>
 }
@@ -59,7 +59,7 @@ function ListGenerator({ generator, type }: { generator: AsyncGenerator<string, 
 
   return (
     <div>
-      {thinkContext && <div>{thinkContext}</div>}
+      {/* {thinkContext && <div>{thinkContext}</div>} */}
       {type === OUTPUT_TYPE.KEY_VALUE_LIST
         ? list.map((item, index) => handleWordAnalysis(item, index))
         : list.map((item) => <div key={item}>{item}</div>)

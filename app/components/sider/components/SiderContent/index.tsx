@@ -29,7 +29,9 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
   // TODO: 后续增加不同功能选择LLMClient
   const defaultLLMClient = useMemo(() => {
     return defaultModel
-      ? createLLMClient(defaultModel)
+      ? createLLMClient(defaultModel, {
+        max_tokens: 600
+      })
       : null
   }, [defaultModel])
 
