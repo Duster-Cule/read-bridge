@@ -1,4 +1,5 @@
 async function* getGeneratorHTMLULList(generator: AsyncGenerator<string, void, unknown>) {
+  console.log('getGeneratorHTMLULList')
   let buffer = ""
   let content = ""
   let inLiTag = false
@@ -6,6 +7,7 @@ async function* getGeneratorHTMLULList(generator: AsyncGenerator<string, void, u
   let collectingContent = false
 
   for await (const chunk of generator) {
+    console.log(chunk, 'chunk', buffer, 'buffer')
     buffer += chunk
     while (buffer.length > 0) {
       // 处理p
@@ -86,19 +88,25 @@ async function* getGeneratorThinkAndHTMLTag(generator: AsyncGenerator<string, vo
 
   if (firstChunk.value?.includes("<think>")) {
     yield firstChunk.value
-
-    // 继续获取直到</think>标签
-    for await (const chunk of generator) {
-      yield chunk
-      if (chunk.includes("</think>")) {
+    let thinking = true
+    setTimeout(() => {
+      if (thinking) {
+        thinking = false
+      }
+    }, 10000)
+    while (thinking) {
+      const chunk = await generator.next()
+      yield chunk.value || ""
+      if (chunk.value?.includes("</think>")) {
+        thinking = false
         break
       }
     }
-
-    // 处理剩余的HTML列表
+    console.log('thinking end')
     yield* getGeneratorHTMLULList((async function* () {
       yield* generator
-    })())
+    })());
+
   } else {
     // 如果不包含<think>标签，直接处理为HTML列表
     // 创建一个新的生成器，包含第一个数据块和原生成器的内容

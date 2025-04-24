@@ -72,16 +72,19 @@ function handleThink(generator: AsyncGenerator<string, void, unknown>, onValue: 
   let thinking: boolean = false;
   (async () => {
     for await (const chunk of generator) {
+      console.log(chunk, 'chunk', thinking, 'thinking')
       if (chunk === '<think>') {
         thinking = true
+        continue
       }
       if (thinking) {
+        if (chunk === '</think>') {
+          thinking = false
+          continue
+        }
         onThinkContext(chunk)
       } else {
         onValue(chunk)
-      }
-      if (chunk === '</think>') {
-        thinking = false
       }
     }
   })()
