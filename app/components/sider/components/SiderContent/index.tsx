@@ -30,7 +30,7 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
   const defaultLLMClient = useMemo(() => {
     return defaultModel
       ? createLLMClient(defaultModel, {
-        max_tokens: 600
+        max_tokens: 500
       })
       : null
   }, [defaultModel])

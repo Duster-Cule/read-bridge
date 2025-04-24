@@ -1,5 +1,4 @@
 async function* getGeneratorHTMLULList(generator: AsyncGenerator<string, void, unknown>) {
-  console.log('getGeneratorHTMLULList')
   let buffer = ""
   let content = ""
   let inLiTag = false
@@ -7,7 +6,6 @@ async function* getGeneratorHTMLULList(generator: AsyncGenerator<string, void, u
   let collectingContent = false
 
   for await (const chunk of generator) {
-    console.log(chunk, 'chunk', buffer, 'buffer')
     buffer += chunk
     while (buffer.length > 0) {
       // 处理p
@@ -101,7 +99,6 @@ async function* getGeneratorThinkAndHTMLTag(generator: AsyncGenerator<string, vo
     } catch (error) {
       return
     }
-    console.log('thinking end')
     yield* getGeneratorHTMLULList((async function* () {
       yield* generator
     })());

@@ -1,5 +1,7 @@
 import CardComponent from "@/app/components/common/CardComponent"
 import { OUTPUT_TYPE } from "@/constants/prompt"
+import { Collapse } from "antd"
+import { LoadingOutlined } from "@ant-design/icons"
 import { useCallback, useEffect, useState } from "react"
 
 export default function Sentences({ sentenceProcessingList }: { sentenceProcessingList: { name: string, type: string, generator: AsyncGenerator<string, void, unknown> }[] }) {
@@ -34,7 +36,8 @@ function TextGenerator({ generator }: { generator: AsyncGenerator<string, void, 
     )
   }, [generator])
   return <div>
-    {/* <div>{thinkContext && <div>{thinkContext}</div>}</div> */}
+    <ThinkCollapse thinkContext={thinkContext} />
+    {text.length === 0 && <LoadingOutlined />}
     <div>{text}</div>
   </div>
 }
@@ -59,7 +62,8 @@ function ListGenerator({ generator, type }: { generator: AsyncGenerator<string, 
 
   return (
     <div>
-      {/* {thinkContext && <div>{thinkContext}</div>} */}
+      <ThinkCollapse thinkContext={thinkContext} />
+      {list.length === 0 && <LoadingOutlined />}
       {type === OUTPUT_TYPE.KEY_VALUE_LIST
         ? list.map((item, index) => handleWordAnalysis(item, index))
         : list.map((item) => <div key={item}>{item}</div>)
@@ -72,7 +76,6 @@ function handleThink(generator: AsyncGenerator<string, void, unknown>, onValue: 
   let thinking: boolean = false;
   (async () => {
     for await (const chunk of generator) {
-      console.log(chunk, 'chunk', thinking, 'thinking')
       if (chunk === '<think>') {
         thinking = true
         continue
@@ -95,4 +98,15 @@ function BulletListGenerator({ generator }: { generator: AsyncGenerator<string, 
 
 function KeyValueListGenerator({ generator }: { generator: AsyncGenerator<string, void, unknown> }) {
   return <ListGenerator generator={generator} type={OUTPUT_TYPE.KEY_VALUE_LIST} />
+}
+function ThinkCollapse({ thinkContext }: { thinkContext: string }) {
+  if (!thinkContext) return null;
+  return (
+    <Collapse
+      size="small"
+      ghost
+      className="[&_.ant-collapse-header]{padding:0}"
+      items={[{ key: '1', label: 'think', children: <p>{thinkContext}</p> }]}
+    />
+  );
 }

@@ -40,7 +40,6 @@ function ChangePromptPopover({ onChangePrompt }: { onChangePrompt: (id: string) 
   const { promptOptions, selectedId, setSelectedId } = useOutputOptions();
 
   function handleChangePrompt(id: string) {
-    console.log('handleChangePrompt', id)
     setSelectedId(id)
     onChangePrompt(id)
   }
