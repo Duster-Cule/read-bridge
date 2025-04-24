@@ -84,14 +84,8 @@ export const useOutputOptions = create<OutputOptionsStore>()(
         }
         const newPromptOptions = state.promptOptions.filter((option) => option.id !== targetPrompt.id)
         message.success('删除成功')
-
-        const newSelectedId = targetPrompt.id === state.selectedId
-          ? newPromptOptions[0].id
-          : state.selectedId
-
         return {
           promptOptions: newPromptOptions,
-          selectedId: newSelectedId
         }
       }),
       updatePromptOptions: (updatedPrompt) => set((state) => ({
@@ -106,3 +100,13 @@ export const useOutputOptions = create<OutputOptionsStore>()(
     }
   )
 )
+
+export const getNewHistory = (promptOptions: PromptOption[], selectedId: string) => {
+  return {
+    id: crypto.randomUUID(),
+    title: 'New Chat',
+    timestamp: new Date().getTime(),
+    prompt: promptOptions.find(option => option.id === selectedId)?.prompt || INPUT_PROMPT.CHAT_PROMPT,
+    messages: []
+  }
+}

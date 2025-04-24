@@ -3,12 +3,12 @@ import { message } from "antd"
 import { useHistoryStore } from "@/store/useHistoryStore"
 import { LLMHistory } from "@/types/llm"
 
-import { useCallback, useMemo, useState, useRef } from "react"
+import { useCallback, useMemo, useState, useRef, useEffect } from "react"
 import { useLLMStore } from "@/store/useLLMStore"
 import { createLLMClient } from "@/services/llm"
 import { INPUT_PROMPT } from "@/constants/prompt"
 import dayjs from "dayjs"
-
+import { getNewHistory } from "@/store/useOutputOptions"
 import { ChatTools, ChatContent, ChatInput } from "./cpns"
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs"
 import { useOutputOptions } from "@/store/useOutputOptions"
@@ -19,29 +19,26 @@ interface SiderChatProps {
 export default function StandardChat({ currentChapter, lineIndex }: SiderChatProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { selectedId, promptOptions } = useOutputOptions()
-  const [history, setHistory] = useState<LLMHistory>(
-    {
-      id: self.crypto.randomUUID(),
-      title: 'New Chat',
-      timestamp: new Date().getTime(),
-      prompt: promptOptions.find(option => option.id === selectedId)?.prompt || INPUT_PROMPT.CHAT_PROMPT,
-      messages: []
-    }
-  )
-  const { historys, setHistory: setStoreHistory } = useHistoryStore()
+  const [history, setHistory] = useState<LLMHistory>(() => getNewHistory(promptOptions, selectedId))
+  const { historys, addHistory } = useHistoryStore()
   const { defaultModel } = useLLMStore()
   const defaultLLMClient = useMemo(() => {
     return defaultModel
       ? createLLMClient(defaultModel)
       : null
   }, [defaultModel])
+
   const [isGenerating, setIsGenerating] = useState(false)
   const abortControllerRef = useRef<AbortController | null>(null)
 
   function handlePlus() {
+    if (!history) return
+    addHistory(history)
+    setHistory(getNewHistory(promptOptions, selectedId))
   }
-  function handleHistory() {
-    setStoreHistory(history)
+
+  function handleSelectHistory() {
+    console.log('select history')
   }
 
   const tagOptions = useMemo(() => [
@@ -191,14 +188,19 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
 
 
   function handleChangePrompt(id: string) {
-    setHistory(prev => ({
-      ...prev,
-      prompt: promptOptions.find(option => option.id === id)?.prompt || INPUT_PROMPT.CHAT_PROMPT,
-    }))
+    const prompt = promptOptions.find(option => option.id === id)?.prompt
+    if (!prompt) return
+    setHistory(prev => {
+      if (prompt === prev.prompt) return prev
+      return {
+        ...prev,
+        prompt
+      }
+    })
   }
   return (
     <div ref={containerRef} className="w-full h-full flex flex-col text-[var(--ant-color-text)]">
-      <ChatTools onPlus={handlePlus} onHistory={handleHistory} historys={historys} onChangePrompt={handleChangePrompt} />
+      <ChatTools onPlus={handlePlus} onSelectHistory={handleSelectHistory} onChangePrompt={handleChangePrompt} />
       <ChatContent containerRef={containerRef} history={history} />
       <ChatInput
         onSent={handleSend}
@@ -209,3 +211,4 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
     </div>
   )
 }
+
