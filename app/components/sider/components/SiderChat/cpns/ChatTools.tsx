@@ -1,12 +1,11 @@
 'use client'
 
 import { Button, Popover, Tooltip } from "antd"
-import { PlusOutlined, HistoryOutlined, AlignLeftOutlined } from "@ant-design/icons"
-import { LLMHistory } from "@/types/llm"
+import { PlusOutlined, AlignLeftOutlined } from "@ant-design/icons"
 import { useOutputOptions } from "@/store/useOutputOptions"
 import { useState } from "react"
 
-export default function ChatTools({ onPlus, onSelectHistory, onChangePrompt }: { onPlus: () => void, onSelectHistory: () => void, onChangePrompt: (id: string) => void }) {
+export default function ChatTools({ onPlus, onChangePrompt }: { onPlus: () => void, onChangePrompt: (id: string) => void }) {
   const [open, setOpen] = useState(false);
 
   const handleChangePrompt = (value: string) => {

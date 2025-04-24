@@ -3,7 +3,7 @@ import { message } from "antd"
 import { useHistoryStore } from "@/store/useHistoryStore"
 import { LLMHistory } from "@/types/llm"
 
-import { useCallback, useMemo, useState, useRef, useEffect } from "react"
+import { useCallback, useMemo, useState, useRef } from "react"
 import { useLLMStore } from "@/store/useLLMStore"
 import { createLLMClient } from "@/services/llm"
 import dayjs from "dayjs"
@@ -36,9 +36,9 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
     setHistory(getNewHistory(promptOptions, selectedId))
   }
 
-  function handleSelectHistory() {
-    console.log('select history')
-  }
+  // function handleSelectHistory() {
+  //   console.log('select history')
+  // }
 
   const tagOptions = useMemo(() => [
     {
@@ -199,7 +199,7 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
   }
   return (
     <div ref={containerRef} className="w-full h-full flex flex-col text-[var(--ant-color-text)]">
-      <ChatTools onPlus={handlePlus} onSelectHistory={handleSelectHistory} onChangePrompt={handleChangePrompt} />
+      <ChatTools onPlus={handlePlus} onChangePrompt={handleChangePrompt} />
       <ChatContent containerRef={containerRef} history={history} />
       <ChatInput
         onSent={handleSend}
