@@ -6,7 +6,6 @@ import { LLMHistory } from "@/types/llm"
 import { useCallback, useMemo, useState, useRef, useEffect } from "react"
 import { useLLMStore } from "@/store/useLLMStore"
 import { createLLMClient } from "@/services/llm"
-import { INPUT_PROMPT } from "@/constants/prompt"
 import dayjs from "dayjs"
 import { getNewHistory } from "@/store/useOutputOptions"
 import { ChatTools, ChatContent, ChatInput } from "./cpns"
@@ -20,7 +19,7 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
   const containerRef = useRef<HTMLDivElement>(null);
   const { selectedId, promptOptions } = useOutputOptions()
   const [history, setHistory] = useState<LLMHistory>(() => getNewHistory(promptOptions, selectedId))
-  const { historys, addHistory } = useHistoryStore()
+  const { addHistory } = useHistoryStore()
   const { defaultModel } = useLLMStore()
   const defaultLLMClient = useMemo(() => {
     return defaultModel

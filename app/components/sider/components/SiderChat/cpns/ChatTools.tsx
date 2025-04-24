@@ -30,7 +30,7 @@ export default function ChatTools({ onPlus, onSelectHistory, onChangePrompt }: {
           <Button type="text" icon={<AlignLeftOutlined />} onClick={() => setOpen(true)} />
         </Popover>
         <Button type="text" icon={<PlusOutlined />} onClick={onPlus} />
-        <Button type="text" icon={<HistoryOutlined />} onClick={() => onSelectHistory()} />
+        {/* <Button type="text" icon={<HistoryOutlined />} onClick={() => onSelectHistory()} /> */}
       </div>
     </>
   )
