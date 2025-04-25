@@ -32,10 +32,13 @@ interface OutputOptionsStore {
   addSentenceOptions: (newOption: OutputOption) => void
   deleteSentenceOptions: (targetOption: OutputOption) => void
   updateSentenceOptions: (updatedOption: OutputOption) => void
+  resetSentenceOptions: () => void
+
   promptOptions: PromptOption[]
   addPromptOptions: (newPrompt: PromptOption) => void
   deletePromptOptions: (targetPrompt: PromptOption) => void
   updatePromptOptions: (updatedPrompt: PromptOption) => void
+  resetPromptOptions: () => void
   selectedId: string
   setSelectedId: (id: string) => void
 }
@@ -67,6 +70,10 @@ export const useOutputOptions = create<OutputOptionsStore>()(
         sentenceOptions: state.sentenceOptions.map((option) =>
           option.id === updatedOption.id ? updatedOption : option)
       })),
+      resetSentenceOptions: () => set(() => ({
+        sentenceOptions: defaultSentenceOutputOption()
+      })),
+
       promptOptions: defaultPromptOutputOption(),
       addPromptOptions: (newPrompt) => set((state) => ({
         promptOptions: [...state.promptOptions, {
@@ -88,6 +95,9 @@ export const useOutputOptions = create<OutputOptionsStore>()(
       updatePromptOptions: (updatedPrompt) => set((state) => ({
         promptOptions: state.promptOptions.map((option) =>
           option.id === updatedPrompt.id ? updatedPrompt : option)
+      })),
+      resetPromptOptions: () => set(() => ({
+        promptOptions: defaultPromptOutputOption()
       })),
       selectedId: defaultPromptOutputOption()[0].id,
       setSelectedId: (id) => set({ selectedId: id })

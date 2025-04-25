@@ -1,20 +1,24 @@
 import { Card } from "../index";
 import { useOutputOptions } from "@/store/useOutputOptions";
-import { Button, Modal, Form, Input, Typography, theme, Flex, List, FormInstance } from 'antd';
+import { Button, Modal, Form, Input, Typography, theme, Flex, List, FormInstance, Popconfirm } from 'antd';
 import { useState } from "react";
 import { PromptOption } from "@/types/llm";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, DeleteOutlined, ReloadOutlined } from '@ant-design/icons';
 
 const { Paragraph } = Typography;
 
 export default function PromptSection() {
-  const { promptOptions, addPromptOptions, updatePromptOptions, deletePromptOptions } = useOutputOptions();
+  const { promptOptions, addPromptOptions, updatePromptOptions, deletePromptOptions, resetPromptOptions } = useOutputOptions();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [form] = Form.useForm<PromptOption>();
 
   const showModal = () => {
     setIsModalOpen(true);
+  };
+
+  const handleResetPromptOptions = () => {
+    resetPromptOptions();
   };
 
   const handleOk = async () => {
@@ -48,6 +52,8 @@ export default function PromptSection() {
     deletePromptOptions(item);
   };
 
+
+
   return (
     <Card className="flex flex-col color-[var(--color-text-primary)]">
       <List
@@ -67,8 +73,17 @@ export default function PromptSection() {
           </List.Item>
         )}
       />
-      <div className="flex justify-end mb-1">
+      <div className="w-full flex justify-end mb-1 gap-2">
         <Button icon={<PlusOutlined />} onClick={showModal}>添加提示词</Button>
+        <Popconfirm
+          title="重置提示词"
+          description="确定要重置提示词吗？"
+          onConfirm={handleResetPromptOptions}
+          okText="确定"
+          cancelText="取消"
+        >
+          <Button icon={<ReloadOutlined />}>重置</Button>
+        </Popconfirm>
       </div>
       <PromptModal isModalOpen={isModalOpen} handleOk={handleOk} handleCancel={handleCancel} form={form} isEdit={isEdit} />
     </Card >

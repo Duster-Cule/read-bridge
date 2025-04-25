@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Card } from "../index";
 import { Button, Modal, Form, Input, Select, Popconfirm, theme, List, Typography, Space } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { PlusOutlined, EditOutlined, DeleteOutlined, ReloadOutlined } from "@ant-design/icons";
 import { useOutputOptions } from "@/store/useOutputOptions";
 import { OutputOption } from "@/types/llm";
 import { OUTPUT_TYPE } from "@/constants/prompt";
@@ -9,7 +9,7 @@ import TextArea from "antd/es/input/TextArea";
 
 export default function SentenceProcessingSection() {
   const { token } = theme.useToken();
-  const { sentenceOptions, addSentenceOptions, updateSentenceOptions, deleteSentenceOptions } = useOutputOptions();
+  const { sentenceOptions, addSentenceOptions, updateSentenceOptions, deleteSentenceOptions, resetSentenceOptions } = useOutputOptions();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [currentOption, setCurrentOption] = useState<OutputOption | null>(null);
@@ -102,14 +102,23 @@ export default function SentenceProcessingSection() {
             </List.Item>
           )}
         />
-        <div className="flex justify-end items-center mt-4">
+        <div className="flex justify-end items-center mt-4 gap-2">
           <Button
-            type="primary"
+
             icon={<PlusOutlined />}
             onClick={handleAdd}
           >
             添加配置
           </Button>
+          <Popconfirm
+            title="重置配置"
+            description="确定要重置句子处理配置吗？"
+            onConfirm={resetSentenceOptions}
+            okText="确定"
+            cancelText="取消"
+          >
+            <Button icon={<ReloadOutlined />}>重置</Button>
+          </Popconfirm>
         </div>
       </div>
 

@@ -70,7 +70,7 @@ export const INPUT_PROMPT = {
 } as const;
 
 const TEXT = `
-INPUT: {INPUT}
+INPUT: {SENTENCE}
 OUTPUT: 
 HTML Text with Content
 <p>...</p>
@@ -92,7 +92,7 @@ don't use other html tags
 `
 
 const KEY_VALUE_LIST = `
-INPUT: {INPUT}
+INPUT: {SENTENCE}
 OUTPUT: 
 HTML Unordered List with Content Items
 <ul>
