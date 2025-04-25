@@ -4,7 +4,7 @@ import { Button, Table, Modal, Form, Input, Select, Popconfirm, theme } from "an
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useOutputOptions } from "@/store/useOutputOptions";
 import { OutputOption } from "@/types/llm";
-import { OUTPUT_TYPE, OUTPUT_PROMPT, INPUT_PROMPT } from "@/constants/prompt";
+import { OUTPUT_TYPE } from "@/constants/prompt";
 import TextArea from "antd/es/input/TextArea";
 
 export default function SentenceProcessingSection() {
@@ -104,8 +104,14 @@ export default function SentenceProcessingSection() {
   return (
     <Card>
       <div className="flex flex-col">
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-lg font-bold">句子处理配置</h1>
+        <Table
+          dataSource={sentenceOptions}
+          columns={columns}
+          rowKey="id"
+          pagination={false}
+          style={{ backgroundColor: token.colorBgContainer }}
+        />
+        <div className="flex justify-end items-center mt-4">
           <Button
             type="primary"
             icon={<PlusOutlined />}
@@ -114,14 +120,6 @@ export default function SentenceProcessingSection() {
             添加配置
           </Button>
         </div>
-
-        <Table
-          dataSource={sentenceOptions}
-          columns={columns}
-          rowKey="id"
-          pagination={false}
-          style={{ backgroundColor: token.colorBgContainer }}
-        />
       </div>
 
       <Modal

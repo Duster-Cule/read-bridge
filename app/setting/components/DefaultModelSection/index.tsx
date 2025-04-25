@@ -62,11 +62,16 @@ export default function DefaultModelSection() {
     }
   }, [availableModels, setParseModel]);
 
-  const handleClear = useCallback(() => {
+  const handleClearChatModel = useCallback(() => {
     setChatModel(null);
+    form.setFieldValue('chatModel', undefined);
+  }, [setChatModel, form]);
+
+  const handleClearParseModel = useCallback(() => {
     setParseModel(null);
-    form.resetFields();
-  }, [setChatModel, setParseModel, form]);
+    form.setFieldValue('parseModel', undefined);
+  }, [setParseModel, form]);
+
 
   return (
     <Card>
@@ -81,7 +86,7 @@ export default function DefaultModelSection() {
               placeholder="请选择聊天模型"
               style={{ width: '100%' }}
               onChange={handleChatModelChange}
-              onClear={handleClear}
+              onClear={handleClearChatModel}
               allowClear
               disabled={!hasModels}
               options={availableModelsGrouped}
@@ -97,7 +102,7 @@ export default function DefaultModelSection() {
               placeholder="请选择解析模型"
               style={{ width: '100%' }}
               onChange={handleParseModelChange}
-              onClear={handleClear}
+              onClear={handleClearParseModel}
               allowClear
               disabled={!hasModels}
               options={availableModelsGrouped}

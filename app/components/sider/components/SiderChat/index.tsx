@@ -21,7 +21,7 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
   const [history, setHistory] = useState<LLMHistory>(() => getNewHistory(promptOptions, selectedId))
   const { addHistory } = useHistoryStore()
   const { chatModel } = useLLMStore()
-  const defaultLLMClient = useMemo(() => {
+  const chatLLMClient = useMemo(() => {
     return chatModel
       ? createLLMClient(chatModel)
       : null
@@ -99,7 +99,7 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
 
   const handleChat = useCallback(async (newHistory: LLMHistory, tags: string[]) => {
     if (!newHistory) throw new Error('newHistory is undefined')
-    if (!defaultLLMClient) throw new Error('defaultLLMClient is undefined')
+    if (!chatLLMClient) throw new Error('chatLLMClient is undefined')
     if (newHistory.messages.length === 0) throw new Error('newHistory.messages is empty')
 
     setIsGenerating(true)
@@ -120,8 +120,8 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
     let thinkingStartTime: number | null = null
     let thinkingTime: number | null = null
     try {
-      const responseGenerator = defaultLLMClient.completionsGenerator(messages, prompt, signal)
-      let currentMessages = handleMessage(newHistory.messages, '', defaultLLMClient.name, false, null)
+      const responseGenerator = chatLLMClient.completionsGenerator(messages, prompt, signal)
+      let currentMessages = handleMessage(newHistory.messages, '', chatLLMClient.name, false, null)
       setHistory(prev => ({
         ...prev,
         messages: currentMessages
@@ -137,7 +137,7 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
           thinkingTime = thinkingStartTime ? (dayjs().unix() - thinkingStartTime) : null
           continue
         }
-        currentMessages = handleMessage(currentMessages, chunk, defaultLLMClient.name, isThinking, thinkingTime);
+        currentMessages = handleMessage(currentMessages, chunk, chatLLMClient.name, isThinking, thinkingTime);
         thinkingTime = null
         setHistory(prev => ({
           ...prev,
@@ -154,14 +154,14 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
         message.info('已中断聊天生成')
         setHistory(prev => ({
           ...prev,
-          messages: handleMessage(prev.messages, '已中断聊天生成', defaultLLMClient.name, false, thinkingStartTime ? (dayjs().unix() - thinkingStartTime) : null)
+          messages: handleMessage(prev.messages, '已中断聊天生成', chatLLMClient.name, false, thinkingStartTime ? (dayjs().unix() - thinkingStartTime) : null)
         }));
       }
 
       setIsGenerating(false)
       abortControllerRef.current = null
     }
-  }, [defaultLLMClient, setHistory, handleMessage, handleTags])
+  }, [chatLLMClient, setHistory, handleMessage, handleTags])
 
   const handleStopGeneration = useCallback(() => {
     if (abortControllerRef.current) {
@@ -171,7 +171,11 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
 
   const handleSend = useCallback(async (input: string, tags: string[]) => {
     if (input.length === 0) return
-    if (!defaultLLMClient) throw new Error('defaultLLMClient is undefined')
+    if (!chatLLMClient) {
+      message.warning('请在设置中选择聊天模型')
+      return
+    }
+
     const newHistory = await new Promise<LLMHistory>(resolve => {
       setHistory((prev) => {
         const newHistory = {
@@ -183,7 +187,7 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
       })
     })
     handleChat(newHistory, tags)
-  }, [defaultLLMClient, setHistory, handleChat])
+  }, [chatLLMClient, setHistory, handleChat])
 
 
   function handleChangePrompt(id: string) {
