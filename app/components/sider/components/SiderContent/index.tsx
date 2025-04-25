@@ -23,17 +23,16 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
   const [word, setWord] = useState<string>("")
   const [wordDetails, setWordDetails] = useState<string>("")
 
-  const { defaultModel } = useLLMStore()
+  const { parseModel } = useLLMStore()
 
   const controllerRef = useRef<AbortController | null>(null);
-  // TODO: 后续增加不同功能选择LLMClient
   const defaultLLMClient = useMemo(() => {
-    return defaultModel
-      ? createLLMClient(defaultModel, {
+    return parseModel
+      ? createLLMClient(parseModel, {
         max_tokens: 500
       })
       : null
-  }, [defaultModel])
+  }, [parseModel])
 
   // 处理行索引
   const handleLineIndex = useCallback(async (index: number) => {
@@ -147,10 +146,13 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
       <Divider className="my-0" />
       <MenuLine selectedTab={selectedTab} items={items} onTabChange={handleTabChange} />
       <div className={`${selectedTab === 'sentence-analysis' ? 'block' : 'hidden'}`}>
-        {sentenceProcessingList.length > 0 ? <Sentences sentenceProcessingList={sentenceProcessingList} /> : <Empty description="No sentence selected" className="flex flex-col items-center justify-center h-[262px]" />}
+        {sentenceProcessingList.length > 0 ?
+          <Sentences sentenceProcessingList={sentenceProcessingList} />
+          : <Empty description={parseModel ? 'No sentence selected' : 'No model selected'} className="flex flex-col items-center justify-center h-[262px]" />}
       </div>
       {selectedTab === 'word-details' && (
-        word ? <WordDetails wordDetails={wordDetails} /> : <Empty description="No word selected" className="flex flex-col items-center justify-center h-[262px]" />
+        word ? <WordDetails wordDetails={wordDetails} />
+          : <Empty description={parseModel ? 'No word selected' : 'No model selected'} className="flex flex-col items-center justify-center h-[262px]" />
       )}
       <Divider className="my-0" />
     </div>

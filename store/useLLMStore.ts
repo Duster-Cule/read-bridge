@@ -16,10 +16,14 @@ interface LLMStore {
   deleteProvider: (providerId: string) => void
   // LLM可用列表
   models: () => Model[]
-  // 默认模型
-  defaultModel: Model | null
-  // 设置默认模型
-  setDefaultModel: (model: Model | null) => void
+  // 聊天模型
+  chatModel: Model | null
+  // 设置聊天模型
+  setChatModel: (model: Model | null) => void
+  // 解析模型
+  parseModel: Model | null
+  // 设置解析模型
+  setParseModel: (model: Model | null) => void
 }
 
 export const useLLMStore = create<LLMStore>()(
@@ -37,8 +41,10 @@ export const useLLMStore = create<LLMStore>()(
         }
         return false
       }).map(p => p.models).flat(),
-      defaultModel: null,
-      setDefaultModel: (model: Model | null) => set({ defaultModel: model }),
+      chatModel: null,
+      setChatModel: (model: Model | null) => set({ chatModel: model }),
+      parseModel: null,
+      setParseModel: (model: Model | null) => set({ parseModel: model }),
     }),
     {
       name: 'llm-storage',

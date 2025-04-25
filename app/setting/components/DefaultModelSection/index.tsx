@@ -1,14 +1,16 @@
 import { useLLMStore } from "@/store/useLLMStore";
 import { Form, Select, Empty } from "antd";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useCallback } from "react";
 import Card from "../Card";
 
 export default function DefaultModelSection() {
-  const { defaultModel, setDefaultModel, providers } = useLLMStore();
+  const { chatModel, setChatModel, parseModel, setParseModel, providers } = useLLMStore();
   const [form] = Form.useForm();
+
   const configuredProviders = useMemo(() => {
     return providers.filter(provider => provider.baseUrl && provider.apiKey && provider.models.length > 0);
-  }, [providers])
+  }, [providers]);
+
   const hasModels = configuredProviders.length > 0;
 
   // 获取所有可用模型并按提供商分组
@@ -28,42 +30,73 @@ export default function DefaultModelSection() {
   }, [configuredProviders]);
 
   useEffect(() => {
-    if (!hasModels && defaultModel) {
-      setDefaultModel(null);
+    if (!hasModels) {
+      if (chatModel) {
+        setChatModel(null);
+      }
+
+      if (parseModel) {
+        setParseModel(null);
+      }
+
       form.resetFields();
     } else {
       form.setFieldsValue({
-        defaultModel: defaultModel?.id
+        chatModel: chatModel?.id,
+        parseModel: parseModel?.id
       });
     }
-  }, [defaultModel, hasModels, form, setDefaultModel]);
+  }, [chatModel, parseModel, hasModels, form, setChatModel, setParseModel]);
 
-  const handleModelChange = (modelId: string) => {
+  const handleChatModelChange = useCallback((modelId: string) => {
     const selectedModel = availableModels.find(model => model.id === modelId);
     if (selectedModel) {
-      setDefaultModel(selectedModel);
+      setChatModel(selectedModel);
     }
-  };
+  }, [availableModels, setChatModel]);
 
-  // Allow clearing the default model selection
-  const handleClear = () => {
-    setDefaultModel(null);
+  const handleParseModelChange = useCallback((modelId: string) => {
+    const selectedModel = availableModels.find(model => model.id === modelId);
+    if (selectedModel) {
+      setParseModel(selectedModel);
+    }
+  }, [availableModels, setParseModel]);
+
+  const handleClear = useCallback(() => {
+    setChatModel(null);
+    setParseModel(null);
     form.resetFields();
-  };
+  }, [setChatModel, setParseModel, form]);
 
   return (
     <Card>
       {hasModels ? (
         <Form form={form} layout="vertical">
           <Form.Item
-            name="defaultModel"
-            label='默认模型'
-            tooltip='设置系统默认使用的模型'
+            name="chatModel"
+            label='聊天模型'
+            tooltip='设置聊天区域使用的模型'
           >
             <Select
-              placeholder="请选择默认模型"
+              placeholder="请选择聊天模型"
               style={{ width: '100%' }}
-              onChange={handleModelChange}
+              onChange={handleChatModelChange}
+              onClear={handleClear}
+              allowClear
+              disabled={!hasModels}
+              options={availableModelsGrouped}
+              optionFilterProp="label"
+            />
+          </Form.Item>
+          <Form.Item
+            name="parseModel"
+            label='解析模型'
+            tooltip='设置解析区域使用的模型 推荐使用非推理模型'
+          >
+            <Select
+              placeholder="请选择解析模型"
+              style={{ width: '100%' }}
+              onChange={handleParseModelChange}
               onClear={handleClear}
               allowClear
               disabled={!hasModels}

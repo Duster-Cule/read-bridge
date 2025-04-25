@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { Layout, Menu, theme } from "antd";
 import type { MenuProps } from "antd";
 import { StarIcon } from "@/assets/icon";
-import { AppstoreFilled, AlignLeftOutlined } from "@ant-design/icons";
+import { AppstoreFilled, AlignLeftOutlined, OrderedListOutlined } from "@ant-design/icons";
 import React from "react";
 
 import { AiSection, DefaultModelSection, PromptSection, SentenceProcessingSection } from "./components";
@@ -28,12 +28,12 @@ const settingsConfig = [
   {
     key: 'prompt',
     icon: <AlignLeftOutlined style={{ fontSize: 24 }} />,
-    label: "提示词配置",
+    label: "聊天区域提示词配置",
     content: <PromptSection />
   },
   {
     key: 'sentenceProcessing',
-    icon: <AlignLeftOutlined style={{ fontSize: 24 }} />,
+    icon: <OrderedListOutlined style={{ fontSize: 24 }} />,
     label: "句子处理配置",
     content: <SentenceProcessingSection />
   }

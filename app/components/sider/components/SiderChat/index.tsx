@@ -20,12 +20,12 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
   const { selectedId, promptOptions } = useOutputOptions()
   const [history, setHistory] = useState<LLMHistory>(() => getNewHistory(promptOptions, selectedId))
   const { addHistory } = useHistoryStore()
-  const { defaultModel } = useLLMStore()
+  const { chatModel } = useLLMStore()
   const defaultLLMClient = useMemo(() => {
-    return defaultModel
-      ? createLLMClient(defaultModel)
+    return chatModel
+      ? createLLMClient(chatModel)
       : null
-  }, [defaultModel])
+  }, [chatModel])
 
   const [isGenerating, setIsGenerating] = useState(false)
   const abortControllerRef = useRef<AbortController | null>(null)
