@@ -6,7 +6,7 @@ import { Divider, Empty } from "antd"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { CurrentSentence, MenuLine, Sentences, WordDetails } from "./cpns"
 import { useOutputOptions } from "@/store/useOutputOptions"
-import { assemblePrompt, contextMessages, INPUT_PROMPT, OUTPUT_TYPE } from "@/constants/prompt"
+import { assemblePrompt, contextMessages, INPUT_PROMPT } from "@/constants/prompt"
 import { OUTPUT_PROMPT } from "@/constants/prompt"
 
 interface SiderContentProps {
