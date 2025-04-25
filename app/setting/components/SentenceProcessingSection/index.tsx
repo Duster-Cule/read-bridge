@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Card } from "../index";
-import { Button, Table, Modal, Form, Input, Select, Popconfirm, theme } from "antd";
+import { Button, Modal, Form, Input, Select, Popconfirm, theme, List, Typography, Space } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useOutputOptions } from "@/store/useOutputOptions";
 import { OutputOption } from "@/types/llm";
@@ -19,46 +19,6 @@ export default function SentenceProcessingSection() {
     [OUTPUT_TYPE.SIMPLE_LIST]: "列表输出",
     [OUTPUT_TYPE.KEY_VALUE_LIST]: "键值列表",
   }), []);
-  const columns = [
-    {
-      title: "名称",
-      dataIndex: "name",
-      key: "name",
-    },
-    {
-      title: "类型",
-      dataIndex: "type",
-      key: "type",
-      render: (type: string) => {
-        return typeMap[type as keyof typeof typeMap] || type;
-      },
-    },
-    {
-      title: "操作",
-      key: "action",
-      render: (_: any, record: OutputOption) => (
-        <div className="flex space-x-2">
-          <Button
-            type="text"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-          />
-          <Popconfirm
-            title="确定要删除这项配置吗?"
-            onConfirm={() => handleDelete(record)}
-            okText="确定"
-            cancelText="取消"
-          >
-            <Button
-              type="text"
-              danger
-              icon={<DeleteOutlined />}
-            />
-          </Popconfirm>
-        </div>
-      ),
-    },
-  ];
 
   const handleAdd = () => {
     setIsEdit(false);
@@ -104,12 +64,43 @@ export default function SentenceProcessingSection() {
   return (
     <Card>
       <div className="flex flex-col">
-        <Table
+        <List
           dataSource={sentenceOptions}
-          columns={columns}
           rowKey="id"
-          pagination={false}
-          style={{ backgroundColor: token.colorBgContainer }}
+          renderItem={(item: OutputOption) => (
+            <List.Item
+              key={item.id}
+              actions={[
+                <Button
+                  type="text"
+                  icon={<EditOutlined />}
+                  onClick={() => handleEdit(item)}
+                />,
+                <Popconfirm
+                  title="确定要删除这项配置吗?"
+                  onConfirm={() => handleDelete(item)}
+                  okText="确定"
+                  cancelText="取消"
+                >
+                  <Button
+                    type="text"
+                    danger
+                    icon={<DeleteOutlined />}
+                  />
+                </Popconfirm>
+              ]}
+            >
+              <List.Item.Meta
+                title={<Typography.Title level={5}>{item.name}</Typography.Title>}
+                description={
+                  <Space direction="vertical" size="small" style={{ width: '100%' }}>
+                    <Typography.Text type="secondary">处理类型: {typeMap[item.type as keyof typeof typeMap] || item.type}</Typography.Text>
+                    <Typography.Paragraph ellipsis={{ rows: 2 }}>{item.rulePrompt}</Typography.Paragraph>
+                  </Space>
+                }
+              />
+            </List.Item>
+          )}
         />
         <div className="flex justify-end items-center mt-4">
           <Button
