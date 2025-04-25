@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Card } from "../index";
-import { Button, Modal, Form, Input, Select, Popconfirm, theme, List, Typography, Space } from "antd";
+import { Button, Modal, Form, Input, Select, Popconfirm, List, Typography, Space } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined, ReloadOutlined } from "@ant-design/icons";
 import { useOutputOptions } from "@/store/useOutputOptions";
 import { OutputOption } from "@/types/llm";
@@ -8,7 +8,7 @@ import { OUTPUT_TYPE } from "@/constants/prompt";
 import TextArea from "antd/es/input/TextArea";
 
 export default function SentenceProcessingSection() {
-  const { token } = theme.useToken();
+
   const { sentenceOptions, addSentenceOptions, updateSentenceOptions, deleteSentenceOptions, resetSentenceOptions } = useOutputOptions();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);

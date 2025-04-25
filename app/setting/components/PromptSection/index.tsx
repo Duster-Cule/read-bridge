@@ -1,6 +1,6 @@
 import { Card } from "../index";
 import { useOutputOptions } from "@/store/useOutputOptions";
-import { Button, Modal, Form, Input, Typography, theme, Flex, List, FormInstance, Popconfirm } from 'antd';
+import { Button, Modal, Form, Input, Typography, List, FormInstance, Popconfirm } from 'antd';
 import { useState } from "react";
 import { PromptOption } from "@/types/llm";
 import { PlusOutlined, EditOutlined, DeleteOutlined, ReloadOutlined } from '@ant-design/icons';
@@ -17,9 +17,6 @@ export default function PromptSection() {
     setIsModalOpen(true);
   };
 
-  const handleResetPromptOptions = () => {
-    resetPromptOptions();
-  };
 
   const handleOk = async () => {
     try {
@@ -78,7 +75,7 @@ export default function PromptSection() {
         <Popconfirm
           title="重置提示词"
           description="确定要重置提示词吗？"
-          onConfirm={handleResetPromptOptions}
+          onConfirm={resetPromptOptions}
           okText="确定"
           cancelText="取消"
         >
