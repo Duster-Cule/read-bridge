@@ -8,7 +8,7 @@ import { AppstoreFilled, AlignLeftOutlined } from "@ant-design/icons";
 import React from "react";
 
 import { AiSection, DefaultModelSection, PromptSection, SentenceProcessingSection } from "./components";
-import Footer from "../components/footer";
+
 
 const { Sider, Content } = Layout;
 
