@@ -1,4 +1,3 @@
-import ToolTipLabel from "@/app/components/ToolTipLable";
 import { useLLMStore } from "@/store/useLLMStore";
 import { Form, Select, Empty } from "antd";
 import { useEffect, useMemo } from "react";
@@ -58,7 +57,8 @@ export default function DefaultModelSection() {
         <Form form={form} layout="vertical">
           <Form.Item
             name="defaultModel"
-            label={ToolTipLabel("默认模型", "设置系统默认使用的模型")}
+            label='默认模型'
+            tooltip='设置系统默认使用的模型'
           >
             <Select
               placeholder="请选择默认模型"

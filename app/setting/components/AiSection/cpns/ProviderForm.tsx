@@ -2,7 +2,7 @@ import { Form, Input, Button, Typography, Space, Popconfirm, FormInstance } from
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Provider, Model } from '@/types/llm';
 import ModelCard from './ModelCard';
-import ToolTipLabel from '@/app/components/ToolTipLable';
+
 interface ProviderFormProps {
   provider: Provider;
   form: FormInstance<Provider>;
@@ -48,7 +48,7 @@ const ProviderForm = ({
           <Input placeholder="服务商名称" />
         </Form.Item>
 
-        <Form.Item name="baseUrl" label={ToolTipLabel('Base URL', '例如: https://api.deepseek.com/v1')} rules={[{ required: true }]}>
+        <Form.Item name="baseUrl" label='Base URL' tooltip='例如: https://api.deepseek.com/v1' rules={[{ required: true }]}>
           <Input placeholder="API 基础 URL" />
         </Form.Item>
 

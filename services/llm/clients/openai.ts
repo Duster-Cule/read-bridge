@@ -103,9 +103,6 @@ export function createOpenAIClient(provider: Provider, model: Model, options?: C
     prompt = '',
     signal?: AbortSignal
   ): AsyncGenerator<string, void, unknown> {
-    console.log('messages', messages)
-    console.log('prompt', prompt)
-    console.log('baseRequestParams', baseRequestParams)
     const systemMessage = prompt ? formatSystemMessage(prompt) : undefined
     const params = {
       ...baseRequestParams,

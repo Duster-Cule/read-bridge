@@ -12,7 +12,7 @@ export default function Sentences({ sentenceProcessingList }: { sentenceProcessi
           <CardComponent className="mb-2" key={item.name} title={item.name} loading={!item.generator}>
             {
               item.type === OUTPUT_TYPE.TEXT ? <TextGenerator generator={item.generator} /> :
-                item.type === OUTPUT_TYPE.BULLET_LIST ? <BulletListGenerator generator={item.generator} /> :
+                item.type === OUTPUT_TYPE.SIMPLE_LIST ? <SimpleListGenerator generator={item.generator} /> :
                   item.type === OUTPUT_TYPE.KEY_VALUE_LIST ? <KeyValueListGenerator generator={item.generator} /> :
                     null
             }
@@ -92,13 +92,15 @@ function handleThink(generator: AsyncGenerator<string, void, unknown>, onValue: 
     }
   })()
 }
-function BulletListGenerator({ generator }: { generator: AsyncGenerator<string, void, unknown> }) {
-  return <ListGenerator generator={generator} type={OUTPUT_TYPE.BULLET_LIST} />
+
+function SimpleListGenerator({ generator }: { generator: AsyncGenerator<string, void, unknown> }) {
+  return <ListGenerator generator={generator} type={OUTPUT_TYPE.SIMPLE_LIST} />
 }
 
 function KeyValueListGenerator({ generator }: { generator: AsyncGenerator<string, void, unknown> }) {
   return <ListGenerator generator={generator} type={OUTPUT_TYPE.KEY_VALUE_LIST} />
 }
+
 function ThinkCollapse({ thinkContext }: { thinkContext: string }) {
   if (!thinkContext) return null;
   return (

@@ -63,17 +63,10 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
         const { name, type, rulePrompt } = option
         let generator: AsyncGenerator<string, void, unknown> | null = null
         try {
-          if (type === OUTPUT_TYPE.SIMPLE_LIST) {
-            generator = defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, OUTPUT_PROMPT[type]), signal)
-            console.log(111)
-          } else {
-            generator = getGeneratorThinkAndHTMLTag(defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, OUTPUT_PROMPT[type]), signal))
-          }
+          generator = getGeneratorThinkAndHTMLTag(defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, OUTPUT_PROMPT[type]), signal))
         } catch (error) {
           console.log('句子请求失败', error, index, name, type, text)
         }
-        console.log('type', type)
-        console.log('generator', generator)
         if (generator) {
           setSentenceProcessingList(prev => [...prev, { name, type, generator }])
         }
