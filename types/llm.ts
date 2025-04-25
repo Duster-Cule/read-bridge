@@ -46,7 +46,6 @@ export type OutputOption = {
   name: string
   type: OutputType
   rulePrompt: string
-  outputPrompt: string
 }
 
 export type PromptOption = {

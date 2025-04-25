@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { OutputOption, PromptOption } from "@/types/llm";
-import { OUTPUT_TYPE, OUTPUT_PROMPT, INPUT_PROMPT } from "@/constants/prompt";
+import { OUTPUT_TYPE, INPUT_PROMPT } from "@/constants/prompt";
 import { message } from 'antd';
 
 function defaultSentenceOutputOption(): OutputOption[] {
@@ -9,23 +9,20 @@ function defaultSentenceOutputOption(): OutputOption[] {
     {
       id: crypto.randomUUID(),
       name: 'Sentence Analysis',
-      type: OUTPUT_TYPE.BULLET_LIST,
+      type: OUTPUT_TYPE.SIMPLE_LIST,
       rulePrompt: INPUT_PROMPT.SENTENCE_STRUCTURE_ANALYSIS,
-      outputPrompt: OUTPUT_PROMPT.SIMPLE_LIST
     },
     {
       id: crypto.randomUUID(),
       name: 'Sentence Rewrite',
       type: OUTPUT_TYPE.TEXT,
       rulePrompt: INPUT_PROMPT.SENTENCE_REWRITE,
-      outputPrompt: OUTPUT_PROMPT.TEXT
     },
     {
       id: crypto.randomUUID(),
       name: 'Key Word Analysis',
       type: OUTPUT_TYPE.KEY_VALUE_LIST,
       rulePrompt: INPUT_PROMPT.EXTRACT_KEY_WORDS,
-      outputPrompt: OUTPUT_PROMPT.LIST
     }
   ]
 }

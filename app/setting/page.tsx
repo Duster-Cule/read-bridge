@@ -7,7 +7,8 @@ import { StarIcon } from "@/assets/icon";
 import { AppstoreFilled, AlignLeftOutlined } from "@ant-design/icons";
 import React from "react";
 
-import { AiSection, DefaultModelSection, PromptSection } from "./components";
+import { AiSection, DefaultModelSection, PromptSection, SentenceProcessingSection } from "./components";
+import Footer from "../components/footer";
 
 const { Sider, Content } = Layout;
 
@@ -29,6 +30,12 @@ const settingsConfig = [
     icon: <AlignLeftOutlined style={{ fontSize: 24 }} />,
     label: "提示词配置",
     content: <PromptSection />
+  },
+  {
+    key: 'sentenceProcessing',
+    icon: <AlignLeftOutlined style={{ fontSize: 24 }} />,
+    label: "句子处理配置",
+    content: <SentenceProcessingSection />
   }
 ];
 
@@ -51,7 +58,7 @@ export default function Setting() {
   };
 
   return (
-    <Layout className="w-full h-full p-4" >
+    <Layout className="w-full h-full p-4 " >
       <Sider
         width={200}
         style={{

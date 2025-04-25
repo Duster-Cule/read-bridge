@@ -91,7 +91,7 @@ HTML Unordered List with Content Items
 don't use other html tags
 `
 
-const LIST = `
+const KEY_VALUE_LIST = `
 INPUT: {INPUT}
 OUTPUT: 
 HTML Unordered List with Content Items
@@ -108,13 +108,13 @@ don't use other html tags
 export const OUTPUT_PROMPT = {
   TEXT,
   SIMPLE_LIST,
-  LIST
+  KEY_VALUE_LIST
 } as const;
 
 export const OUTPUT_TYPE = {
-  TEXT: 'text',
-  BULLET_LIST: 'bulletList',
-  KEY_VALUE_LIST: 'keyValueList'
+  TEXT: 'TEXT',
+  SIMPLE_LIST: 'SIMPLE_LIST',
+  KEY_VALUE_LIST: 'KEY_VALUE_LIST'
 } as const;
 
 export function assemblePrompt(rulePrompt: string, outputPrompt: string): string {

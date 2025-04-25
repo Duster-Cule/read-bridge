@@ -6,8 +6,8 @@ import { Divider, Empty } from "antd"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { CurrentSentence, MenuLine, Sentences, WordDetails } from "./cpns"
 import { useOutputOptions } from "@/store/useOutputOptions"
-import { assemblePrompt, contextMessages, INPUT_PROMPT } from "@/constants/prompt"
-
+import { assemblePrompt, contextMessages, INPUT_PROMPT, OUTPUT_TYPE } from "@/constants/prompt"
+import { OUTPUT_PROMPT } from "@/constants/prompt"
 
 interface SiderContentProps {
   currentChapter: string[]
@@ -60,15 +60,20 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
     const addProcessorsWithDelay = async () => {
       for (let i = 0; i < sentenceOptions.length; i++) {
         const option = sentenceOptions[i]
-        const { name, type, rulePrompt, outputPrompt } = option
-
+        const { name, type, rulePrompt } = option
         let generator: AsyncGenerator<string, void, unknown> | null = null
         try {
-          generator = getGeneratorThinkAndHTMLTag(defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, outputPrompt), signal))
+          if (type === OUTPUT_TYPE.SIMPLE_LIST) {
+            generator = defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, OUTPUT_PROMPT[type]), signal)
+            console.log(111)
+          } else {
+            generator = getGeneratorThinkAndHTMLTag(defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, OUTPUT_PROMPT[type]), signal))
+          }
         } catch (error) {
           console.log('句子请求失败', error, index, name, type, text)
         }
-
+        console.log('type', type)
+        console.log('generator', generator)
         if (generator) {
           setSentenceProcessingList(prev => [...prev, { name, type, generator }])
         }

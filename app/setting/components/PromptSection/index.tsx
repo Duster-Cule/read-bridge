@@ -5,11 +5,9 @@ import { useState } from "react";
 import { PromptOption } from "@/types/llm";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 
-const { Title, Paragraph } = Typography;
-const { useToken } = theme;
+const { Paragraph } = Typography;
 
 export default function PromptSection() {
-  const { token } = useToken();
   const { promptOptions, addPromptOptions, updatePromptOptions, deletePromptOptions } = useOutputOptions();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -52,10 +50,6 @@ export default function PromptSection() {
 
   return (
     <Card className="flex flex-col color-[var(--color-text-primary)]">
-      <Flex justify="space-between" align="center" style={{ marginBottom: token.marginMD }}>
-        <Title level={5} style={{ margin: 0 }}>聊天提示词管理</Title>
-        <Button icon={<PlusOutlined />} onClick={showModal}>添加提示词</Button>
-      </Flex>
       <List
         itemLayout="horizontal"
         dataSource={promptOptions}
@@ -67,13 +61,15 @@ export default function PromptSection() {
             ]}
           >
             <List.Item.Meta
-              title={<a href="#">{item.name}</a>}
+              title={<div className="text-lg font-bold">{item.name}</div>}
               description={<ExpandableDescription text={item.prompt} maxLength={100} />}
             />
           </List.Item>
         )}
       />
-
+      <div className="flex justify-end mb-1">
+        <Button icon={<PlusOutlined />} onClick={showModal}>添加提示词</Button>
+      </div>
       <PromptModal isModalOpen={isModalOpen} handleOk={handleOk} handleCancel={handleCancel} form={form} isEdit={isEdit} />
     </Card >
   );
