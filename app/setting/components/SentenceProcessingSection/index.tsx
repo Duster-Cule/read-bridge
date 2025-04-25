@@ -75,12 +75,14 @@ export default function SentenceProcessingSection() {
                   type="text"
                   icon={<EditOutlined />}
                   onClick={() => handleEdit(item)}
+                  key="edit"
                 />,
                 <Popconfirm
                   title="确定要删除这项配置吗?"
                   onConfirm={() => handleDelete(item)}
                   okText="确定"
                   cancelText="取消"
+                  key="delete"
                 >
                   <Button
                     type="text"
