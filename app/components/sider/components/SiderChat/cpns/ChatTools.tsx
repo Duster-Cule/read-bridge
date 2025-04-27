@@ -1,11 +1,17 @@
 'use client'
 
 import { Button, Popover, Tooltip } from "antd"
-import { PlusOutlined, AlignLeftOutlined } from "@ant-design/icons"
+import { PlusOutlined, AlignLeftOutlined, HistoryOutlined } from "@ant-design/icons"
 import { useOutputOptions } from "@/store/useOutputOptions"
 import { useState } from "react"
 
-export default function ChatTools({ onPlus, onChangePrompt }: { onPlus: () => void, onChangePrompt: (id: string) => void }) {
+type ChatTools = {
+  onPlus: () => void
+  onChangePrompt: (id: string) => void
+  onHistory: () => void
+}
+
+export default function ChatTools({ onPlus, onChangePrompt, onHistory }: ChatTools) {
   const [open, setOpen] = useState(false);
 
   const handleChangePrompt = (value: string) => {
@@ -29,7 +35,7 @@ export default function ChatTools({ onPlus, onChangePrompt }: { onPlus: () => vo
           <Button type="text" icon={<AlignLeftOutlined />} onClick={() => setOpen(true)} />
         </Popover>
         <Button type="text" icon={<PlusOutlined />} onClick={onPlus} />
-        {/* <Button type="text" icon={<HistoryOutlined />} onClick={() => onSelectHistory()} /> */}
+        <Button type="text" icon={<HistoryOutlined />} onClick={onHistory} />
       </div>
     </>
   )

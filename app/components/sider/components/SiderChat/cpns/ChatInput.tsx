@@ -3,20 +3,22 @@ import { Button, Popover, Tag } from "antd"
 import { ArrowUpOutlined, PauseOutlined } from "@ant-design/icons"
 import TextArea from "antd/es/input/TextArea"
 
+type ChatInput = {
+  onSent: (input: string, tags: string[]) => void
+  tagOptions: {
+    label: string,
+    value: string
+  }[]
+  isGenerating?: boolean
+  onStopGeneration?: () => void
+}
+
 export default function ChatInput({
   onSent,
   tagOptions,
   isGenerating = false,
   onStopGeneration
-}: {
-  onSent: (input: string, tags: string[]) => void,
-  tagOptions: {
-    label: string,
-    value: string
-  }[],
-  isGenerating?: boolean,
-  onStopGeneration?: () => void
-}) {
+}: ChatInput) {
   const [input, setInput] = useState('')
   const [tags, setTags] = useState<Array<{ label: string, value: string }>>([])
   const [tagSelectorOpen, setTagSelectorOpen] = useState(false)

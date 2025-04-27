@@ -3,7 +3,12 @@ import { RefObject, useCallback, useEffect, useMemo, useRef, useState, } from "r
 import { Tooltip } from "antd"
 import MessageBubble from './MessageBubble'
 
-export default function ChatContent({ history, containerRef }: { history: LLMHistory, containerRef: RefObject<HTMLDivElement> }) {
+type ChatContent = {
+  history: LLMHistory
+  containerRef: RefObject<HTMLDivElement>
+}
+
+export default function ChatContent({ history, containerRef }: ChatContent) {
   const [height, setHeight] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
   const isAutoScrollTo = useRef(false)

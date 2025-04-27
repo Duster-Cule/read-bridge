@@ -8,9 +8,10 @@ import { useLLMStore } from "@/store/useLLMStore"
 import { createLLMClient } from "@/services/llm"
 import dayjs from "dayjs"
 import { getNewHistory } from "@/store/useOutputOptions"
-import { ChatTools, ChatContent, ChatInput } from "./cpns"
+import { ChatTools, ChatContent, ChatInput, ChatHistory } from "./cpns"
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs"
 import { useOutputOptions } from "@/store/useOutputOptions"
+
 interface SiderChatProps {
   currentChapter: string[]
   lineIndex: number
@@ -189,6 +190,15 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
     handleChat(newHistory, tags)
   }, [chatLLMClient, setHistory, handleChat])
 
+  // history
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const handleHistory = useCallback(() => {
+    setIsModalOpen(true)
+  }, [setIsModalOpen])
+  const handleCloseHistory = useCallback(() => {
+    setIsModalOpen(false)
+  }, [setIsModalOpen])
+
 
   function handleChangePrompt(id: string) {
     const prompt = promptOptions.find(option => option.id === id)?.prompt
@@ -203,7 +213,7 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
   }
   return (
     <div ref={containerRef} className="w-full h-full flex flex-col text-[var(--ant-color-text)]">
-      <ChatTools onPlus={handlePlus} onChangePrompt={handleChangePrompt} />
+      <ChatTools onPlus={handlePlus} onChangePrompt={handleChangePrompt} onHistory={handleHistory} />
       <ChatContent containerRef={containerRef} history={history} />
       <ChatInput
         onSent={handleSend}
@@ -211,6 +221,7 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
         isGenerating={isGenerating}
         onStopGeneration={handleStopGeneration}
       />
+      <ChatHistory isModalOpen={isModalOpen} onClose={handleCloseHistory} />
     </div>
   )
 }
