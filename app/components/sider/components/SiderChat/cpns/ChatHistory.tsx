@@ -1,23 +1,35 @@
 import { useHistoryStore } from "@/store/useHistoryStore";
-import { Button, Modal } from "antd";
+import { Modal } from "antd";
+import { useCallback } from "react";
 
 type ChatHistory = {
   isModalOpen: boolean
   onClose: () => void
+  onSelect: (id: string) => void
 }
 
-export default function ChatHistory({ isModalOpen, onClose }: ChatHistory) {
-  const { groupHistoryByTime } = useHistoryStore()
+export default function ChatHistory({ isModalOpen, onClose, onSelect }: ChatHistory) {
+  const { groupHistoryByTime, history } = useHistoryStore()
+  const handleSelectHistory = useCallback((id: string) => {
+    onSelect(id)
+    onClose()
+  }, [onSelect, onClose])
   return (
     <Modal title="历史记录" open={isModalOpen} footer={<></>} onCancel={onClose} >
       {
         groupHistoryByTime().map((group) => (
           <div key={group.label}>
-            <div className="text-sm font-bold">{group.label}</div>
+            <div className="text-sm font-bold mb-2">{group.label}</div>
             {group.items.map((item) => (
-              <Button key={item.id} onClick={() => {
-                onClose()
-              }}>{item.title}</Button>
+              <div className={
+                `text-base p-2 pt-1 pb-1 rounded-lg 
+                hover:bg-[var(--ant-color-bg-text-hover)]
+                ${(history && history.id === item.id) ? 'bg-[var(--ant-color-bg-text-hover)]' : ''}
+                cursor-pointer`
+              }
+                key={item.id}
+                onClick={() => handleSelectHistory(item.id)}
+              >{item.title} </div>
             ))}
           </div>
         ))

@@ -20,7 +20,7 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
   const containerRef = useRef<HTMLDivElement>(null);
   const { selectedId, promptOptions } = useOutputOptions()
   const [history, setHistory] = useState<LLMHistory>(() => getNewHistory(promptOptions, selectedId))
-  const { addHistory } = useHistoryStore()
+  const { setHistory: setStoreHistory, historys } = useHistoryStore()
   const { chatModel } = useLLMStore()
   const chatLLMClient = useMemo(() => {
     return chatModel
@@ -33,13 +33,16 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
 
   function handlePlus() {
     if (!history) return
-    addHistory(history)
     setHistory(getNewHistory(promptOptions, selectedId))
+    setStoreHistory(null)
   }
 
-  // function handleSelectHistory() {
-  //   console.log('select history')
-  // }
+  const handleSelectHistory = useCallback((id: string) => {
+    const history = historys.find(item => item.id === id)
+    if (!history) return
+    setHistory(history)
+    setStoreHistory(history)
+  }, [historys, setHistory, setStoreHistory])
 
   const tagOptions = useMemo(() => [
     {
@@ -123,10 +126,15 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
     try {
       const responseGenerator = chatLLMClient.completionsGenerator(messages, prompt, signal)
       let currentMessages = handleMessage(newHistory.messages, '', chatLLMClient.name, false, null)
-      setHistory(prev => ({
-        ...prev,
-        messages: currentMessages
-      }))
+      setHistory(prev => {
+        const newHistory = {
+          ...prev,
+          messages: currentMessages
+        }
+        setStoreHistory(newHistory)
+        return newHistory
+      })
+
       for await (const chunk of responseGenerator) {
         if (chunk === '<think>') {
           isThinking = true
@@ -153,10 +161,19 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
 
       if (wasAborted) {
         message.info('已中断聊天生成')
-        setHistory(prev => ({
-          ...prev,
-          messages: handleMessage(prev.messages, '已中断聊天生成', chatLLMClient.name, false, thinkingStartTime ? (dayjs().unix() - thinkingStartTime) : null)
-        }));
+        setHistory(prev => {
+          const newHistory = {
+            ...prev,
+            messages: handleMessage(prev.messages, '已中断聊天生成', chatLLMClient.name, false, thinkingStartTime ? (dayjs().unix() - thinkingStartTime) : null)
+          }
+          setStoreHistory(newHistory)
+          return newHistory
+        });
+      } else {
+        setHistory(prev => {
+          setStoreHistory(prev)
+          return prev
+        });
       }
 
       setIsGenerating(false)
@@ -213,7 +230,7 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
   }
   return (
     <div ref={containerRef} className="w-full h-full flex flex-col text-[var(--ant-color-text)]">
-      <ChatTools onPlus={handlePlus} onChangePrompt={handleChangePrompt} onHistory={handleHistory} />
+      <ChatTools isGenerating={isGenerating} onPlus={handlePlus} onChangePrompt={handleChangePrompt} onHistory={handleHistory} />
       <ChatContent containerRef={containerRef} history={history} />
       <ChatInput
         onSent={handleSend}
@@ -221,7 +238,7 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
         isGenerating={isGenerating}
         onStopGeneration={handleStopGeneration}
       />
-      <ChatHistory isModalOpen={isModalOpen} onClose={handleCloseHistory} />
+      <ChatHistory isModalOpen={isModalOpen} onClose={handleCloseHistory} onSelect={handleSelectHistory} />
     </div>
   )
 }

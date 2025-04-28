@@ -3,9 +3,11 @@ import { persist } from 'zustand/middleware'
 import { LLMHistory } from '@/types/llm'
 import dayjs from 'dayjs'
 
+
 interface HistoryStore {
+  history: LLMHistory | null
+  setHistory: (newHistory: LLMHistory | null) => void,
   historys: LLMHistory[]
-  addHistory: (history: LLMHistory) => void
   deleteHistory: (history: LLMHistory) => void
   updateHistory: (history: LLMHistory) => void
   queryHistory: (keyword: string) => LLMHistory[]
@@ -18,8 +20,22 @@ interface HistoryStore {
 export const useHistoryStore = create<HistoryStore>()(
   persist(
     (set, get) => ({
+      history: null,
+      setHistory: (newHistory: LLMHistory | null) => set((state) => {
+        if (!newHistory) return { history: null }
+        const { historys } = state
+        const index = historys.findIndex(item => item.id === newHistory.id)
+        if (index === -1 && newHistory.messages.length > 0) {
+          return { history: newHistory, historys: [...historys, newHistory] }
+        } else if (index !== -1 && newHistory.messages.length === 0) {
+          historys.splice(index, 1)
+          return { history: newHistory }
+        } else {
+          historys[index] = newHistory
+          return { history: newHistory, historys }
+        }
+      }),
       historys: [],
-      addHistory: (history) => set((state) => ({ historys: [...state.historys, history] })),
       deleteHistory: (history) => set((state) => ({ historys: state.historys.filter(item => item.id !== history.id) })),
       updateHistory: (history) => set((state) => {
         const id = history.id

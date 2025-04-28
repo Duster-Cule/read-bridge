@@ -6,12 +6,13 @@ import { useOutputOptions } from "@/store/useOutputOptions"
 import { useState } from "react"
 
 type ChatTools = {
+  isGenerating: boolean
   onPlus: () => void
   onChangePrompt: (id: string) => void
   onHistory: () => void
 }
 
-export default function ChatTools({ onPlus, onChangePrompt, onHistory }: ChatTools) {
+export default function ChatTools({ isGenerating, onPlus, onChangePrompt, onHistory }: ChatTools) {
   const [open, setOpen] = useState(false);
 
   const handleChangePrompt = (value: string) => {
@@ -32,10 +33,10 @@ export default function ChatTools({ onPlus, onChangePrompt, onHistory }: ChatToo
           placement="leftTop"
           trigger="click"
         >
-          <Button type="text" icon={<AlignLeftOutlined />} onClick={() => setOpen(true)} />
+          <Button type="text" disabled={isGenerating} icon={<AlignLeftOutlined />} onClick={() => setOpen(true)} />
         </Popover>
-        <Button type="text" icon={<PlusOutlined />} onClick={onPlus} />
-        <Button type="text" icon={<HistoryOutlined />} onClick={onHistory} />
+        <Button type="text" disabled={isGenerating} icon={<PlusOutlined />} onClick={onPlus} />
+        <Button type="text" disabled={isGenerating} icon={<HistoryOutlined />} onClick={onHistory} />
       </div>
     </>
   )
