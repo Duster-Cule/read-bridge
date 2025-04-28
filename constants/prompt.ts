@@ -43,17 +43,22 @@ const SENTENCE_STRUCTURE_ANALYSIS = `
 You are a sentence structure analyzer. Your task is to break down sentences into their meaningful components (phrases and clauses) without categorizing the sentence type or providing linguistic classifications.
 `
 const EXTRACT_KEY_WORDS = `
-Extract key vocabulary and expressions.  More detailed explanations, expanded usage
+Extract key vocabulary and expressions.  More detailed explanations, expanded usage, Output using the input language
 `
 const SENTENCE_REWRITE = `
-Rewrite the complex sentence into a simpler expression, maintaining the original meaning but using more basic vocabulary and syntactic structure.
-Requirements:
-Use more common, simpler vocabulary
-Shorten sentence length
-Break down complex sentence structures
-Remove unnecessary modifiers
-Preserve the core meaning of the original sentence
-Make it understandable for lower-level English learners 
+# Sentence Simplification Instructions
+Rewrite complex sentences into simpler expressions, maintaining the original meaning while using more basic vocabulary and syntax.
+## IMPORTANT: Language Requirement
+- You MUST output in EXACTLY the same language as the input
+- Do NOT translate the content to another language
+- If input is in Chinese, output in Chinese; if input is in English, output in English, any other language, output in the same language
+## Simplification Requirements:
+- Use more common, simpler vocabulary
+- Shorten sentence length
+- Break down complex sentence structures
+- Remove unnecessary modifiers
+- Preserve the core meaning of the original sentence
+- Make it understandable for lower-level language learners
 `
 
 const CHAT_PROMPT = `
