@@ -1,7 +1,7 @@
 import { useHistoryStore } from "@/store/useHistoryStore";
 import { Button, Modal } from "antd";
-import { useCallback } from "react";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { useCallback, useState } from "react";
+import { EditOutlined, DeleteOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import { LLMHistory } from "@/types/llm";
 type ChatHistory = {
   isModalOpen: boolean
@@ -10,19 +10,39 @@ type ChatHistory = {
 }
 
 export default function ChatHistory({ isModalOpen, onClose, onSelect }: ChatHistory) {
-  const { groupHistoryByTime, history, deleteHistory } = useHistoryStore()
+  const { groupHistoryByTime, history, deleteHistory, updateHistory } = useHistoryStore()
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editingTitle, setEditingTitle] = useState<string>('')
+
   const handleSelectHistory = useCallback((id: string) => {
     onSelect(id)
     onClose()
   }, [onSelect, onClose])
   const handleEditHistory = useCallback((item: LLMHistory) => {
-    console.log('item', item)
+    setEditingId(item.id)
+    setEditingTitle(item.title)
   }, [])
   const handleDeleteHistory = useCallback((item: LLMHistory) => {
     deleteHistory(item)
   }, [deleteHistory])
+  const handleSaveEdit = useCallback((item: LLMHistory) => {
+    updateHistory({
+      ...item,
+      title: editingTitle
+    })
+    setEditingId(null)
+  }, [updateHistory, editingTitle])
+  const handleCancelEdit = useCallback(() => {
+    setEditingId(null)
+  }, [])
+
+  const handleCancel = useCallback(() => {
+    setEditingId(null)
+    setEditingTitle('')
+    onClose()
+  }, [onClose])
   return (
-    <Modal title="历史记录" open={isModalOpen} footer={<></>} onCancel={onClose} >
+    <Modal title="历史记录" open={isModalOpen} footer={<></>} onCancel={handleCancel} >
       {
         groupHistoryByTime().map((group) => (
           <div key={group.label}>
@@ -36,11 +56,29 @@ export default function ChatHistory({ isModalOpen, onClose, onSelect }: ChatHist
               }
                 key={item.id}
               >
-                <div className="flex-1 truncate" onClick={() => handleSelectHistory(item.id)}>{item.title}</div>
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button type="text" size="small" icon={<EditOutlined />} onClick={() => handleEditHistory(item)} />
-                  <Button type="text" size="small" icon={<DeleteOutlined />} onClick={() => handleDeleteHistory(item)} />
-                </div>
+                {editingId === item.id ? (
+                  <div className="flex-1 flex items-center">
+                    <input
+                      className="flex-1"
+                      value={editingTitle}
+                      onChange={(e) => setEditingTitle(e.target.value)}
+                      autoFocus
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                    <div className="flex items-center ml-2">
+                      <Button type="text" size="small" icon={<CheckOutlined />} onClick={() => handleSaveEdit(item)} />
+                      <Button type="text" size="small" icon={<CloseOutlined />} onClick={handleCancelEdit} />
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex-1 truncate" onClick={() => handleSelectHistory(item.id)}>{item.title}</div>
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button type="text" size="small" icon={<EditOutlined />} onClick={() => handleEditHistory(item)} />
+                      <Button type="text" size="small" icon={<DeleteOutlined />} onClick={() => handleDeleteHistory(item)} />
+                    </div>
+                  </>
+                )}
               </div>
             ))}
           </div>
