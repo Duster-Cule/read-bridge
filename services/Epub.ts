@@ -79,13 +79,14 @@ export function initEpubBook(buffer: Buffer): FormattedBook {
   })
 
   const chapterList: PlainTextChapter[] = []
+  let chapterCounter = 1
   for (const item of chapterXMLs) {
     const $ = cheerio.load(item, { xml: true })
-    const title = $('h1').first().text() ||
+    const originalTitle = $('h1').first().text() ||
       $('title').first().text() ||
       $('h2').first().text() ||
       '';
-    if (!title || title === '') continue
+    if (!originalTitle || originalTitle === '') continue
     const paragraphs: string[] = []
     $('p').each((_, p) => {
       const text = $(p).text()
@@ -93,12 +94,24 @@ export function initEpubBook(buffer: Buffer): FormattedBook {
         paragraphs.push(text)
       }
     })
+
     if (paragraphs.length === 0) continue
+
+    let finalTitle: string;
+    if (originalTitle.toLowerCase() === 'unknown') {
+      finalTitle = String(chapterCounter);
+    } else {
+      finalTitle = originalTitle;
+    }
+
     chapterList.push({
-      title,
+      title: finalTitle,
       paragraphs
     })
+
+    chapterCounter++;
   }
+
 
   return {
     metadata: metadata as FormattedBook['metadata'],

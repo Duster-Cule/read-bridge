@@ -55,10 +55,8 @@ function handleBase64(base64: string) {
 
 const BookCover = ({ cover, title }: { cover: Resource | undefined, title: string }) => {
   const imageCSS = `
-    opacity-10
     w-full
     h-full
-    object-cover
     rounded-lg
   `
   const noCoverCSS = `
