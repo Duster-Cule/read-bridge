@@ -68,7 +68,7 @@ export default function BookUploader() {
   return (
     <div className="w-[100%] h-[100%]">
       <Dragger {...props} className="h-full flex items-center justify-center bg-[var(--ant-color-bg-elevated)] dark:bg-[var(--ant-color-bg-elevated)] rounded-lg hover:bg-[var(--ant-color-fill-tertiary)] dark:hover:bg-[var(--ant-color-fill-tertiary)] transition-colors">
-        <PlusOutlined className="text-3xl text-[var(--ant-color-text-tertiary)]" />
+        <PlusOutlined className="text-2xl text-[var(--ant-color-text-tertiary)]" />
       </Dragger>
     </div>
   );

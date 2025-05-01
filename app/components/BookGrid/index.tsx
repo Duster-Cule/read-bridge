@@ -26,8 +26,8 @@ export default function BookGrid({ books }: BookGridProps) {
       <Row gutter={[gutterX, gutterY]}>
         {books.map((book) => (
           <Col key={book.id} span={24 / itemsPerRow}>
-            <div className="cursor-pointer" onClick={() => onBookClick(book.id)}>
-              <div className="aspect-[3/4] w-full overflow-hidden">
+            <div className="cursor-pointer">
+              <div className="aspect-[3/4] w-full overflow-hidden" onClick={() => onBookClick(book.id)}>
                 <BookCover cover={book.cover} title={book.title} />
               </div>
               <div className="mt-2 text-center">
