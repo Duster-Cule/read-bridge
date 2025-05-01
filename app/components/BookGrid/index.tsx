@@ -1,11 +1,14 @@
 'use client';
 
-import { Row, Col } from 'antd';
+import { Row, Col, Button } from 'antd';
 import { BookPreview, Resource } from '@/types/book';
 import BookUploader from '@/app/components/BookUploader';
 import { useStyleStore } from '@/store/useStyleStore';
 import { useRouter } from 'next/navigation';
 import { useSiderStore } from '@/store/useSiderStore';
+import { InfoCircleOutlined } from '@ant-design/icons';
+import { useState } from 'react';
+import BookDetailsModal from '@/app/components/BookDetailsModal';
 
 interface BookGridProps {
   books: BookPreview[];
@@ -15,11 +18,23 @@ export default function BookGrid({ books }: BookGridProps) {
   const { itemsPerRow, gutterX, gutterY } = useStyleStore()
   const router = useRouter();
   const { setReadingId } = useSiderStore()
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [selectedBookId, setSelectedBookId] = useState<string>('');
 
   const onBookClick = (id: string) => {
     setReadingId(id)
     router.push(`/read`);
   }
+
+  const showDetailsModal = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedBookId(id);
+    setDetailsModalOpen(true);
+  };
+
+  const closeDetailsModal = () => {
+    setDetailsModalOpen(false);
+  };
 
   return (
     <div className="w-full">
@@ -32,9 +47,17 @@ export default function BookGrid({ books }: BookGridProps) {
               </div>
               <div className="mt-2 text-center">
                 <div className="font-medium truncate">{book.title}</div>
-                {book.author && (
-                  <div className="text-sm text-gray-500 truncate">{book.author}</div>
-                )}
+                <div className="flex items-center justify-center">
+                  {book.author && (
+                    <div className="text-sm text-gray-500 truncate">{book.author}</div>
+                  )}
+                  <Button
+                    type="text"
+                    size="small"
+                    icon={<InfoCircleOutlined />}
+                    onClick={(e) => showDetailsModal(book.id, e)}
+                  />
+                </div>
               </div>
             </div>
           </Col>
@@ -45,6 +68,12 @@ export default function BookGrid({ books }: BookGridProps) {
           </div>
         </Col>
       </Row>
+
+      <BookDetailsModal
+        open={detailsModalOpen}
+        onClose={closeDetailsModal}
+        bookId={selectedBookId}
+      />
     </div>
   );
 }

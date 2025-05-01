@@ -55,7 +55,7 @@ const props: UploadProps = {
       try {
         const id = await db.addBook(response as Book)
         await db.addReadingProgress(id)
-        message.success(`${info.file.name} ${id} 文件导入 成功`);
+        message.success(`${info.file.name} 文件导入 成功`);
       } catch (error) {
         if (error instanceof Error) message.error(`${info.file.name} 文件导入失败: ${error.message}`);
         else message.error(`${info.file.name} 文件导入失败`);

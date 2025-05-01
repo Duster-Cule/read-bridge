@@ -189,6 +189,7 @@ class BookDB extends Dexie {
     }
 
     await this.books.delete(id)
+    await this.readingProgress.delete(id)
   }
 
   /**
