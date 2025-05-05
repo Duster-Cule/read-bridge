@@ -18,6 +18,20 @@ ReadBridge draws inspiration from Stephen Krashen's Comprehensible Input Hypothe
 - **Input Level**: Learning is effective when input is slightly above current competence
 - **Focus on Meaning**: Understanding content takes precedence over explicit grammar study
 
+## Project Origin
+
+The inspiration for ReadBridge came from a video I stumbled upon while browsing, which completely transformed my understanding of language learning. The video discussed three major challenges in language learning:
+
+- **Arbitrary Symbol Challenge**: Memorizing words is like remembering meaningless symbols, making this type of memory easily forgotten
+- **Breadth Challenge**: Vocabulary is as vast as an ocean, and pure memorization is like trying to scoop up the sea with a bucket
+- **Depth Challenge**: Word meaning is as deep as a well, and rote memorization only scratches the surface
+
+What impressed me most was the concept that "only 1-2 unknown words per 100 words" creates comprehensible input, and that "a word needs to be repeated at least 12 times in different contexts" to be truly mastered. This made me realize that learning vocabulary in context is as natural and effective as solving a puzzle.
+
+The video also introduced the story of Hungarian linguist Lomb Kato, who mastered 15 languages through reading original works, and research showing that ten novels by Sidney Sheldon could cover over 90% of college-level English vocabulary, with each word repeated an average of 26 times. Studies suggest that regular reading may be the primary source of most of our vocabulary, and with just half an hour of daily reading, we could complete one million words in a year.
+
+"Only this kind of reading is true reading" — this statement became my motivation for developing ReadBridge. If you're interested in this learning method, I recommend watching this video: https://www.bilibili.com/festival/jzj2023?bvid=BV1ns4y1A7fj
+
 ## Key Features
 
 - **Interactive Reading Interface**: Progress through texts sentence-by-sentence with an intuitive UI
