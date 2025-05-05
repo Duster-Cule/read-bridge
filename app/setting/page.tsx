@@ -6,41 +6,42 @@ import type { MenuProps } from "antd";
 import { StarIcon } from "@/assets/icon";
 import { AppstoreFilled, AlignLeftOutlined, OrderedListOutlined } from "@ant-design/icons";
 import React from "react";
+import { useTranslation } from "@/i18n/useTranslation";
 
 import { AiSection, DefaultModelSection, PromptSection, SentenceProcessingSection } from "./components";
 
-
 const { Sider, Content } = Layout;
-
-const settingsConfig = [
-  {
-    key: "ai",
-    icon: <StarIcon />,
-    label: "AI设置",
-    content: <AiSection />
-  },
-  {
-    key: 'defaultModel',
-    icon: <AppstoreFilled style={{ fontSize: 24 }} />,
-    label: "模型配置",
-    content: <DefaultModelSection />
-  },
-  {
-    key: 'prompt',
-    icon: <AlignLeftOutlined style={{ fontSize: 24 }} />,
-    label: "聊天区域提示词配置",
-    content: <PromptSection />
-  },
-  {
-    key: 'sentenceProcessing',
-    icon: <OrderedListOutlined style={{ fontSize: 24 }} />,
-    label: "句子处理配置",
-    content: <SentenceProcessingSection />
-  }
-];
 
 export default function Setting() {
   const { token } = theme.useToken();
+  const { t } = useTranslation();
+
+  const settingsConfig = [
+    {
+      key: "ai",
+      icon: <StarIcon />,
+      label: t("settings.aiSettings"),
+      content: <AiSection />
+    },
+    {
+      key: 'defaultModel',
+      icon: <AppstoreFilled style={{ fontSize: 24 }} />,
+      label: t("settings.modelConfig"),
+      content: <DefaultModelSection />
+    },
+    {
+      key: 'prompt',
+      icon: <AlignLeftOutlined style={{ fontSize: 24 }} />,
+      label: t("settings.promptConfig"),
+      content: <PromptSection />
+    },
+    {
+      key: 'sentenceProcessing',
+      icon: <OrderedListOutlined style={{ fontSize: 24 }} />,
+      label: t("settings.sentenceConfig"),
+      content: <SentenceProcessingSection />
+    }
+  ];
 
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 

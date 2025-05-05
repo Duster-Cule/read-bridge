@@ -1,0 +1,17 @@
+{
+  "header": {
+    "home": "首页",
+    "reading": "阅读"
+  },
+  "settings": {
+    "aiSettings": "AI设置",
+    "modelConfig": "模型配置",
+    "promptConfig": "聊天区域提示词配置",
+    "sentenceConfig": "句子处理配置"
+  },
+  "language": {
+    "switchToZh": "切换到中文",
+    "switchToEn": "切换到英文",
+    "current": "当前语言：中文"
+  }
+}

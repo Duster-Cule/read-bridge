@@ -1,0 +1,17 @@
+{
+  "header": {
+    "home": "Home",
+    "reading": "Reading"
+  },
+  "settings": {
+    "aiSettings": "AI Settings",
+    "modelConfig": "Model Configuration",
+    "promptConfig": "Chat Area Prompt Configuration",
+    "sentenceConfig": "Sentence Processing Configuration"
+  },
+  "language": {
+    "switchToZh": "Switch to Chinese",
+    "switchToEn": "Switch to English",
+    "current": "Current language: English"
+  }
+}

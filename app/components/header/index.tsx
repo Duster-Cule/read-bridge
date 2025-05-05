@@ -2,12 +2,14 @@
 import { useRouter } from 'next/navigation';
 import { theme } from 'antd';
 import { LogoIcon } from '@/assets/icon';
-import { GithubOutlined, SunOutlined, MoonOutlined, CaretUpFilled, SettingOutlined } from '@ant-design/icons';
+import { GithubOutlined, SunOutlined, MoonOutlined, CaretUpFilled, SettingOutlined, TranslationOutlined } from '@ant-design/icons';
 import { Button, Menu } from 'antd';
 import { useTheme } from 'next-themes';
 import { usePathname } from 'next/navigation';
 import { useSiderStore } from '@/store/useSiderStore';
 import { useHeaderStore } from '@/store/useHeaderStore';
+import { useStyleStore } from '@/store/useStyleStore';
+import { useTranslation } from '@/i18n/useTranslation';
 
 
 export default function Header() {
@@ -46,13 +48,15 @@ function HeaderLogoArea() {
 
 function HeaderContentArea() {
   const { readingId } = useSiderStore()
+  const { t } = useTranslation()
+
   const items = [
     {
-      label: '首页',
+      label: t('header.home'),
       key: '/',
     },
     {
-      label: '阅读',
+      label: t('header.reading'),
       key: '/read',
       disabled: !readingId,
     },
@@ -74,6 +78,7 @@ function HeaderIconArea({ theme, toggleTheme }: { theme?: string, toggleTheme: (
   const iconStyle = { fontSize: 20 };
   const ThemeIcon = theme === 'dark' ? SunOutlined : MoonOutlined;
   const { toggleCollapsed } = useHeaderStore();
+  const { toggleLanguage } = useStyleStore();
 
   function handleToGithub() {
     window.open('https://github.com/WindChimeEcho/read-bridge', '_blank');
@@ -88,11 +93,12 @@ function HeaderIconArea({ theme, toggleTheme }: { theme?: string, toggleTheme: (
     router.push('/setting');
   }
 
+  function handleToggleLanguage() {
+    toggleLanguage();
+  }
+
   return (
     <div className="flex w-[16%] h-full items-center justify-end pr-[40px]">
-
-
-
       <Button
         type="text"
         size="large"
@@ -104,6 +110,12 @@ function HeaderIconArea({ theme, toggleTheme }: { theme?: string, toggleTheme: (
         size="large"
         icon={<SettingOutlined style={{ ...iconStyle }} />}
         onClick={handleToSetting}
+      />
+      <Button
+        type="text"
+        size="large"
+        icon={<TranslationOutlined style={iconStyle} />}
+        onClick={handleToggleLanguage}
       />
       <Button
         type="text"
