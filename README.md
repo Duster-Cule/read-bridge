@@ -1,36 +1,119 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ReadBridge: AI-Enhanced Reading Assistant for Language Learning
+
+*[English](./README.md) | [中文](./README.zh-CN.md)*
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Next.js](https://img.shields.io/badge/Next.js-black?logo=next.js&logoColor=white)](https://nextjs.org/) [![Tauri](https://img.shields.io/badge/Tauri-24C8D8?logo=tauri&logoColor=white)](https://tauri.app/) [![Web](https://img.shields.io/badge/Platform-Web-blue)](https://nextjs.org/) [![Windows](https://img.shields.io/badge/Platform-Windows-blue?logo=windows&logoColor=white)](https://tauri.app/) [![macOS](https://img.shields.io/badge/Platform-macOS-blue?logo=apple&logoColor=white)](https://tauri.app/) [![Linux](https://img.shields.io/badge/Platform-Linux-blue?logo=linux&logoColor=white)](https://tauri.app/)
+
+ReadBridge is an AI-powered reading assistant available as both a web application and desktop software (via Tauri). It enhances language learning through the "n+1" comprehensible input approach, helping learners engage with content in their target language.
+
+## Overview
+
+This reading assistant enables a source-to-source language learning approach, reducing reliance on translation to your native language. The platform helps learners practice reading within the target language ecosystem, supporting natural language acquisition through contextual understanding.
+
+## Comprehensible Input Theory
+
+ReadBridge draws inspiration from Stephen Krashen's Comprehensible Input Hypothesis, which suggests:
+
+- **Natural Acquisition**: We acquire language when we understand messages in context
+- **Input Level**: Learning is effective when input is slightly above current competence
+- **Focus on Meaning**: Understanding content takes precedence over explicit grammar study
+
+## Key Features
+
+- **Interactive Reading Interface**: Progress through texts sentence-by-sentence with an intuitive UI
+- **AI Reading Support**: Get explanations in the target language to maintain immersion
+- **User-Defined Difficulty**: Set prompt templates based on your self-assessed proficiency level
+- **Contextual Learning**: Explore vocabulary and grammar structures in authentic contexts
+- **Progress Tracking**: Save your reading position across chapters and books
+- **Customizable Configuration**: Adjust settings to match your learning preferences
+- **Cross-Platform**: Use in any modern browser or as a desktop application
+- **Book Management**: Easily import, organize, and access your reading materials
+- **Distraction-Free Design**: Clean interface designed for focused reading
 
 ## Getting Started
 
-First, run the development server:
+### Web Version
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+1. Clone the repository
+   ```bash
+   git clone https://github.com/WindChimeEcho/read-bridge.git
+   cd read-bridge
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies
+   ```bash
+   npm install
+   ```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Start the development server
+   ```bash
+   npm run dev
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-## Learn More
+### Desktop Version (Tauri)
 
-To learn more about Next.js, take a look at the following resources:
+1. Follow the [Tauri v2 setup guide](https://v2.tauri.app/guides/quick-start/prerequisites) to install prerequisites
+   
+2. Install dependencies and build the application
+   ```bash
+   npm run tauri dev
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deployment
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Deploy your own instance of ReadBridge with just one click:
 
-## Deploy on Vercel
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/WindChimeEcho/read-bridge)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+[![Deploy to Cloudflare Pages](https://img.shields.io/badge/Deploy%20to-Cloudflare%20Pages-orange.svg?style=for-the-badge&logo=cloudflare)](https://developers.cloudflare.com/pages/framework-guides/deploy-a-nextjs-site/)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Configuration
+
+ReadBridge offers several configuration options:
+
+### AI Settings
+- Configure different AI providers (OpenAI, etc.)
+- Set up custom models and endpoints
+- Manage API keys and access
+
+### Model Configuration
+- Select default models for different functionalities
+- Customize model parameters
+
+### Prompt Configuration
+- Choose from preset prompt templates or create your own
+- Customize prompts based on your language level and learning goals
+- Adjust the type of assistance you receive while reading
+
+### Sentence Processing
+- Configure how texts are segmented and presented
+- Adjust the reading flow to match your preferences
+
+## How AI Enhances Reading
+
+ReadBridge leverages AI in focused ways to support your reading:
+
+- **Contextual Explanations**: Get clarifications about difficult passages in the target language
+- **Vocabulary Support**: Understand new words through explanations rather than direct translations
+- **Customized Assistance**: Receive help tailored to your self-selected proficiency level
+- **Natural Language Interaction**: Ask questions about the text to deepen understanding
+
+## Learning Approach
+
+ReadBridge supports language acquisition through:
+
+- **Immersion Reading**: Engage with authentic texts in the target language
+- **Contextual Understanding**: Learn new elements through context rather than isolated study
+- **Personalized Support**: Configure the AI assistance to match your current abilities
+- **Reading Flow**: Maintain concentration with a distraction-free interface
+
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
