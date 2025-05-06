@@ -29,6 +29,13 @@
     "temperature": "Temperature",
     "topP": "Top P",
     "modelConfig": "Model Configuration",
+    "chatModel": "Chat Model",
+    "chatModelTooltip": "The model used for chat",
+    "analyticalModel": "Analytical Model",
+    "analyticalModelTooltip": "Set the model used for parsing regions. It is recommended to use a non-inference model.",
+    "selectChatModel": "Select Chat Model",
+    "selectAnalyticalModel": "Select Analytical Model",
+    "noAvailableModel": "No available model. Please configure a valid model in the model settings first.",
     "promptConfig": "Chat Area Prompt Configuration",
     "sentenceConfig": "Sentence Processing Configuration"
   },

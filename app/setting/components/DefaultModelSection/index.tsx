@@ -2,8 +2,10 @@ import { useLLMStore } from "@/store/useLLMStore";
 import { Form, Select, Empty } from "antd";
 import { useEffect, useMemo, useCallback } from "react";
 import Card from "../Card";
+import { useTranslation } from "@/i18n/useTranslation";
 
 export default function DefaultModelSection() {
+  const { t } = useTranslation();
   const { chatModel, setChatModel, parseModel, setParseModel, providers } = useLLMStore();
   const [form] = Form.useForm();
 
@@ -79,11 +81,11 @@ export default function DefaultModelSection() {
         <Form form={form} layout="vertical">
           <Form.Item
             name="chatModel"
-            label='聊天模型'
-            tooltip='设置聊天区域使用的模型'
+            label={t('settings.chatModel')}
+            tooltip={t('settings.chatModelTooltip')}
           >
             <Select
-              placeholder="请选择聊天模型"
+              placeholder={t('settings.selectChatModel')}
               style={{ width: '100%' }}
               onChange={handleChatModelChange}
               onClear={handleClearChatModel}
@@ -95,11 +97,11 @@ export default function DefaultModelSection() {
           </Form.Item>
           <Form.Item
             name="parseModel"
-            label='解析模型'
-            tooltip='设置解析区域使用的模型 推荐使用非推理模型'
+            label={t('settings.analyticalModel')}
+            tooltip={t('settings.analyticalModelTooltip')}
           >
             <Select
-              placeholder="请选择解析模型"
+              placeholder={t('settings.selectAnalyticalModel')}
               style={{ width: '100%' }}
               onChange={handleParseModelChange}
               onClear={handleClearParseModel}
@@ -112,7 +114,7 @@ export default function DefaultModelSection() {
         </Form>
       ) : (
         <Empty
-          description="没有可用的模型。请先在模型设置中配置有效的模型"
+          description={t('settings.noAvailableModel')}
           className="py-6"
         />
       )}

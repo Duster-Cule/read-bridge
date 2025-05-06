@@ -29,6 +29,13 @@
     "temperature": "温度",
     "topP": "核采样",
     "modelConfig": "模型配置",
+    "chatModel": "聊天模型",
+    "chatModelTooltip": "聊天区域使用的模型",
+    "analyticalModel": "解析模型",
+    "analyticalModelTooltip": "设置解析区域使用的模型 推荐使用非推理模型",
+    "selectChatModel": "选择聊天模型",
+    "selectAnalyticalModel": "选择解析模型",
+    "noAvailableModel": "没有可用的模型。请先在模型设置中配置有效的模型",
     "promptConfig": "聊天区域提示词配置",
     "sentenceConfig": "句子处理配置"
   },
