@@ -62,6 +62,7 @@ export default function PromptSection() {
             actions={[
               <Button type="text" icon={<EditOutlined />} onClick={() => handleEdit(item)} key="list-edit">{t('common.edit')}</Button>,
               <Popconfirm
+                key="list-delete-confirm"
                 title={t('settings.deletePrompt')}
                 description={t('settings.deletePromptDescription')}
                 onConfirm={() => handleDelete(item)}

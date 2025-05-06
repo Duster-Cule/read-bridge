@@ -80,6 +80,7 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
 
     // 执行添加处理器的函数
     addProcessorsWithDelay()
+
   }, [currentChapter, defaultLLMClient, sentenceOptions, setSentenceProcessingList])
 
   useEffect(() => {

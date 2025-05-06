@@ -180,7 +180,7 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
       setIsGenerating(false)
       abortControllerRef.current = null
     }
-  }, [chatLLMClient, setHistory, handleMessage, handleTags])
+  }, [chatLLMClient, setHistory, setStoreHistory, handleMessage, handleTags])
 
   const handleStopGeneration = useCallback(() => {
     if (abortControllerRef.current) {
