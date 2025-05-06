@@ -1,7 +1,7 @@
 import { Card, Typography, Space, Button, Popconfirm } from 'antd';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { Model } from '@/types/llm';
-
+import { useTranslation } from '@/i18n/useTranslation';
 interface ModelCardProps {
   model: Model;
   onEdit: (model: Model) => void;
@@ -9,6 +9,7 @@ interface ModelCardProps {
 }
 
 const ModelCard = ({ model, onEdit, onDelete }: ModelCardProps) => {
+  const { t } = useTranslation()
   return (
     <Card key={model.id} size="small">
       <div className="flex justify-between items-center">
@@ -23,10 +24,10 @@ const ModelCard = ({ model, onEdit, onDelete }: ModelCardProps) => {
             onClick={() => onEdit(model)}
           />
           <Popconfirm
-            title="确定要删除这个模型吗?"
+            title={t('settings.deleteModelConfirm')}
             onConfirm={() => onDelete(model.id)}
-            okText="确定"
-            cancelText="取消"
+            okText={t('common.ok')}
+            cancelText={t('common.cancel')}
           >
             <Button
               danger
@@ -38,8 +39,8 @@ const ModelCard = ({ model, onEdit, onDelete }: ModelCardProps) => {
       </div>
       <div className="mt-2">
         <div className="flex justify-between">
-          <span>Temperature(温度): {model.temperature}</span>
-          <span>Top P(核采样): {model.topP}</span>
+          <span>{t('settings.temperature')}: {model.temperature}</span>
+          <span>{t('settings.topP')}: {model.topP}</span>
         </div>
       </div>
     </Card>

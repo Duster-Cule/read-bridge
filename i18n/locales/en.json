@@ -1,10 +1,33 @@
 {
+  "common": {
+    "cancel": "Cancel",
+    "ok": "OK"
+  },
   "header": {
     "home": "Home",
     "reading": "Reading"
   },
   "settings": {
     "aiSettings": "AI Settings",
+    "providerName": "Provider Name",
+    "baseURL": "Base URL",
+    "apiKey": "API Key",
+    "deleteProvider": "Delete Provider",
+    "deleteProviderConfirm": "Are you sure you want to delete this provider?",
+    "baseURLTooltip": "For example: https://api.deepseek.com/v1",
+    "models": "Models",
+    "model": "Model",
+    "modelID": "Model ID",
+    "modelName": "Model Name",
+    "addModel": "Add Model",
+    "editModel": "Edit Model",
+    "deleteModelConfirm": "Are you sure you want to delete this model?",
+    "modelIDTooltip": "For example: deepseek-chat",
+    "modelNameTooltip": "Model name, purely for display",
+    "temperatureTooltip": "Control the randomness and creativity of generated text. Higher values make replies more diverse but may deviate from the topic. When set to 0, the most likely words are selected, and daily use is recommended at 0.5-0.7",
+    "topPTooltip": "Control the diversity of generated text. Higher values use more low-probability words, increasing creativity but potentially lowering quality. This parameter randomly selects words from the cumulative probability reaching p value",
+    "temperature": "Temperature",
+    "topP": "Top P",
     "modelConfig": "Model Configuration",
     "promptConfig": "Chat Area Prompt Configuration",
     "sentenceConfig": "Sentence Processing Configuration"

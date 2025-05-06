@@ -2,7 +2,7 @@ import { Form, Input, Button, Typography, Space, Popconfirm, FormInstance } from
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Provider, Model } from '@/types/llm';
 import ModelCard from './ModelCard';
-
+import { useTranslation } from '@/i18n/useTranslation';
 interface ProviderFormProps {
   provider: Provider;
   form: FormInstance<Provider>;
@@ -22,18 +22,19 @@ const ProviderForm = ({
   onDeleteModel,
   onDeleteProvider
 }: ProviderFormProps) => {
+  const { t } = useTranslation()
   return (
     <>
       <div className="flex justify-between items-center mb-4">
         <Typography.Title level={4}>{provider.name}</Typography.Title>
         {!provider.isDefault && (
           <Popconfirm
-            title="确定要删除这个服务商吗?"
+            title={t('settings.deleteProviderConfirm')}
             onConfirm={onDeleteProvider}
-            okText="确定"
-            cancelText="取消"
+            okText={t('common.ok')}
+            cancelText={t('common.cancel')}
           >
-            <Button danger icon={<DeleteOutlined />}>删除</Button>
+            <Button danger icon={<DeleteOutlined />}>{t('settings.deleteProvider')}</Button>
           </Popconfirm>
         )}
       </div>
@@ -44,23 +45,23 @@ const ProviderForm = ({
         onFinish={onProviderUpdate}
         onValuesChange={(_, values) => onProviderUpdate(values)}
       >
-        <Form.Item name="name" label="服务商名称" rules={[{ required: true }]}>
-          <Input placeholder="服务商名称" />
+        <Form.Item name="name" label={t('settings.providerName')} rules={[{ required: true }]}>
+          <Input placeholder={t('settings.providerName')} />
         </Form.Item>
 
-        <Form.Item name="baseUrl" label='Base URL' tooltip='例如: https://api.deepseek.com/v1' rules={[{ required: true }]}>
-          <Input placeholder="API 基础 URL" />
+        <Form.Item name="baseUrl" label={t('settings.baseURL')} tooltip={t('settings.baseURLTooltip')} rules={[{ required: true }]}>
+          <Input placeholder={t('settings.baseURL')} />
         </Form.Item>
 
-        <Form.Item name="apiKey" label="API Key" rules={[{ required: true }]}>
-          <Input.Password placeholder="API Key" />
+        <Form.Item name="apiKey" label={t('settings.apiKey')} rules={[{ required: true }]}>
+          <Input.Password placeholder={t('settings.apiKey')} />
         </Form.Item>
 
         <div className="mb-4">
           <div className="flex justify-between items-center mb-2">
-            <Typography.Title level={5}>模型</Typography.Title>
+            <Typography.Title level={5}>{t('settings.model')}</Typography.Title>
             <Button type="primary" icon={<PlusOutlined />} onClick={onAddModel}>
-              添加模型
+              {t('settings.addModel')}
             </Button>
           </div>
 

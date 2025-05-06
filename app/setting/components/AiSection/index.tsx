@@ -1,11 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Menu, Button, Form } from 'antd';
 import { Provider, Model } from '@/types/llm';
 import { useLLMStore } from '@/store/useLLMStore';
 import { ModelFormModal, ProviderForm } from './cpns';
 import Card from '../Card';
+import { useTranslation } from '@/i18n/useTranslation';
 
 export default function AiSection() {
+  const { t } = useTranslation()
   const { providers: defaultProviders, addProvider, editProvider, deleteProvider } = useLLMStore()
   const [providers, setProviders] = useState<Provider[]>([])
   const [selectedProviderId, setSelectedProviderId] = useState<string>('');
@@ -33,15 +35,15 @@ export default function AiSection() {
     }
   }, [selectedProvider, form]);
 
-  const menuItems = providers.map((provider: Provider) => ({
+  const menuItems = useMemo(() => providers.map((provider: Provider) => ({
     key: provider.id,
     label: (
       <div className="flex flex-col justify-center">
         <span className="text-base font-medium">{provider.name}</span>
-        <span className="text-sm text-gray-500">{provider.models.length} Models</span>
+        <span className="text-sm text-gray-500">{`${provider.models.length} ${t('settings.models')}`}</span>
       </div>
     ),
-  }));
+  })), [providers, t]);
 
   const handleMenuSelect = ({ key }: { key: string }) => {
     setSelectedProviderId(key);
