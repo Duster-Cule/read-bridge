@@ -9,9 +9,17 @@
     "promptConfig": "Chat Area Prompt Configuration",
     "sentenceConfig": "Sentence Processing Configuration"
   },
-  "language": {
-    "switchToZh": "Switch to Chinese",
-    "switchToEn": "Switch to English",
-    "current": "Current language: English"
+  "sider": {
+    "selectSentence": "Select Sentence",
+    "sentenceAnalysis": "Sentence Analysis",
+    "wordDetails": "Word Details",
+    "readingAssistant": "Reading Assistant",
+    "surroundingText": "Surrounding Text",
+    "currentChapter": "Current Chapter",
+    "sentenceAnalysisError": "Sentence Analysis Error",
+    "verb": "Verb",
+    "adjective": "Adjective",
+    "pivot": "Pivot",
+    "noun": "Noun"
   }
 }

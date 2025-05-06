@@ -11,12 +11,13 @@ import { getNewHistory } from "@/store/useOutputOptions"
 import { ChatTools, ChatContent, ChatInput, ChatHistory } from "./cpns"
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs"
 import { useOutputOptions } from "@/store/useOutputOptions"
-
+import { useTranslation } from "@/i18n/useTranslation"
 interface SiderChatProps {
   currentChapter: string[]
   lineIndex: number
 }
 export default function StandardChat({ currentChapter, lineIndex }: SiderChatProps) {
+  const { t } = useTranslation()
   const containerRef = useRef<HTMLDivElement>(null);
   const { selectedId, promptOptions } = useOutputOptions()
   const [history, setHistory] = useState<LLMHistory>(() => getNewHistory(promptOptions, selectedId))
@@ -46,14 +47,14 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
 
   const tagOptions = useMemo(() => [
     {
-      label: '周围文本',
+      label: t('sider.surroundingText'),
       value: 'base_context'
     },
     {
-      label: '当前章节',
+      label: t('sider.currentChapter'),
       value: 'current_chapter'
     }
-  ], [])
+  ], [t])
 
   const handleMessage = useCallback((messages: LLMHistory['messages'], chunk: string, name: string, isThinking: boolean, thinkingTime: number | null) => {
     const endMessage = messages[messages.length - 1]

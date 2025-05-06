@@ -8,12 +8,14 @@ import { CurrentSentence, MenuLine, Sentences, WordDetails } from "./cpns"
 import { useOutputOptions } from "@/store/useOutputOptions"
 import { assemblePrompt, contextMessages, INPUT_PROMPT } from "@/constants/prompt"
 import { OUTPUT_PROMPT } from "@/constants/prompt"
+import { useTranslation } from "@/i18n/useTranslation"
 
 interface SiderContentProps {
   currentChapter: string[]
 }
 
 export default function SiderContent({ currentChapter }: SiderContentProps) {
+  const { t } = useTranslation()
   const [sentenceProcessingList, setSentenceProcessingList] = useState<{ name: string, type: string, generator: AsyncGenerator<string, void, unknown> }[]>([])
   const { sentenceOptions } = useOutputOptions()
   const [sentence, setSentence] = useState<string>("")
@@ -64,7 +66,7 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
         try {
           generator = getGeneratorThinkAndHTMLTag(defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, OUTPUT_PROMPT[type]), signal))
         } catch (error) {
-          console.log('句子请求失败', error, index, name, type, text)
+          console.log(t('sider.sentenceAnalysisError'), error, index, name, type, text)
         }
         if (generator) {
           setSentenceProcessingList(prev => [...prev, { name, type, generator }])
@@ -94,16 +96,16 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
   const items = useMemo(() => {
     return [
       {
-        label: 'Sentence Analysis',
+        label: t('sider.sentenceAnalysis'),
         key: 'sentence-analysis',
       },
       {
-        label: 'Word Details',
+        label: t('sider.wordDetails'),
         key: 'word-details',
         disabled: !word,
       },
     ];
-  }, [word]);
+  }, [word, t]);
   const handleTabChange = useCallback((key: string) => {
     setSelectedTab(key)
   }, [setSelectedTab])

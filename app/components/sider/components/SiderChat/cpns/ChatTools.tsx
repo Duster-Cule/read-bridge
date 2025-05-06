@@ -4,6 +4,7 @@ import { Button, Popover, Tooltip } from "antd"
 import { PlusOutlined, AlignLeftOutlined, HistoryOutlined } from "@ant-design/icons"
 import { useOutputOptions } from "@/store/useOutputOptions"
 import { useState } from "react"
+import { useTranslation } from "@/i18n/useTranslation";
 
 type ChatTools = {
   isGenerating: boolean
@@ -13,6 +14,7 @@ type ChatTools = {
 }
 
 export default function ChatTools({ isGenerating, onPlus, onChangePrompt, onHistory }: ChatTools) {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false);
 
   const handleChangePrompt = (value: string) => {
@@ -25,7 +27,7 @@ export default function ChatTools({ isGenerating, onPlus, onChangePrompt, onHist
   return (
     <>
       <div className="w-full h-[42px] flex items-center justify-end p-2 shadow-md">
-        <div className="mr-auto text-sm font-bold">Reading Assistant</div>
+        <div className="mr-auto text-sm font-bold">{t('sider.readingAssistant')}</div>
         <Popover
           open={open}
           onOpenChange={setOpen}

@@ -13,5 +13,18 @@
     "switchToZh": "切换到中文",
     "switchToEn": "切换到英文",
     "current": "当前语言：中文"
+  },
+  "sider": {
+    "selectSentence": "选中句子",
+    "sentenceAnalysis": "句子分析",
+    "wordDetails": "单词详情",
+    "readingAssistant": "阅读助手",
+    "surroundingText": "周围文本",
+    "currentChapter": "当前章节",
+    "sentenceAnalysisError": "句子分析失败",
+    "verb": "动词",
+    "adjective": "形容词",
+    "pivot": "连接词",
+    "noun": "名词"
   }
 }
