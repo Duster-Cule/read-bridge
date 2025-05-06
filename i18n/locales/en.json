@@ -54,7 +54,22 @@
     "promptNameRequired": "Please enter a prompt name",
     "deletePrompt": "Delete Prompt",
     "deletePromptDescription": "Are you sure you want to delete this prompt?",
-    "sentenceConfig": "Sentence Processing Configuration"
+    "sentenceConfig": "Sentence Processing Configuration",
+    "sentenceType": "Sentence Processing Type",
+    "simpleList": "List Output",
+    "text": "Text Output",
+    "keyValueList": "Key Value List",
+    "sentenceTypeTooltip": "Text output is suitable for most cases, list output is suitable for displaying multiple results, key value list is suitable for extracting and explaining important elements in text, where the keyword is the 'key' and the corresponding explanation or background information is the 'value'. This format is particularly suitable for scenarios that require a deep analysis of sentences, highlighting important concepts and providing contextual explanations.",
+    "addSentenceConfig": "Add Sentence Processing Configuration",
+    "editSentenceConfig": "Edit Sentence Processing Configuration",
+    "deleteSentenceProcessing": "Delete Sentence Processing",
+    "deleteSentenceProcessingDescription": "Are you sure you want to delete this sentence processing?",
+    "sentenceConfigName": "Sentence Config Name",
+    "sentenceConfigNameRequired": "Please enter a sentence config name",
+    "sentenceConfigType": "Output Type",
+    "sentenceConfigPrompt": "Rule Prompt",
+    "sentenceConfigPromptRequired": "Please enter a rule prompt",
+    "sentenceConfigTypeRequired": "Please select a sentence processing type"
   },
   "sider": {
     "selectSentence": "Select Sentence",
@@ -67,6 +82,9 @@
     "verb": "Verb",
     "adjective": "Adjective",
     "pivot": "Pivot",
-    "noun": "Noun"
+    "noun": "Noun",
+    "noAnalysisModelSelected": "No model selected",
+    "noSentenceSelected": "No sentence selected",
+    "noWordSelected": "No word selected"
   }
 }

@@ -150,11 +150,11 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
       <div className={`${selectedTab === 'sentence-analysis' ? 'block' : 'hidden'}`}>
         {sentenceProcessingList.length > 0 ?
           <Sentences sentenceProcessingList={sentenceProcessingList} />
-          : <Empty description={parseModel ? 'No sentence selected' : 'No model selected'} className="flex flex-col items-center justify-center h-[262px]" />}
+          : <Empty description={parseModel ? t('sider.noSentenceSelected') : t('sider.noAnalysisModelSelected')} className="flex flex-col items-center justify-center h-[262px]" />}
       </div>
       {selectedTab === 'word-details' && (
-        word ? <WordDetails wordDetails={wordDetails} />
-          : <Empty description={parseModel ? 'No word selected' : 'No model selected'} className="flex flex-col items-center justify-center h-[262px]" />
+        (word && parseModel) ? <WordDetails wordDetails={wordDetails} />
+          : <Empty description={parseModel ? t('sider.noWordSelected') : t('sider.noAnalysisModelSelected')} className="flex flex-col items-center justify-center h-[262px]" />
       )}
       <Divider className="my-0" />
     </div>

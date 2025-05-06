@@ -6,19 +6,20 @@ import { useOutputOptions } from "@/store/useOutputOptions";
 import { OutputOption } from "@/types/llm";
 import { OUTPUT_TYPE } from "@/constants/prompt";
 import TextArea from "antd/es/input/TextArea";
+import { useTranslation } from "@/i18n/useTranslation";
 
 export default function SentenceProcessingSection() {
-
+  const { t } = useTranslation()
   const { sentenceOptions, addSentenceOptions, updateSentenceOptions, deleteSentenceOptions, resetSentenceOptions } = useOutputOptions();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [currentOption, setCurrentOption] = useState<OutputOption | null>(null);
   const [form] = Form.useForm<OutputOption>();
   const typeMap = useMemo(() => ({
-    [OUTPUT_TYPE.TEXT]: "纯文本输出",
-    [OUTPUT_TYPE.SIMPLE_LIST]: "列表输出",
-    [OUTPUT_TYPE.KEY_VALUE_LIST]: "键值列表",
-  }), []);
+    [OUTPUT_TYPE.TEXT]: t('settings.text'),
+    [OUTPUT_TYPE.SIMPLE_LIST]: t('settings.simpleList'),
+    [OUTPUT_TYPE.KEY_VALUE_LIST]: t('settings.keyValueList'),
+  }), [t]);
 
   const handleAdd = () => {
     setIsEdit(false);
@@ -78,10 +79,11 @@ export default function SentenceProcessingSection() {
                   key="edit"
                 />,
                 <Popconfirm
-                  title="确定要删除这项配置吗?"
+                  title={t('settings.deleteSentenceProcessing')}
+                  description={t('settings.deleteSentenceProcessingDescription')}
                   onConfirm={() => handleDelete(item)}
-                  okText="确定"
-                  cancelText="取消"
+                  okText={t('common.ok')}
+                  cancelText={t('common.cancel')}
                   key="delete"
                 >
                   <Button
@@ -96,7 +98,7 @@ export default function SentenceProcessingSection() {
                 title={<Typography.Title level={5}>{item.name}</Typography.Title>}
                 description={
                   <Space direction="vertical" size="small" style={{ width: '100%' }}>
-                    <Typography.Text type="secondary">处理类型: {typeMap[item.type as keyof typeof typeMap] || item.type}</Typography.Text>
+                    <Typography.Text type="secondary">{t('settings.sentenceType')}: {typeMap[item.type as keyof typeof typeMap] || item.type}</Typography.Text>
                     <Typography.Paragraph ellipsis={{ rows: 2 }}>{item.rulePrompt}</Typography.Paragraph>
                   </Space>
                 }
@@ -110,42 +112,45 @@ export default function SentenceProcessingSection() {
             icon={<PlusOutlined />}
             onClick={handleAdd}
           >
-            添加配置
+            {t('settings.addSentenceConfig')}
           </Button>
           <Popconfirm
-            title="重置配置"
-            description="确定要重置句子处理配置吗？"
+            title={t('settings.resetSentenceConfig')}
+            description={t('settings.resetSentenceConfigDescription')}
             onConfirm={resetSentenceOptions}
-            okText="确定"
-            cancelText="取消"
+            okText={t('common.ok')}
+            cancelText={t('common.cancel')}
           >
-            <Button icon={<ReloadOutlined />}>重置</Button>
+            <Button icon={<ReloadOutlined />}>{t('common.reset')}</Button>
           </Popconfirm>
         </div>
       </div>
 
       <Modal
-        title={isEdit ? "编辑句子处理配置" : "添加句子处理配置"}
+        title={isEdit ? t('settings.editSentenceConfig') : t('settings.addSentenceConfig')}
         open={isModalOpen}
         onOk={handleOk}
         onCancel={handleCancel}
         destroyOnClose
+        okText={t('common.ok')}
+        cancelText={t('common.cancel')}
       >
         <Form form={form} layout="vertical">
           <Form.Item
             name="name"
-            label="名称"
-            rules={[{ required: true, message: "请输入名称" }]}
+            label={t('settings.sentenceConfigName')}
+            rules={[{ required: true, message: t('settings.sentenceConfigNameRequired') }]}
           >
-            <Input placeholder="请输入配置名称" />
+            <Input placeholder={t('settings.sentenceConfigName')} />
           </Form.Item>
 
           <Form.Item
             name="type"
-            label="输出类型"
-            rules={[{ required: true, message: "请选择输出类型" }]}
+            label={t('settings.sentenceConfigType')}
+            tooltip={t('settings.sentenceTypeTooltip')}
+            rules={[{ required: true, message: t('settings.sentenceConfigTypeRequired') }]}
           >
-            <Select placeholder="请选择输出类型">
+            <Select placeholder={t('settings.sentenceConfigType')}>
               {Object.entries(typeMap).map(([key, value]) => (
                 <Select.Option key={key} value={key}>{value}</Select.Option>
               ))}
@@ -154,11 +159,11 @@ export default function SentenceProcessingSection() {
 
           <Form.Item
             name="rulePrompt"
-            label="规则提示词"
-            rules={[{ required: true, message: "请输入规则提示词" }]}
+            label={t('settings.sentenceConfigPrompt')}
+            rules={[{ required: true, message: t('settings.sentenceConfigPromptRequired') }]}
           >
             <TextArea
-              placeholder="请输入规则提示词"
+              placeholder={t('settings.sentenceConfigPrompt')}
               autoSize={{ minRows: 5, maxRows: 10 }}
             />
           </Form.Item>
