@@ -4,10 +4,11 @@ import { Button, Modal, Form, Input, Typography, List, FormInstance, Popconfirm 
 import { useState } from "react";
 import { PromptOption } from "@/types/llm";
 import { PlusOutlined, EditOutlined, DeleteOutlined, ReloadOutlined } from '@ant-design/icons';
-
+import { useTranslation } from "@/i18n/useTranslation";
 const { Paragraph } = Typography;
 
 export default function PromptSection() {
+  const { t } = useTranslation();
   const { promptOptions, addPromptOptions, updatePromptOptions, deletePromptOptions, resetPromptOptions } = useOutputOptions();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -36,7 +37,7 @@ export default function PromptSection() {
   const handleCancel = () => {
     form.resetFields();
     setIsEdit(false);
-    setIsModalOpen(true);
+    setIsModalOpen(false);
   };
 
   const handleEdit = (item: PromptOption) => {
@@ -59,8 +60,16 @@ export default function PromptSection() {
         renderItem={(item) => (
           <List.Item
             actions={[
-              <Button type="text" icon={<EditOutlined />} onClick={() => handleEdit(item)} key="list-edit">修改</Button>,
-              <Button type="text" danger icon={<DeleteOutlined />} onClick={() => handleDelete(item)} key="list-delete">删除</Button>,
+              <Button type="text" icon={<EditOutlined />} onClick={() => handleEdit(item)} key="list-edit">{t('common.edit')}</Button>,
+              <Popconfirm
+                title={t('settings.deletePrompt')}
+                description={t('settings.deletePromptDescription')}
+                onConfirm={() => handleDelete(item)}
+                okText={t('common.ok')}
+                cancelText={t('common.cancel')}
+              >
+                <Button type="text" danger icon={<DeleteOutlined />} key="list-delete">{t('common.delete')}</Button>
+              </Popconfirm>,
             ]}
           >
             <List.Item.Meta
@@ -71,15 +80,15 @@ export default function PromptSection() {
         )}
       />
       <div className="w-full flex justify-end mb-1 gap-2">
-        <Button icon={<PlusOutlined />} onClick={showModal}>添加提示词</Button>
+        <Button icon={<PlusOutlined />} onClick={showModal}>{t('settings.addPrompt')}</Button>
         <Popconfirm
-          title="重置提示词"
-          description="确定要重置提示词吗？"
+          title={t('settings.resetPrompt')}
+          description={t('settings.resetPromptDescription')}
           onConfirm={resetPromptOptions}
-          okText="确定"
-          cancelText="取消"
+          okText={t('common.ok')}
+          cancelText={t('common.cancel')}
         >
-          <Button icon={<ReloadOutlined />}>重置</Button>
+          <Button icon={<ReloadOutlined />}>{t('common.reset')}</Button>
         </Popconfirm>
       </div>
       <PromptModal isModalOpen={isModalOpen} handleOk={handleOk} handleCancel={handleCancel} form={form} isEdit={isEdit} />
@@ -92,7 +101,9 @@ interface ExpandableDescriptionProps {
   maxLength?: number;
 }
 
-function ExpandableDescription({ text = '暂无提示词', maxLength = 100 }: ExpandableDescriptionProps) {
+function ExpandableDescription({ text, maxLength = 100 }: ExpandableDescriptionProps) {
+  const { t } = useTranslation();
+  if (!text) text = t('settings.noPrompt');
   const [expanded, setExpanded] = useState(false);
 
   const isTruncated = text.length > maxLength;
@@ -108,7 +119,7 @@ function ExpandableDescription({ text = '暂无提示词', maxLength = 100 }: Ex
       </Paragraph>
       {isTruncated && (
         <Button type="link" onClick={toggleExpanded} style={{ padding: 0 }}>
-          {expanded ? '收起' : '展开'}
+          {expanded ? t('common.collapse') : t('common.expand')}
         </Button>
       )}
     </div>
@@ -116,20 +127,21 @@ function ExpandableDescription({ text = '暂无提示词', maxLength = 100 }: Ex
 }
 
 function PromptModal({ isModalOpen, handleOk, handleCancel, form, isEdit = false }: { isModalOpen: boolean, handleOk: () => void, handleCancel: () => void, form: FormInstance<PromptOption>, isEdit?: boolean }) {
-  return <Modal title={isEdit ? "修改提示词" : "添加提示词"} open={isModalOpen} onOk={handleOk} onCancel={handleCancel} destroyOnClose>
+  const { t } = useTranslation();
+  return <Modal title={isEdit ? t('settings.editPrompt') : t('settings.addPrompt')} open={isModalOpen} onOk={handleOk} onCancel={handleCancel} destroyOnClose okText={t('common.ok')} cancelText={t('common.cancel')}>
     <Form form={form} layout="vertical" name="add_prompt_form">
       <Form.Item
         name="name"
-        label="提示词名称"
-        rules={[{ required: true, message: '请输入提示词名称' }]}
+        label={t('settings.promptName')}
+        rules={[{ required: true, message: t('settings.promptNameRequired') }]}
       >
-        <Input />
+        <Input placeholder={t('settings.promptName')} />
       </Form.Item>
       <Form.Item
         name="prompt"
-        label="提示词内容"
+        label={t('settings.promptContent')}
       >
-        <Input.TextArea rows={4} />
+        <Input.TextArea rows={4} placeholder={t('settings.promptContent')} />
       </Form.Item>
     </Form>
   </Modal>

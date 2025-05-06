@@ -1,7 +1,13 @@
 {
   "common": {
     "cancel": "取消",
-    "ok": "确定"
+    "ok": "确定",
+    "delete": "删除",
+    "edit": "编辑",
+    "add": "添加",
+    "reset": "重置",
+    "collapse": "收起",
+    "expand": "展开"
   },
   "header": {
     "home": "首页",
@@ -21,6 +27,9 @@
     "modelName": "模型名称",
     "addModel": "添加模型",
     "editModel": "编辑模型",
+    "modelIDRequired": "请输入模型ID",
+    "modelIDPlaceholder": "请输入模型ID",
+    "modelNamePlaceholder": "请输入模型名称",
     "deleteModelConfirm": "确定要删除这个模型吗?",
     "modelIDTooltip": "例如: deepseek-chat",
     "modelNameTooltip": "模型名称，单纯用于显示",
@@ -37,6 +46,14 @@
     "selectAnalyticalModel": "选择解析模型",
     "noAvailableModel": "没有可用的模型。请先在模型设置中配置有效的模型",
     "promptConfig": "聊天区域提示词配置",
+    "addPrompt": "添加提示词",
+    "editPrompt": "编辑提示词",
+    "promptName": "提示词名称",
+    "promptContent": "提示词内容",
+    "noPrompt": "暂无提示词",
+    "promptNameRequired": "请输入提示词名称",
+    "deletePrompt": "删除提示词",
+    "deletePromptDescription": "确定要删除这个提示词吗",
     "sentenceConfig": "句子处理配置"
   },
   "sider": {

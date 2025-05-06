@@ -1,7 +1,13 @@
 {
   "common": {
     "cancel": "Cancel",
-    "ok": "OK"
+    "ok": "OK",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "reset": "Reset",
+    "collapse": "Collapse",
+    "expand": "Expand"
   },
   "header": {
     "home": "Home",
@@ -21,6 +27,9 @@
     "modelName": "Model Name",
     "addModel": "Add Model",
     "editModel": "Edit Model",
+    "modelIDRequired": "Please enter a model ID",
+    "modelIDPlaceholder": "please enter a model ID",
+    "modelNamePlaceholder": "please enter a model name",
     "deleteModelConfirm": "Are you sure you want to delete this model?",
     "modelIDTooltip": "For example: deepseek-chat",
     "modelNameTooltip": "Model name, purely for display",
@@ -37,6 +46,14 @@
     "selectAnalyticalModel": "Select Analytical Model",
     "noAvailableModel": "No available model. Please configure a valid model in the model settings first.",
     "promptConfig": "Chat Area Prompt Configuration",
+    "addPrompt": "Add Prompt",
+    "editPrompt": "Edit Prompt",
+    "promptName": "prompt name",
+    "promptContent": "prompt content",
+    "noPrompt": "No prompt",
+    "promptNameRequired": "Please enter a prompt name",
+    "deletePrompt": "Delete Prompt",
+    "deletePromptDescription": "Are you sure you want to delete this prompt?",
     "sentenceConfig": "Sentence Processing Configuration"
   },
   "sider": {
