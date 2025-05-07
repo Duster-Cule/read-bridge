@@ -33,6 +33,8 @@ interface OutputOptionsStore {
   deleteSentenceOptions: (targetOption: OutputOption) => void
   updateSentenceOptions: (updatedOption: OutputOption) => void
   resetSentenceOptions: () => void
+  batchProcessingSize: number
+  setBatchProcessingSize: (size: number) => void
 
   promptOptions: PromptOption[]
   addPromptOptions: (newPrompt: PromptOption) => void
@@ -73,6 +75,8 @@ export const useOutputOptions = create<OutputOptionsStore>()(
       resetSentenceOptions: () => set(() => ({
         sentenceOptions: defaultSentenceOutputOption()
       })),
+      batchProcessingSize: 1,
+      setBatchProcessingSize: (size) => set({ batchProcessingSize: size }),
 
       promptOptions: defaultPromptOutputOption(),
       addPromptOptions: (newPrompt) => set((state) => ({

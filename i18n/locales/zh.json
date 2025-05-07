@@ -69,7 +69,8 @@
     "sentenceConfigType": "输出类型",
     "sentenceConfigPrompt": "规则提示词",
     "sentenceConfigPromptRequired": "请输入规则提示词",
-    "sentenceConfigTypeRequired": "请选择句子处理类型"
+    "sentenceConfigTypeRequired": "请选择句子处理类型",
+    "batchProcessingSizeTooltip": "选择一次性处理的句子数量，建议根据实际需求选择合适的数量"
   },
   "sider": {
     "selectSentence": "选中句子",

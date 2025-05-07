@@ -17,7 +17,7 @@ interface SiderContentProps {
 export default function SiderContent({ currentChapter }: SiderContentProps) {
   const { t } = useTranslation()
   const [sentenceProcessingList, setSentenceProcessingList] = useState<{ name: string, type: string, generator: AsyncGenerator<string, void, unknown> }[]>([])
-  const { sentenceOptions } = useOutputOptions()
+  const { sentenceOptions, batchProcessingSize } = useOutputOptions()
   const [sentence, setSentence] = useState<string>("")
 
   const [selectedTab, setSelectedTab] = useState<string>("sentence-analysis")
@@ -38,6 +38,7 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
 
   // 处理行索引
   const handleLineIndex = useCallback(async (index: number) => {
+
     // 取消之前的请求
     if (controllerRef.current) {
       controllerRef.current.abort();
@@ -46,9 +47,32 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
     // 创建新的 controller
     controllerRef.current = new AbortController();
     const { signal } = controllerRef.current;
+    let text = ''
+    try {
+      let nextIndex = index;
+      const texts: string[] = [];
+      const targetSize = Math.min(batchProcessingSize, currentChapter.length - index);
+      texts.push(currentChapter[nextIndex]);
 
+      while (texts.length < targetSize) {
+        nextIndex++;
+        if (nextIndex >= currentChapter.length) break;
+        const currentText = currentChapter[nextIndex];
+        if (currentText.trim()) {
+          texts.push(currentText);
+        } else {
+          nextIndex++;
+          if (nextIndex < currentChapter.length) {
+            texts.push(currentChapter[nextIndex]);
+          }
+        }
+      }
+      text = texts.join('\n')
+    } catch (error) {
+      console.log(error, '多句子处理错误')
+      text = currentChapter[index]
+    }
 
-    const text = currentChapter[index] || ""
     setSelectedTab("sentence-analysis")
     setSentence(text)
     setWord("")

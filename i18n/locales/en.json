@@ -69,7 +69,8 @@
     "sentenceConfigType": "Output Type",
     "sentenceConfigPrompt": "Rule Prompt",
     "sentenceConfigPromptRequired": "Please enter a rule prompt",
-    "sentenceConfigTypeRequired": "Please select a sentence processing type"
+    "sentenceConfigTypeRequired": "Please select a sentence processing type",
+    "batchProcessingSizeTooltip": "Select the number of sentences to process at once, choose an appropriate number based on your needs"
   },
   "sider": {
     "selectSentence": "Select Sentence",

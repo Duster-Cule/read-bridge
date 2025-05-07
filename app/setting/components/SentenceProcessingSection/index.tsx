@@ -1,16 +1,17 @@
 import { useMemo, useState } from "react";
 import { Card } from "../index";
-import { Button, Modal, Form, Input, Select, Popconfirm, List, Typography, Space } from "antd";
+import { Button, Modal, Form, Input, Select, Popconfirm, List, Typography, Space, Tooltip } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined, ReloadOutlined } from "@ant-design/icons";
 import { useOutputOptions } from "@/store/useOutputOptions";
 import { OutputOption } from "@/types/llm";
 import { OUTPUT_TYPE } from "@/constants/prompt";
 import TextArea from "antd/es/input/TextArea";
 import { useTranslation } from "@/i18n/useTranslation";
+import { BATCH_PROCESSING_SIZE_OPTIONS } from "@/constants/output";
 
 export default function SentenceProcessingSection() {
   const { t } = useTranslation()
-  const { sentenceOptions, addSentenceOptions, updateSentenceOptions, deleteSentenceOptions, resetSentenceOptions } = useOutputOptions();
+  const { sentenceOptions, addSentenceOptions, updateSentenceOptions, deleteSentenceOptions, resetSentenceOptions, batchProcessingSize, setBatchProcessingSize } = useOutputOptions();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [currentOption, setCurrentOption] = useState<OutputOption | null>(null);
@@ -107,8 +108,15 @@ export default function SentenceProcessingSection() {
           )}
         />
         <div className="flex justify-end items-center mt-4 gap-2">
+          <Tooltip title={t('settings.batchProcessingSizeTooltip')} placement="left">
+            <Select
+              className="w-24"
+              value={batchProcessingSize}
+              onChange={setBatchProcessingSize}
+              options={BATCH_PROCESSING_SIZE_OPTIONS}
+            />
+          </Tooltip>
           <Button
-
             icon={<PlusOutlined />}
             onClick={handleAdd}
           >
