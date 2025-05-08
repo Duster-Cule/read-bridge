@@ -9,6 +9,22 @@
     "collapse": "收起",
     "expand": "展开"
   },
+  "bookDetails": {
+    "title": "书籍详情",
+    "author": "作者",
+    "language": "语言",
+    "publisher": "出版社",
+    "added": "添加日期",
+    "description": "描述",
+    "deleteBook": "删除书籍",
+    "deleteConfirmation": "确定要删除这本书吗？这将无法恢复。",
+    "unknownTitle": "未知标题",
+    "loading": "加载中...",
+    "notFound": "未找到书籍",
+    "fetchError": "加载书籍详情失败",
+    "deleteSuccess": "书籍删除成功",
+    "deleteError": "书籍删除失败"
+  },
   "header": {
     "home": "首页",
     "reading": "阅读"

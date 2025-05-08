@@ -9,6 +9,22 @@
     "collapse": "Collapse",
     "expand": "Expand"
   },
+  "bookDetails": {
+    "title": "Book Details",
+    "author": "Author",
+    "language": "Language",
+    "publisher": "Publisher",
+    "added": "Added",
+    "description": "Description",
+    "deleteBook": "Delete Book",
+    "deleteConfirmation": "Are you sure you want to delete this book? This cannot be undone.",
+    "unknownTitle": "Unknown Title",
+    "loading": "Loading...",
+    "notFound": "Book not found",
+    "fetchError": "Failed to load book details",
+    "deleteSuccess": "Book deleted successfully",
+    "deleteError": "Failed to delete book"
+  },
   "header": {
     "home": "Home",
     "reading": "Reading"

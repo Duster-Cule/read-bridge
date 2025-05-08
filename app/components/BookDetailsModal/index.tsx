@@ -6,6 +6,7 @@ import { DeleteOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { Book, Resource } from '@/types/book';
 import db from '@/services/DB';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from '@/i18n/useTranslation';
 
 const { Title, Text } = Typography;
 
@@ -25,6 +26,7 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
   const [book, setBook] = useState<Book | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { t } = useTranslation();
 
   // Fetch book details when modal opens
   useEffect(() => {
@@ -36,13 +38,13 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
         })
         .catch((error) => {
           console.error('Error fetching book:', error);
-          message.error('Failed to load book details');
+          message.error(t('bookDetails.fetchError'));
         })
         .finally(() => {
           setLoading(false);
         });
     }
-  }, [open, bookId]);
+  }, [open, bookId, t]);
 
   // Helper function to handle base64 image data
   const handleBase64 = (cover: Resource) => {
@@ -56,13 +58,13 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
       setLoading(true);
       await db.deleteBook(bookId);
 
-      message.success('书籍删除成功');
+      message.success(t('bookDetails.deleteSuccess'));
       onClose();
       // Force a refresh of the home page
       router.refresh();
     } catch (error) {
       console.error('Error deleting book:', error);
-      message.error('书籍删除失败');
+      message.error(t('bookDetails.deleteError'));
     } finally {
       setLoading(false);
     }
@@ -75,25 +77,25 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
           <div className="w-1/3 aspect-[3/4] overflow-hidden rounded-lg">
             <img
               src={handleBase64(book.metadata.cover)}
-              alt={book?.title || 'Book cover'}
+              alt={book?.title || t('bookDetails.unknownTitle')}
               className="w-full h-full object-cover"
             />
           </div>
         </div>
       )}
 
-      <Title level={4}>{book?.title || 'Unknown Title'}</Title>
-      {book?.author && <Text type="secondary">Author: {book.author}</Text>}
+      <Title level={4}>{book?.title || t('bookDetails.unknownTitle')}</Title>
+      {book?.author && <Text type="secondary">{t('bookDetails.author')}: {book.author}</Text>}
 
       <Divider />
 
       <div className="flex justify-end">
         <Popconfirm
-          title="删除书籍"
-          description="确定要删除这本书吗？这将无法恢复。"
+          title={t('bookDetails.deleteBook')}
+          description={t('bookDetails.deleteConfirmation')}
           onConfirm={handleDelete}
-          okText="确定"
-          cancelText="取消"
+          okText={t('common.ok')}
+          cancelText={t('common.cancel')}
           placement="topRight"
         >
           <Button
@@ -102,7 +104,7 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
             icon={<DeleteOutlined />}
             loading={loading}
           >
-            删除书籍
+            {t('bookDetails.deleteBook')}
           </Button>
         </Popconfirm>
       </div>
@@ -116,20 +118,20 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
           <div className="w-1/4 aspect-[3/4] overflow-hidden rounded-lg">
             <img
               src={handleBase64(book.metadata.cover)}
-              alt={book?.title || 'Book cover'}
+              alt={book?.title || t('bookDetails.unknownTitle')}
               className="w-full h-full object-cover"
             />
           </div>
         )}
 
         <div className="flex-1">
-          <Title level={3}>{book?.title || 'Unknown Title'}</Title>
-          {book?.author && <Text type="secondary" className="block">Author: {book.author}</Text>}
-          {book?.metadata?.language && <Text type="secondary" className="block">Language: {book.metadata.language}</Text>}
-          {book?.metadata?.publisher && <Text type="secondary" className="block">Publisher: {book.metadata.publisher}</Text>}
+          <Title level={3}>{book?.title || t('bookDetails.unknownTitle')}</Title>
+          {book?.author && <Text type="secondary" className="block">{t('bookDetails.author')}: {book.author}</Text>}
+          {book?.metadata?.language && <Text type="secondary" className="block">{t('bookDetails.language')}: {book.metadata.language}</Text>}
+          {book?.metadata?.publisher && <Text type="secondary" className="block">{t('bookDetails.publisher')}: {book.metadata.publisher}</Text>}
           {book?.createTime && (
             <Text type="secondary" className="block">
-              Added: {new Date(book.createTime).toLocaleDateString()}
+              {t('bookDetails.added')}: {new Date(book.createTime).toLocaleDateString()}
             </Text>
           )}
         </div>
@@ -139,7 +141,7 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
 
       {book?.metadata?.description && typeof book.metadata.description === 'string' && (
         <>
-          <Title level={5}>Description</Title>
+          <Title level={5}>{t('bookDetails.description')}</Title>
           <Text>{book.metadata.description}</Text>
           <Divider />
         </>
@@ -147,11 +149,11 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
 
       <div className="flex justify-end">
         <Popconfirm
-          title="Delete Book"
-          description="Are you sure you want to delete this book? This cannot be undone."
+          title={t('bookDetails.deleteBook')}
+          description={t('bookDetails.deleteConfirmation')}
           onConfirm={handleDelete}
-          okText="Yes"
-          cancelText="No"
+          okText={t('common.ok')}
+          cancelText={t('common.cancel')}
           placement="topRight"
         >
           <Button
@@ -160,7 +162,7 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
             icon={<DeleteOutlined />}
             loading={loading}
           >
-            Delete Book
+            {t('bookDetails.deleteBook')}
           </Button>
         </Popconfirm>
       </div>
@@ -172,7 +174,7 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
       title={
         <div className="flex items-center gap-2">
           <InfoCircleOutlined />
-          <span>书籍详情</span>
+          <span>{t('bookDetails.title')}</span>
         </div>
       }
       open={open}
@@ -182,9 +184,9 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
       destroyOnClose
     >
       {loading ? (
-        <div className="flex justify-center py-8">Loading...</div>
+        <div className="flex justify-center py-8">{t('bookDetails.loading')}</div>
       ) : !book ? (
-        <div className="text-center py-8">Book not found</div>
+        <div className="text-center py-8">{t('bookDetails.notFound')}</div>
       ) : (
         type === 'detailed' ? renderDetailedView() : renderSimpleView()
       )}
