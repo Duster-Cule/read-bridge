@@ -75,6 +75,12 @@ ReadBridge的灵感来自我在一次刷视频时的偶然发现，这个视频�
    npm run tauri dev
    ```
 
+## 下载
+
+您可以从GitHub发布页面下载ReadBridge的最新版本：
+
+- [所有版本](https://github.com/WindChimeEcho/read-bridge/releases)
+
 ## 部署
 
 只需一键部署您自己的ReadBridge实例：

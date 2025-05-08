@@ -75,6 +75,12 @@ The video also introduced the story of Hungarian linguist Lomb Kato, who mastere
    npm run tauri dev
    ```
 
+## Downloads
+
+You can download the latest version of ReadBridge from our GitHub releases:
+
+- [All Releases](https://github.com/WindChimeEcho/read-bridge/releases)
+
 ## Deployment
 
 Deploy your own instance of ReadBridge with just one click:
