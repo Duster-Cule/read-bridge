@@ -13,9 +13,10 @@ const translations = {
  * Get a translation by key path
  * @param locale - The current locale
  * @param path - Dot notation path to the translation (e.g., 'settings.aiSettings')
+ * @param templateParams - Parameters to fill in template placeholders
  * @returns The translated string or the key if not found
  */
-export function t(locale: Locale, path: TranslationPath): string {
+export function t(locale: Locale, path: TranslationPath, templateParams?: Record<string, string>): string {
   const keys = path.split('.');
   let result: any = translations[locale];
 
@@ -28,6 +29,13 @@ export function t(locale: Locale, path: TranslationPath): string {
     }
   }
 
+  // If we have template parameters, replace the placeholders
+  if (templateParams && typeof result === 'string') {
+    Object.entries(templateParams).forEach(([key, value]) => {
+      result = result.replace(new RegExp(`{${key}}`, 'g'), value);
+    });
+  }
+
   return result;
 }
 
@@ -37,7 +45,8 @@ export function t(locale: Locale, path: TranslationPath): string {
  * @returns A function that takes a path and returns the translated string
  */
 export function createTranslator(locale: Locale) {
-  return (path: TranslationPath) => t(locale, path);
+  return (path: TranslationPath, templateParams?: Record<string, string>) =>
+    t(locale, path, templateParams);
 }
 
 /**

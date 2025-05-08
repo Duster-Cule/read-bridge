@@ -10,8 +10,8 @@ export function useTranslation() {
   const { language } = useStyleStore();
 
   const translate = useCallback(
-    (path: TranslationPath) => {
-      return createTranslator(language as Locale)(path);
+    (path: TranslationPath, templateParams?: Record<string, string>) => {
+      return createTranslator(language as Locale)(path, templateParams);
     },
     [language]
   );

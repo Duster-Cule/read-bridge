@@ -29,7 +29,7 @@ const ProviderForm = ({
         <Typography.Title level={4}>{provider.name}</Typography.Title>
         {!provider.isDefault && (
           <Popconfirm
-            title={t('settings.deleteProviderConfirm')}
+            title={t('common.templates.confirmDelete', { entity: t('common.entities.providerAsObject') })}
             onConfirm={onDeleteProvider}
             okText={t('common.ok')}
             cancelText={t('common.cancel')}

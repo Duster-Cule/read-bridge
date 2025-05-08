@@ -24,7 +24,7 @@ const ModelCard = ({ model, onEdit, onDelete }: ModelCardProps) => {
             onClick={() => onEdit(model)}
           />
           <Popconfirm
-            title={t('settings.deleteModelConfirm')}
+            title={t('common.templates.confirmDelete', { entity: t('common.entities.modelAsObject') })}
             onConfirm={() => onDelete(model.id)}
             okText={t('common.ok')}
             cancelText={t('common.cancel')}

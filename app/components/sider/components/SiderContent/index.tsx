@@ -90,7 +90,7 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
         try {
           generator = getGeneratorThinkAndHTMLTag(defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, OUTPUT_PROMPT[type]), signal))
         } catch (error) {
-          console.log(t('sider.sentenceAnalysisError'), error, index, name, type, text)
+          console.log(t('common.templates.analysisFailed', { entity: t('common.entities.sentenceAnalysisGeneric') }), error, index, name, type, text)
         }
         if (generator) {
           setSentenceProcessingList(prev => [...prev, { name, type, generator }])
@@ -105,7 +105,7 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
     // 执行添加处理器的函数
     addProcessorsWithDelay()
 
-  }, [currentChapter, defaultLLMClient, sentenceOptions, setSentenceProcessingList])
+  }, [currentChapter, defaultLLMClient, sentenceOptions, setSentenceProcessingList, batchProcessingSize, t])
 
   useEffect(() => {
     const unsub = EventEmitter.on(EVENT_NAMES.SEND_LINE_INDEX, handleLineIndex)

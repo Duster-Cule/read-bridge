@@ -64,7 +64,7 @@ export default function PromptSection() {
               <Popconfirm
                 key="list-delete-confirm"
                 title={t('settings.deletePrompt')}
-                description={t('settings.deletePromptDescription')}
+                description={t('common.templates.confirmDelete', { entity: t('common.entities.promptAsObject') })}
                 onConfirm={() => handleDelete(item)}
                 okText={t('common.ok')}
                 cancelText={t('common.cancel')}
@@ -134,7 +134,7 @@ function PromptModal({ isModalOpen, handleOk, handleCancel, form, isEdit = false
       <Form.Item
         name="name"
         label={t('settings.promptName')}
-        rules={[{ required: true, message: t('settings.promptNameRequired') }]}
+        rules={[{ required: true, message: t('common.templates.pleaseEnter', { field: t('common.entities.promptName') }) }]}
       >
         <Input placeholder={t('settings.promptName')} />
       </Form.Item>

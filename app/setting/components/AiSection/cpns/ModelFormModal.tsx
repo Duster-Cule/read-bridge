@@ -58,7 +58,7 @@ const ModelFormModal = ({
       cancelText={t('common.cancel')}
     >
       <Form form={form} layout="vertical" initialValues={initialValues || { temperature: 0.5, topP: 1 }}>
-        <Form.Item name="id" label={t('settings.modelID')} required tooltip={t('settings.modelIDTooltip')} rules={[{ required: true, message: t('settings.modelIDRequired') }]}>
+        <Form.Item name="id" label={t('settings.modelID')} required tooltip={t('settings.modelIDTooltip')} rules={[{ required: true, message: t('common.templates.pleaseEnter', { field: t('common.entities.modelID') }) }]}>
           <Input
             placeholder={t('settings.modelIDPlaceholder')}
             onChange={handleIdChange}
@@ -77,7 +77,5 @@ const ModelFormModal = ({
     </Modal>
   );
 };
-
-
 
 export default ModelFormModal; 

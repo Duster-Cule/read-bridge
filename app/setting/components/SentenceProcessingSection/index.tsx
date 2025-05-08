@@ -81,7 +81,7 @@ export default function SentenceProcessingSection() {
                 />,
                 <Popconfirm
                   title={t('settings.deleteSentenceProcessing')}
-                  description={t('settings.deleteSentenceProcessingDescription')}
+                  description={t('common.templates.confirmDelete', { entity: t('common.entities.sentenceConfigAsObject') })}
                   onConfirm={() => handleDelete(item)}
                   okText={t('common.ok')}
                   cancelText={t('common.cancel')}
@@ -147,7 +147,7 @@ export default function SentenceProcessingSection() {
           <Form.Item
             name="name"
             label={t('settings.sentenceConfigName')}
-            rules={[{ required: true, message: t('settings.sentenceConfigNameRequired') }]}
+            rules={[{ required: true, message: t('common.templates.pleaseEnter', { field: t('common.entities.sentenceConfigName') }) }]}
           >
             <Input placeholder={t('settings.sentenceConfigName')} />
           </Form.Item>
@@ -156,7 +156,7 @@ export default function SentenceProcessingSection() {
             name="type"
             label={t('settings.sentenceConfigType')}
             tooltip={t('settings.sentenceTypeTooltip')}
-            rules={[{ required: true, message: t('settings.sentenceConfigTypeRequired') }]}
+            rules={[{ required: true, message: t('common.templates.pleaseSelect', { field: t('common.entities.sentenceConfigType') }) }]}
           >
             <Select placeholder={t('settings.sentenceConfigType')}>
               {Object.entries(typeMap).map(([key, value]) => (
@@ -168,7 +168,7 @@ export default function SentenceProcessingSection() {
           <Form.Item
             name="rulePrompt"
             label={t('settings.sentenceConfigPrompt')}
-            rules={[{ required: true, message: t('settings.sentenceConfigPromptRequired') }]}
+            rules={[{ required: true, message: t('common.templates.pleaseEnter', { field: t('common.entities.sentenceConfigPrompt') }) }]}
           >
             <TextArea
               placeholder={t('settings.sentenceConfigPrompt')}

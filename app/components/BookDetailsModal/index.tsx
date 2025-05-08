@@ -38,7 +38,7 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
         })
         .catch((error) => {
           console.error('Error fetching book:', error);
-          message.error(t('bookDetails.fetchError'));
+          message.error(t('common.templates.loadFailed', { entity: t('common.entities.bookDetails') }));
         })
         .finally(() => {
           setLoading(false);
@@ -58,13 +58,13 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
       setLoading(true);
       await db.deleteBook(bookId);
 
-      message.success(t('bookDetails.deleteSuccess'));
+      message.success(t('common.templates.deleteSuccess', { entity: t('common.entities.bookGeneric') }));
       onClose();
       // Force a refresh of the home page
       router.refresh();
     } catch (error) {
       console.error('Error deleting book:', error);
-      message.error(t('bookDetails.deleteError'));
+      message.error(t('common.templates.deleteFailed', { entity: t('common.entities.bookGeneric') }));
     } finally {
       setLoading(false);
     }
@@ -92,7 +92,7 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
       <div className="flex justify-end">
         <Popconfirm
           title={t('bookDetails.deleteBook')}
-          description={t('bookDetails.deleteConfirmation')}
+          description={t('common.templates.confirmDeleteWithUndoWarning', { entity: t('common.entities.bookAsObject') })}
           onConfirm={handleDelete}
           okText={t('common.ok')}
           cancelText={t('common.cancel')}
@@ -150,7 +150,7 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
       <div className="flex justify-end">
         <Popconfirm
           title={t('bookDetails.deleteBook')}
-          description={t('bookDetails.deleteConfirmation')}
+          description={t('common.templates.confirmDeleteWithUndoWarning', { entity: t('common.entities.bookAsObject') })}
           onConfirm={handleDelete}
           okText={t('common.ok')}
           cancelText={t('common.cancel')}
