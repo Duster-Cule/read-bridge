@@ -16,7 +16,9 @@
       "confirmDeleteWithUndoWarning": "确定要删除这个{entity}吗？这将无法恢复。",
       "pleaseEnter": "请输入{field}",
       "pleaseSelect": "请选择{field}",
-      "analysisFailed": "{entity}分析失败"
+      "analysisFailed": "{entity}分析失败",
+      "updateSuccess": "{entity}更新成功",
+      "updateFailed": "{entity}更新失败"
     },
     "entities": {
       "bookAsObject": "这本书",
@@ -45,7 +47,8 @@
     "unknownTitle": "未知标题",
     "loading": "加载中...",
     "notFound": "未找到书籍",
-    "editBook": "编辑书籍"
+    "editBook": "编辑书籍",
+    "addBook": "添加书籍"
   },
   "header": {
     "home": "首页",

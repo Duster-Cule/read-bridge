@@ -7,6 +7,7 @@ import { Book, Resource } from '@/types/book';
 import db from '@/services/DB';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from '@/i18n/useTranslation';
+import BookAddOrEditModal from '../BookAddOrEditModal';
 
 const { Title, Text } = Typography;
 
@@ -23,6 +24,7 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
 }) => {
   const [book, setBook] = useState<Book | null>(null);
   const [loading, setLoading] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
   const router = useRouter();
   const { t } = useTranslation();
 
@@ -68,9 +70,46 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
     }
   };
 
-  const handleEdit = useCallback(() => {
+  const openEditModal = useCallback(() => {
+    if (!book) {
+      message.error(t('common.templates.loadFailed', { entity: t('common.entities.bookDetails') }));
+      return;
+    }
+    setEditModalOpen(true);
+  }, [book, t]);
 
-  }, []);
+  const getBookForEdit = useCallback(() => {
+    if (!book) throw new Error(t('common.templates.loadFailed', { entity: t('common.entities.bookDetails') }));
+    return {
+      ...book,
+    };
+  }, [book]);
+
+  const handleEditSubmit = useCallback(async (updatedBook: Book) => {
+    const currentBook = getBookForEdit();
+    if (!currentBook) {
+      message.error(t('common.templates.loadFailed', { entity: t('common.entities.bookDetails') }));
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await db.updateBook(bookId, {
+        ...currentBook,
+        ...updatedBook,
+      });
+      // 更新本地数据
+      setBook(prev => prev ? { ...prev, ...updatedBook } : null);
+      setEditModalOpen(false);
+      message.success(t('common.templates.updateSuccess', { entity: t('common.entities.bookGeneric') }));
+      router.refresh();
+    } catch (error) {
+      console.error('Error updating book:', error);
+      message.error(t('common.templates.updateFailed', { entity: t('common.entities.bookGeneric') }));
+    } finally {
+      setLoading(false);
+    }
+  }, [bookId, router, t, getBookForEdit]);
 
   const renderDetailedView = () => (
     <div className="space-y-4">
@@ -113,7 +152,7 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
           type="primary"
           icon={<EditOutlined />}
           loading={loading}
-          onClick={handleEdit}
+          onClick={openEditModal}
         >
           {t('bookDetails.editBook')}
         </Button>
@@ -159,6 +198,13 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
       ) : (
         renderDetailedView()
       )}
+      <BookAddOrEditModal
+        open={editModalOpen}
+        onCancel={() => setEditModalOpen(false)}
+        onOk={handleEditSubmit}
+        getInitialData={getBookForEdit}
+        type="edit"
+      />
     </Modal>
   );
 };

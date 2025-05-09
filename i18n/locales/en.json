@@ -16,7 +16,9 @@
       "confirmDeleteWithUndoWarning": "Are you sure you want to delete this {entity}? This cannot be undone.",
       "pleaseEnter": "Please enter {field}",
       "pleaseSelect": "Please select {field}",
-      "analysisFailed": "{entity} analysis failed"
+      "analysisFailed": "{entity} analysis failed",
+      "updateSuccess": "{entity} updated successfully",
+      "updateFailed": "Failed to update {entity}"
     },
     "entities": {
       "bookAsObject": "this book",
@@ -45,7 +47,8 @@
     "unknownTitle": "Unknown Title",
     "loading": "Loading...",
     "notFound": "Book not found",
-    "editBook": "Edit Book"
+    "editBook": "Edit Book",
+    "addBook": "Add Book"
   },
   "header": {
     "home": "Home",
