@@ -13,7 +13,7 @@ export interface Metadata {
   publisher?: string; // 出版社
   date?: string; // 出版日期
   rights?: string; // 版权信息
-  identifier: string; // 图书唯一标识符
+  identifier?: string; // 图书唯一标识符
   language: string; // 语言代码
   cover?: Resource;
   [key: string]: string | undefined | Resource;
