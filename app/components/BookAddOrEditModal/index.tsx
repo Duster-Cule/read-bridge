@@ -29,8 +29,6 @@ export default function BookAddOrEditModal({ open, onCancel, onOk, getInitialDat
       author: initialData.metadata.author,
       publisher: initialData.metadata.publisher,
       date: initialData.metadata.date,
-      rights: initialData.metadata.rights,
-      identifier: initialData.metadata.identifier,
       language: initialData.metadata.language,
     });
   }, [open, getInitialData, setBook, form]);
@@ -85,11 +83,11 @@ export default function BookAddOrEditModal({ open, onCancel, onOk, getInitialDat
     open={open}
     onCancel={onCancel}
     onOk={handleSubmit}
-    okText="确定"
-    cancelText="取消"
+    okText={t('common.ok')}
+    cancelText={t('common.cancel')}
   >
     <h1 className="font-bold text-xl mb-2">
-      {type === 'add' ? "添加图书" : "编辑图书"}
+      {t('bookDetails.bookAction', { action: type === 'add' ? t('common.add') : t('common.edit') })}
     </h1>
     <div className="w-full h-[600px] overflow-y-auto px-4">
       <Row gutter={24}>
@@ -101,7 +99,7 @@ export default function BookAddOrEditModal({ open, onCancel, onOk, getInitialDat
                 <div className="max-w-full overflow-hidden rounded-lg shadow-md mx-auto" style={{ maxHeight: '330px' }}>
                   <img
                     src={`data:${book.metadata.cover.mediaType};base64,${book.metadata.cover.data}`}
-                    alt="Book cover"
+                    alt={t('book.coverAlt')}
                     className="w-full h-auto object-contain"
                   />
                 </div>
@@ -109,14 +107,14 @@ export default function BookAddOrEditModal({ open, onCancel, onOk, getInitialDat
             ) : (
               <div className="mb-4 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center"
                 style={{ width: '200px', height: '280px' }}>
-                <p className="text-gray-500">暂无封面</p>
+                <p className="text-gray-500">{t('book.noCover')}</p>
               </div>
             )}
 
             <Upload {...uploadProps} showUploadList={false}>
               <Space>
                 <Button type="primary" icon={<UploadOutlined />}>
-                  {book?.metadata.cover ? "更换封面" : "上传封面"}
+                  {book?.metadata.cover ? t('book.changeCover') : t('book.uploadCover')}
                 </Button>
                 {book?.metadata.cover && (
                   <Button
@@ -130,7 +128,7 @@ export default function BookAddOrEditModal({ open, onCancel, onOk, getInitialDat
                       }
                     }}
                   >
-                    移除封面
+                    {t('book.removeCover')}
                   </Button>
                 )}
               </Space>
@@ -145,45 +143,44 @@ export default function BookAddOrEditModal({ open, onCancel, onOk, getInitialDat
             form={form}
             layout="vertical"
             onValuesChange={handleFormChange}
-            requiredMark="optional"
           >
             <Form.Item
               name="title"
-              label="书名"
-              rules={[{ required: true, message: "请输入书名" }]}
+              label={t('book.title')}
+              rules={[{ required: true, message: t('book.titleRequired') }]}
             >
-              <Input placeholder="请输入书名" />
+              <Input placeholder={t('book.titlePlaceholder')} />
             </Form.Item>
 
             <Form.Item
               name="author"
-              label="作者"
+              label={t('book.author')}
             >
-              <Input placeholder="请输入作者" />
+              <Input placeholder={t('book.authorPlaceholder')} />
             </Form.Item>
 
             <Form.Item
               name="publisher"
-              label="出版社"
+              label={t('book.publisher')}
             >
-              <Input placeholder="请输入出版社" />
+              <Input placeholder={t('book.publisherPlaceholder')} />
             </Form.Item>
 
             <Form.Item
               name="date"
-              label="出版日期"
+              label={t('book.publishDate')}
             >
-              <Input placeholder="请输入出版日期" />
+              <Input placeholder={t('book.publishDatePlaceholder')} />
             </Form.Item>
 
 
             <Form.Item
               name="language"
-              label="语言代码"
-              rules={[{ required: true, message: "请选择语言代码" }]}
+              label={t('book.language')}
+              rules={[{ required: true, message: t('book.languageRequired') }]}
             >
               <Select
-                placeholder="请选择语言"
+                placeholder={t('book.languagePlaceholder')}
                 allowClear
                 showSearch
                 optionFilterProp="children"

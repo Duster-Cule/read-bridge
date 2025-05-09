@@ -33,8 +33,10 @@
       "sentenceConfigName": "配置名称",
       "sentenceConfigPrompt": "规则提示词",
       "sentenceConfigType": "句子处理类型",
-      "sentenceAnalysisGeneric": "句子分析"
-    }
+      "sentenceAnalysisGeneric": "句子分析",
+      "book": "图书"
+    },
+    "confirm": "确定"
   },
   "bookDetails": {
     "title": "书籍详情",
@@ -48,7 +50,8 @@
     "loading": "加载中...",
     "notFound": "未找到书籍",
     "editBook": "编辑书籍",
-    "addBook": "添加书籍"
+    "addBook": "添加书籍",
+    "bookAction": "{action}图书"
   },
   "header": {
     "home": "首页",
@@ -122,5 +125,24 @@
     "noAnalysisModelSelected": "未选择解析模型",
     "noSentenceSelected": "未选择句子",
     "noWordSelected": "未选择单词"
+  },
+  "book": {
+    "title": "书名",
+    "titleRequired": "请输入书名",
+    "titlePlaceholder": "请输入书名",
+    "author": "作者",
+    "authorPlaceholder": "请输入作者",
+    "publisher": "出版社",
+    "publisherPlaceholder": "请输入出版社",
+    "publishDate": "出版日期",
+    "publishDatePlaceholder": "请输入出版日期",
+    "language": "语言代码",
+    "languageRequired": "请选择语言代码",
+    "languagePlaceholder": "请选择语言",
+    "coverAlt": "图书封面",
+    "noCover": "暂无封面",
+    "changeCover": "更换封面",
+    "uploadCover": "上传封面",
+    "removeCover": "移除封面"
   }
 }

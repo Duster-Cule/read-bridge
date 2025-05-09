@@ -48,7 +48,8 @@
     "loading": "Loading...",
     "notFound": "Book not found",
     "editBook": "Edit Book",
-    "addBook": "Add Book"
+    "addBook": "Add Book",
+    "bookAction": "{action} Book"
   },
   "header": {
     "home": "Home",
@@ -122,5 +123,24 @@
     "noAnalysisModelSelected": "No model selected",
     "noSentenceSelected": "No sentence selected",
     "noWordSelected": "No word selected"
+  },
+  "book": {
+    "title": "Title",
+    "titleRequired": "Please enter a title",
+    "titlePlaceholder": "Please enter a title",
+    "author": "Author",
+    "authorPlaceholder": "Please enter an author",
+    "publisher": "Publisher",
+    "publisherPlaceholder": "Please enter a publisher",
+    "publishDate": "Publish Date",
+    "publishDatePlaceholder": "Please enter a publish date",
+    "language": "Language Code",
+    "languageRequired": "Please select a language code",
+    "languagePlaceholder": "Please select a language",
+    "coverAlt": "Book cover",
+    "noCover": "No cover",
+    "changeCover": "Change Cover",
+    "uploadCover": "Upload Cover",
+    "removeCover": "Remove Cover"
   }
 }
