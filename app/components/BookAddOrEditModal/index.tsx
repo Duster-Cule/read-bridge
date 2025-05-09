@@ -1,12 +1,11 @@
-import { Book, Metadata } from "@/types/book";
-import { Modal, Form, Input, Divider, Typography, Space, Upload, Button, Row, Col, Card } from "antd";
+import { Book } from "@/types/book";
+import { Modal, Form, Input, Divider, Space, Upload, Button, Row, Col, Select } from "antd";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "@/i18n/useTranslation";
-import { UploadOutlined, EditOutlined } from '@ant-design/icons';
+import { UploadOutlined } from '@ant-design/icons';
 import type { UploadProps } from 'antd';
-
-const { Title, Text } = Typography;
-const { TextArea } = Input;
+import { COMMON_LANGUAGES } from "@/constants/book";
+const { Option } = Select;
 
 interface BookAddOrEditModalProps {
   open: boolean;
@@ -110,7 +109,7 @@ export default function BookAddOrEditModal({ open, onCancel, onOk, getInitialDat
             ) : (
               <div className="mb-4 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center"
                 style={{ width: '200px', height: '280px' }}>
-                <Text type="secondary">暂无封面</Text>
+                <p className="text-gray-500">暂无封面</p>
               </div>
             )}
 
@@ -181,9 +180,20 @@ export default function BookAddOrEditModal({ open, onCancel, onOk, getInitialDat
             <Form.Item
               name="language"
               label="语言代码"
-              rules={[{ required: true, message: "请输入语言代码" }]}
+              rules={[{ required: true, message: "请选择语言代码" }]}
             >
-              <Input placeholder="如：zh-CN, en-US" />
+              <Select
+                placeholder="请选择语言"
+                allowClear
+                showSearch
+                optionFilterProp="children"
+              >
+                {COMMON_LANGUAGES.map(lang => (
+                  <Option key={lang.code} value={lang.code}>
+                    {lang.name} ({lang.code})
+                  </Option>
+                ))}
+              </Select>
             </Form.Item>
           </Form>
 
