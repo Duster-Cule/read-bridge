@@ -44,7 +44,8 @@
     "deleteBook": "删除书籍",
     "unknownTitle": "未知标题",
     "loading": "加载中...",
-    "notFound": "未找到书籍"
+    "notFound": "未找到书籍",
+    "editBook": "编辑书籍"
   },
   "header": {
     "home": "首页",

@@ -44,7 +44,8 @@
     "deleteBook": "Delete Book",
     "unknownTitle": "Unknown Title",
     "loading": "Loading...",
-    "notFound": "Book not found"
+    "notFound": "Book not found",
+    "editBook": "Edit Book"
   },
   "header": {
     "home": "Home",

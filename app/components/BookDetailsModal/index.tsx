@@ -1,8 +1,8 @@
 'use client';
 
-import { FC, useState, useEffect } from 'react';
+import { FC, useState, useEffect, useCallback } from 'react';
 import { Modal, Button, Typography, Divider, Popconfirm, message } from 'antd';
-import { DeleteOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { Book, Resource } from '@/types/book';
 import db from '@/services/DB';
 import { useRouter } from 'next/navigation';
@@ -14,14 +14,12 @@ interface BookDetailsModalProps {
   open: boolean;
   onClose: () => void;
   bookId: string;
-  type?: 'simple' | 'detailed';
 }
 
 const BookDetailsModal: FC<BookDetailsModalProps> = ({
   open,
   onClose,
   bookId,
-  type = 'simple'
 }) => {
   const [book, setBook] = useState<Book | null>(null);
   const [loading, setLoading] = useState(false);
@@ -47,9 +45,9 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
   }, [open, bookId, t]);
 
   // Helper function to handle base64 image data
-  const handleBase64 = (cover: Resource) => {
+  const handleBase64 = useCallback((cover: Resource) => {
     return `data:image/jpeg;base64,${cover.data}`;
-  };
+  }, []);
 
   const handleDelete = async () => {
     if (!bookId) return;
@@ -70,46 +68,9 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
     }
   };
 
-  const renderSimpleView = () => (
-    <div className="space-y-4">
-      {book?.metadata?.cover && (
-        <div className="flex justify-center">
-          <div className="w-1/3 aspect-[3/4] overflow-hidden rounded-lg">
-            <img
-              src={handleBase64(book.metadata.cover)}
-              alt={book?.title || t('bookDetails.unknownTitle')}
-              className="w-full h-full object-cover"
-            />
-          </div>
-        </div>
-      )}
+  const handleEdit = useCallback(() => {
 
-      <Title level={4}>{book?.title || t('bookDetails.unknownTitle')}</Title>
-      {book?.author && <Text type="secondary">{t('bookDetails.author')}: {book.author}</Text>}
-
-      <Divider />
-
-      <div className="flex justify-end">
-        <Popconfirm
-          title={t('bookDetails.deleteBook')}
-          description={t('common.templates.confirmDeleteWithUndoWarning', { entity: t('common.entities.bookAsObject') })}
-          onConfirm={handleDelete}
-          okText={t('common.ok')}
-          cancelText={t('common.cancel')}
-          placement="topRight"
-        >
-          <Button
-            type="primary"
-            danger
-            icon={<DeleteOutlined />}
-            loading={loading}
-          >
-            {t('bookDetails.deleteBook')}
-          </Button>
-        </Popconfirm>
-      </div>
-    </div>
-  );
+  }, []);
 
   const renderDetailedView = () => (
     <div className="space-y-4">
@@ -147,7 +108,15 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
         </>
       )}
 
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        <Button
+          type="primary"
+          icon={<EditOutlined />}
+          loading={loading}
+          onClick={handleEdit}
+        >
+          {t('bookDetails.editBook')}
+        </Button>
         <Popconfirm
           title={t('bookDetails.deleteBook')}
           description={t('common.templates.confirmDeleteWithUndoWarning', { entity: t('common.entities.bookAsObject') })}
@@ -180,7 +149,7 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
       open={open}
       onCancel={onClose}
       footer={null}
-      width={type === 'detailed' ? 700 : 500}
+      width={500}
       destroyOnClose
     >
       {loading ? (
@@ -188,7 +157,7 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
       ) : !book ? (
         <div className="text-center py-8">{t('bookDetails.notFound')}</div>
       ) : (
-        type === 'detailed' ? renderDetailedView() : renderSimpleView()
+        renderDetailedView()
       )}
     </Modal>
   );
