@@ -141,6 +141,11 @@
     "noCover": "No cover",
     "changeCover": "Change Cover",
     "uploadCover": "Upload Cover",
-    "removeCover": "Remove Cover"
+    "removeCover": "Remove Cover",
+    "chapter": "Chapter",
+    "chapterList": "Chapter List",
+    "addChapter": "Add Chapter",
+    "editChapter": "Edit Chapter",
+    "deleteChapter": "Delete Chapter"
   }
 }

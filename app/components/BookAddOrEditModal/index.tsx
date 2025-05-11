@@ -5,6 +5,7 @@ import { useTranslation } from "@/i18n/useTranslation";
 import { UploadOutlined } from '@ant-design/icons';
 import type { UploadProps } from 'antd';
 import { COMMON_LANGUAGES } from "@/constants/book";
+import ChapterManager from "./cpns/ChapterManager";
 const { Option } = Select;
 
 interface BookAddOrEditModalProps {
@@ -18,7 +19,7 @@ interface BookAddOrEditModalProps {
 export default function BookAddOrEditModal({ open, onCancel, onOk, getInitialData, type }: BookAddOrEditModalProps) {
   const { t } = useTranslation();
   const [book, setBook] = useState<Book>();
-  const [form] = Form.useForm();
+  const [form] = Form.useForm()
 
   useEffect(() => {
     if (!open) return
@@ -138,7 +139,6 @@ export default function BookAddOrEditModal({ open, onCancel, onOk, getInitialDat
         </Col>
         {/* 右侧元数据表单 */}
         <Col span={16}>
-
           <Form
             form={form}
             layout="vertical"
@@ -202,9 +202,11 @@ export default function BookAddOrEditModal({ open, onCancel, onOk, getInitialDat
 
       {/* 下方章节编辑部分 */}
       <div className="chapters-list">
-
+        <ChapterManager
+          book={book as Book}
+          onChange={(updatedBook) => setBook(updatedBook)}
+        />
       </div>
-
     </div>
   </Modal>;
 }

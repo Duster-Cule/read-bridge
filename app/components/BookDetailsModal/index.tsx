@@ -108,6 +108,7 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
       message.error(t('common.templates.updateFailed', { entity: t('common.entities.bookGeneric') }));
     } finally {
       setLoading(false);
+      onClose();
     }
   }, [bookId, router, t, getBookForEdit]);
 
