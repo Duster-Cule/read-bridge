@@ -10,13 +10,20 @@ export function useBook() {
   const [book, setBook] = useState<Book | null>(null)
 
   useEffect(() => {
-    if (readingId) {
-      db.getBook(readingId).then(setBook)
-    } else {
-      setBook(null)
-    }
+    updateBook()
   }, [readingId])
-
-  return [book, setBook] as const
+  async function updateBook(): Promise<void> {
+    if (!readingId) {
+      setBook(null)
+      return
+    }
+    try {
+      const res = await db.getBook(readingId)
+      setBook(res)
+    } catch (error) {
+      console.error('Error updating book:', error)
+    }
+  }
+  return [book, setBook, updateBook] as const
 }
 

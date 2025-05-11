@@ -214,6 +214,35 @@ class BookDB extends Dexie {
       return defaultReadingProgress
     }
   }
+
+  /**
+   * 重置书籍阅读信息
+   * @param bookId 书籍id
+   * @returns {Promise<void>}
+   * @throws {Error} 当阅读信息不存在时抛出异常
+   */
+  async resetReadingProgress(bookId: string): Promise<void> {
+    try {
+      await this.readingProgress.delete(bookId)
+    } catch (error) {
+      console.error('Error in resetReadingProgress:' + error)
+    } finally {
+      await this.addReadingProgress(bookId)
+    }
+  }
+  /**
+   * 删除书籍阅读信息
+   * @param bookId 书籍id
+   * @returns {Promise<void>}
+   * @throws {Error} 当阅读信息不存在时抛出异常
+   */
+  async deleteReadingProgress(bookId: string): Promise<void> {
+    const exists = await this.readingProgress.get(bookId)
+    if (!exists) {
+      throw new Error('Reading progress not found')
+    }
+    await this.readingProgress.delete(bookId)
+  }
   /**
    * 更新书籍阅读位置
    * @param bookId 书籍id

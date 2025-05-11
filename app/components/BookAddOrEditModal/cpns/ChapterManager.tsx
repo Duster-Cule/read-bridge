@@ -1,9 +1,10 @@
-import { useState, useEffect, memo, useCallback } from 'react';
-import { Button, List, Typography, Space, Empty, Popconfirm, Input } from 'antd';
+import { useState, memo, useCallback, useMemo } from 'react';
+import { Button, Typography, Empty, Popconfirm, Input } from 'antd';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { PlusOutlined, MenuOutlined, DeleteOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { Book, PlainTextChapter } from '@/types/book';
 import { useTranslation } from '@/i18n/useTranslation';
+import TextArea from 'antd/es/input/TextArea';
 
 const { Text, Title } = Typography;
 
@@ -63,9 +64,8 @@ export default function ChapterManager({ book, onChange }: ChapterManagerProps) 
   const [selectedChapterIndex, setSelectedChapterIndex] = useState<number>(0);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editingTitle, setEditingTitle] = useState('');
-
   // Handle drag end to reorder chapters
-  const handleDragEnd = (result: DropResult) => {
+  const handleDragEnd = async (result: DropResult) => {
     if (!result.destination) return;
 
     const sourceIndex = result.source.index;
@@ -108,14 +108,11 @@ export default function ChapterManager({ book, onChange }: ChapterManagerProps) 
       toc: recalculatedToc,
       chapterList: reorderedChapterList
     };
-
     onChange(updatedBook);
-
     if (selectedChapterIndex === movedTocItem.index) {
       setSelectedChapterIndex(destinationIndex);
     }
   };
-
 
   const handleAddChapter = useCallback(() => {
     const newChapterIndex = book.chapterList.length;
@@ -171,7 +168,18 @@ export default function ChapterManager({ book, onChange }: ChapterManagerProps) 
 
   const cancelEditTitle = useCallback(() => {
     setIsEditingTitle(false);
-  }, []);
+  }, [setIsEditingTitle]);
+
+  const selectedChapterText = useMemo(() => {
+    if (!book || !book.chapterList[selectedChapterIndex]) return '';
+    return book.chapterList[selectedChapterIndex].paragraphs.join('\n');
+  }, [book, selectedChapterIndex]);
+
+  const handleEditChapterText = useCallback(async (text: string) => {
+    const newChapterList = [...book.chapterList];
+    newChapterList[selectedChapterIndex].paragraphs = text.split('\n');
+    onChange({ ...book, chapterList: newChapterList });
+  }, [book, onChange, selectedChapterIndex]);
 
   if (!book) return null;
   return (
@@ -257,13 +265,14 @@ export default function ChapterManager({ book, onChange }: ChapterManagerProps) 
                 <Button type="text" danger icon={<DeleteOutlined />} />
               </Popconfirm>}
             </div>
-            <div className="overflow-y-auto h-[534px]">
-              {book.chapterList[selectedChapterIndex].paragraphs.length > 0 ? (
-                book.chapterList[selectedChapterIndex].paragraphs.map((paragraph, i) => (
-                  <Text key={i} className="block mb-3">
-                    {paragraph}
-                  </Text>
-                ))
+            <div className=" h-[534px]">
+              {selectedChapterText.length > 0 ? (
+                <TextArea
+                  value={selectedChapterText}
+                  onChange={(e) => handleEditChapterText(e.target.value)}
+                  className="block mb-3"
+                  autoSize={{ minRows: 23, maxRows: 23 }}
+                />
               ) : (
                 <Empty description={t('book.noContent')} />
               )}

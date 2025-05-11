@@ -6,6 +6,7 @@ import { UploadOutlined } from '@ant-design/icons';
 import type { UploadProps } from 'antd';
 import { COMMON_LANGUAGES } from "@/constants/book";
 import ChapterManager from "./cpns/ChapterManager";
+
 const { Option } = Select;
 
 interface BookAddOrEditModalProps {

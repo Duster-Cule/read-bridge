@@ -8,6 +8,9 @@ import db from '@/services/DB';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from '@/i18n/useTranslation';
 import BookAddOrEditModal from '../BookAddOrEditModal';
+import { useReadingProgress } from '@/hooks/useReadingProgress';
+import { useBook } from '@/hooks/useBook';
+import { useSiderStore } from '@/store/useSiderStore';
 
 const { Title, Text } = Typography;
 
@@ -26,6 +29,9 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const router = useRouter();
+  const { readingId, setReadingId } = useSiderStore()
+  const [, updateReadingProgress] = useReadingProgress();
+  const [, , updateBook] = useBook()
   const { t } = useTranslation();
 
   // Fetch book details when modal opens
@@ -33,7 +39,7 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
     if (open && bookId) {
       setLoading(true);
       db.getBook(bookId)
-        .then((fetchedBook) => {
+        .then(async (fetchedBook) => {
           setBook(fetchedBook);
         })
         .catch((error) => {
@@ -66,6 +72,12 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
       console.error('Error deleting book:', error);
       message.error(t('common.templates.deleteFailed', { entity: t('common.entities.bookGeneric') }));
     } finally {
+      if (bookId === readingId) {
+        setReadingId(null)
+      }
+      await db.deleteReadingProgress(bookId)
+      await updateReadingProgress()
+      await updateBook()
       setLoading(false);
     }
   };
@@ -108,6 +120,9 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
       message.error(t('common.templates.updateFailed', { entity: t('common.entities.bookGeneric') }));
     } finally {
       setLoading(false);
+      await db.resetReadingProgress(bookId)
+      await updateReadingProgress()
+      await updateBook()
       onClose();
     }
   }, [bookId, router, t, getBookForEdit]);

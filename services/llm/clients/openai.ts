@@ -118,8 +118,7 @@ export function createOpenAIClient(provider: Provider, model: Model, options?: C
         return
       }
 
-      console.error('Stream completion error:', error);
-      message.error(String(error))
+      displayError(error, 'Stream completion')
       throw error;
     }
   }
@@ -150,8 +149,7 @@ export function createOpenAIClient(provider: Provider, model: Model, options?: C
       if (signal?.aborted) {
         return ''
       }
-      console.error('Completion error:', error);
-      message.error(String(error))
+      displayError(error, 'Completion')
       throw error;
     }
   }
@@ -258,4 +256,10 @@ async function* processUnifiedStream(stream: AsyncIterable<OpenAI.Chat.Completio
       yield '</think>';
     }
   }
+}
+
+function displayError(error: unknown, type: string): void {
+  console.error(type ? `${type} error:` : '', error)
+  const errorMessage = String(error).slice(0, 100)
+  message.error(errorMessage + (String(error).length > 100 ? '...' : ''))
 }
