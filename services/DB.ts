@@ -234,13 +234,10 @@ class BookDB extends Dexie {
    * 删除书籍阅读信息
    * @param bookId 书籍id
    * @returns {Promise<void>}
-   * @throws {Error} 当阅读信息不存在时抛出异常
    */
   async deleteReadingProgress(bookId: string): Promise<void> {
     const exists = await this.readingProgress.get(bookId)
-    if (!exists) {
-      throw new Error('Reading progress not found')
-    }
+    if (!exists) return
     await this.readingProgress.delete(bookId)
   }
   /**
