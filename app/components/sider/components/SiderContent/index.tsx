@@ -161,7 +161,7 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
     setWordDetails("")
     handleTabChange('word-details')
     if (!defaultLLMClient) return
-    const wordDetailGenerator = defaultLLMClient.completionsGenerator([{ role: 'user', content: `${word} ${sentence}` }], INPUT_PROMPT.WORD_DETAILS, signal)
+    const wordDetailGenerator = defaultLLMClient.completionsGenerator([{ role: 'user', content: `${word} ${sentence}` }], INPUT_PROMPT.FUNC_WORD_DETAILS, signal)
     for await (const chunk of wordDetailGenerator) {
       if (!chunk) continue
       setWordDetails((prev) => (prev || "") + chunk)

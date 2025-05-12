@@ -25,6 +25,7 @@
     "openai": "^4.86.1",
     "react": "^18",
     "react-dom": "^18",
+    "vditor": "^3.11.0",
     "zustand": "^5.0.3"
   },
   "devDependencies": {

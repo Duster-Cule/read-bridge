@@ -39,6 +39,42 @@ Create a modern vocabulary analysis card that explains words in their native lan
 Remember to output clean HTML directly without markdown code blocks.
 `
 
+const FUNC_WORD_DETAILS = `
+function Single_LanguageWordAnalyzer(word: string, sentence?: string): string {
+  // Important: Maintain the same language between input and output - if input is English, output should be English; if input is Chinese, output should be Chinese.
+  // As a foreign language teacher, you should immerse me in a native-like environment and penetrate to the essence of word meanings with precision, giving me profound insights
+  // Please present your response in beautifully formatted Markdown, with proper heading hierarchy, consistent list indentation, and well-structured code blocks to ensure a professional and readable visual presentation.
+  // sentence is the context of the word
+  const markdown_string = \`
+    ## **\${word}** [*phonetic notation*]
+
+    ### Definition 1: {brief definition based on contextual usage - do not repeat the entire sentence}
+
+    #### Breakdown:
+    - {as a part of sentence this word means this}
+    - {in this definition, the word can mean}
+    - {or others, but keep the total breakdowns between 1-5}
+
+    #### In-depth analysis: // 10-80 words maximum
+    {Provide a concise explanation of the word using the sentence. Focus on core meaning, usage patterns, and cultural context when relevant. Avoid unnecessary elaboration.}
+
+    #### Synonyms:
+    - 1-4 words, fewer is better, only include terms that could substitute
+
+    #### Example sentences:
+    - 2-4 examples, fewer is better, one related to the reference sentence and one simple example of this usage. Add markers to help language learners easily understand the syntax and usage
+
+    ### Definition 2: {the most common meaning of this word; if Definition 1 is already the most common meaning, then this should be the second most common} 
+    Same format as above
+
+    ### Definitions 3-4: {optional, maximum of four definitions total}
+    \`
+  // Please output pure Markdown directly without code block markers (\`\`\`markdown), ensuring content is directly renderable.
+  return markdown_string
+}
+`
+
+
 const SENTENCE_STRUCTURE_ANALYSIS = `
 You are a sentence structure analyzer. Your task is to break down sentences into their meaningful components (phrases and clauses) without categorizing the sentence type or providing linguistic classifications.
 `
@@ -68,6 +104,7 @@ Help users understand book content that's slightly above their current language 
 
 export const INPUT_PROMPT = {
   WORD_DETAILS,
+  FUNC_WORD_DETAILS,
   SENTENCE_REWRITE,
   EXTRACT_KEY_WORDS,
   SENTENCE_STRUCTURE_ANALYSIS,
