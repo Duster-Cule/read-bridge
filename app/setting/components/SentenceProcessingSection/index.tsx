@@ -96,7 +96,7 @@ export default function SentenceProcessingSection() {
               ]}
             >
               <List.Item.Meta
-                title={<Typography.Title level={5}>{item.name}</Typography.Title>}
+                title={item.name}
                 description={
                   <Space direction="vertical" size="small" style={{ width: '100%' }}>
                     <Typography.Text type="secondary">{t('settings.sentenceType')}: {typeMap[item.type as keyof typeof typeMap] || item.type}</Typography.Text>
