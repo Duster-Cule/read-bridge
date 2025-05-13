@@ -40,18 +40,18 @@ export default function WordDetails({ wordDetails }: { wordDetails: string }) {
           if (vditor && typeof vditor.destroy === 'function') {
             vditor.destroy();
           }
-        } catch (error) { }
+        } catch { }
         vditorRef.current = null
       };
     }
-  }, [previewRef]);
+  }, [previewRef, theme]);
 
   useEffect(() => {
     if (!vditorReady || !vditorRef.current || !previewRef.current || typeof vditorRef.current.setValue !== 'function') return
     try {
       vditorRef.current.setValue(wordDetails)
-    } catch (error) {
-      console.error('Error setting Vditor value:', error);
+    } catch {
+      console.error('Error setting Vditor value');
     }
   }, [wordDetails, vditorReady]);
 
@@ -64,7 +64,7 @@ export default function WordDetails({ wordDetails }: { wordDetails: string }) {
         theme === 'dark' ? 'dark' : 'light',
         theme === 'dark' ? 'github-dark' : 'github'
       )
-    } catch (error) { }
+    } catch { }
   }, [theme, vditorReady]);
 
   return (

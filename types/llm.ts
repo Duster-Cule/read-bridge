@@ -36,7 +36,7 @@ export type Client = {
 }
 
 export type ClientOptions = {
-  maxTokens?: number
+  max_tokens?: number
   [key: string]: number | string | undefined
 }
 
