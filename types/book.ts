@@ -1,7 +1,7 @@
-import { BOOK_FORMAT } from '@/constants/book';
+import { BOOK_FORMAT, BOOK_MIME_TYPE } from '@/constants/book';
 
 export type BOOK_FORMAT_TYPE = typeof BOOK_FORMAT[keyof typeof BOOK_FORMAT];
-
+export type BOOK_MIME_TYPE_TYPE = typeof BOOK_MIME_TYPE[keyof typeof BOOK_MIME_TYPE];
 export interface Resource {
   data: string;    // base64
   mediaType: string;

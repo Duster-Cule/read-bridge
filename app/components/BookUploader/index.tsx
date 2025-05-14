@@ -24,7 +24,17 @@ const props: UploadProps = {
   showUploadList: false,
   customRequest: async (options) => {
     const { file } = options;
-    const result = await handleFileUpload(file as File);
+    let fileToUpload = file as any as File;
+
+    if (fileToUpload.name.endsWith('.md') && !fileToUpload.type) {
+      fileToUpload = new File(
+        [fileToUpload],
+        fileToUpload.name,
+        { type: 'text/markdown' }
+      );
+    }
+
+    const result = await handleFileUpload(fileToUpload);
     options.onSuccess?.(result);
   },
   accept: Object.values(BOOK_FORMAT).map(format => `.${format}`).join(','),

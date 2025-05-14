@@ -1,7 +1,9 @@
-import { BOOK_FORMAT } from '@/constants/book';
-import type { BOOK_FORMAT_TYPE, FormattedBook } from '@/types/book';
+import { BOOK_MIME_TYPE } from '@/constants/book';
+import type { BOOK_MIME_TYPE_TYPE, FormattedBook } from '@/types/book';
 
 import { initEpubBook } from '@/services/Epub';
+import { initTXTBook } from '@/services/TXT';
+
 import type { Book } from '@/types/book';
 
 /**
@@ -13,22 +15,29 @@ import type { Book } from '@/types/book';
  * @returns 完成处理书籍
  * @throws 
  */
-export async function processBook(buffer: Buffer, format: BOOK_FORMAT_TYPE, name: string, hash: string): Promise<Book> {
+export async function processBook(buffer: Buffer, type: BOOK_MIME_TYPE_TYPE, name: string, hash: string): Promise<Book> {
   let initFile: FormattedBook | null = null
   try {
-    switch (format) {
-      case BOOK_FORMAT.EPUB:
-      case BOOK_FORMAT.EPUBZIP:
+    switch (type) {
+      case BOOK_MIME_TYPE.EPUB:
         initFile = initEpubBook(buffer)
         break
+      case BOOK_MIME_TYPE.TXT:
+        initFile = initTXTBook(buffer, name)
+        break
+      // case BOOK_MIME_TYPE.MD:
+      //   initFile = initMDBook(buffer, name)
+      //   break
       default:
-        throw new Error(`Unsupported book format: ${format}`)
+        throw new Error(`Unsupported book format: ${type}`)
     }
   } catch (error) {
     if (error instanceof Error) throw error
     throw new Error(String(error))
   }
-
+  if (!initFile) {
+    throw new Error('Failed to initialize book')
+  }
   const book = createBookModel(initFile, hash)
   return book
 }

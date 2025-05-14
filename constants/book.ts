@@ -1,15 +1,19 @@
-export const BOOK_FORMAT = {
-  EPUB: 'epub',
-  EPUBZIP: 'epub+zip',
-  // MD: 'md',
-  // TXT: 'txt'
+export const BOOK_MIME_TYPE = {
+  EPUB: 'application/epub+zip',
+  TXT: 'text/plain',
+  // MD: 'text/markdown',
 } as const;
 
+export const BOOK_FORMAT = {
+  EPUB: 'epub',
+  TXT: 'txt',
+  // MD: 'md',
+} as const;
 
 export const COMMON_LANGUAGES = [
   { code: 'zh', name: '中文' },
-  { code: 'zh-CN', name: '简体中文' },
-  { code: 'zh-TW', name: '繁體中文' },
+  { code: 'zh-Hans', name: '简体中文' },
+  { code: 'zh-Hant', name: '繁體中文' },
   { code: 'en', name: 'English' },
   { code: 'en-US', name: 'English (US)' },
   { code: 'en-GB', name: 'English (UK)' },

@@ -1,7 +1,7 @@
 // import crypto from 'crypto';
 
-import { BOOK_FORMAT } from '@/constants/book';
-import type { BOOK_FORMAT_TYPE } from '@/types/book';
+import { BOOK_FORMAT, BOOK_MIME_TYPE } from '@/constants/book';
+import type { BOOK_FORMAT_TYPE, BOOK_MIME_TYPE_TYPE } from '@/types/book';
 import { UPLOAD_CONFIG } from '@/constants/upload';
 
 import { processBook } from '@/services/BookService';
@@ -21,8 +21,8 @@ export async function handleFileUpload(
     throw new Error('No file uploaded');
   }
   const { name, size, type } = file
-  const format = type.split('/')[1];
-  if (!isValidBookFormat(format)) {
+
+  if (!isValidBookFormat(type)) {
     throw new Error('Invalid file format');
   }
 
@@ -43,7 +43,7 @@ export async function handleFileUpload(
 
   // 进行书籍初始化
   try {
-    const book = await processBook(buffer, format, nameWithoutExt, hash);
+    const book = await processBook(buffer, type, nameWithoutExt, hash);
     return book;
   } catch (error) {
     if (error instanceof Error) throw error;
@@ -51,6 +51,6 @@ export async function handleFileUpload(
   }
 }
 
-function isValidBookFormat(format: string): format is BOOK_FORMAT_TYPE {
-  return Object.values(BOOK_FORMAT).includes(format as BOOK_FORMAT_TYPE);
+function isValidBookFormat(format: string): format is BOOK_MIME_TYPE_TYPE {
+  return Object.values(BOOK_MIME_TYPE).includes(format as BOOK_MIME_TYPE_TYPE);
 } 
