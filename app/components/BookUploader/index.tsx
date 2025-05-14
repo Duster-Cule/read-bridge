@@ -24,7 +24,7 @@ const props: UploadProps = {
   showUploadList: false,
   customRequest: async (options) => {
     const { file } = options;
-    let fileToUpload = file as any as File;
+    let fileToUpload = file as File;
 
     if (fileToUpload.name.endsWith('.md') && !fileToUpload.type) {
       fileToUpload = new File(
