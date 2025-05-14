@@ -24,7 +24,7 @@ export function useReadingProgress() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [readingId])
 
-  async function updateReadingProgress() {
+  const updateReadingProgress = useCallback(async () => {
     if (!readingId) return
     try {
       const res = await db.getCurrentLocation(readingId)
@@ -32,7 +32,7 @@ export function useReadingProgress() {
     } catch (err) {
       console.error(err)
     }
-  }
+  }, [readingId])
   return [readingProgress, updateReadingProgress] as const
 }
 
