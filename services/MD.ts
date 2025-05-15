@@ -12,7 +12,7 @@ export function initMDBook(buffer: Buffer, name: string): FormattedBook {
   const language = detectLanguage(mdString.slice(0, 500))
 
   // 将h3和h4转换为普通段落
-  $('h3, h4').each((_, elem) => {
+  $('h3, h4, h5').each((_, elem) => {
     const content = $(elem).html() || ''
     $(elem).replaceWith(`<p>${content}</p>`)
   })
