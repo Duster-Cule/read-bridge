@@ -1,7 +1,7 @@
 // import crypto from 'crypto';
 
-import { BOOK_FORMAT, BOOK_MIME_TYPE } from '@/constants/book';
-import type { BOOK_FORMAT_TYPE, BOOK_MIME_TYPE_TYPE } from '@/types/book';
+import { BOOK_MIME_TYPE } from '@/constants/book';
+import type { BOOK_MIME_TYPE_TYPE } from '@/types/book';
 import { UPLOAD_CONFIG } from '@/constants/upload';
 
 import { processBook } from '@/services/BookService';

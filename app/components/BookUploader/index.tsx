@@ -34,8 +34,13 @@ const props: UploadProps = {
       );
     }
 
-    const result = await handleFileUpload(fileToUpload);
-    options.onSuccess?.(result);
+    try {
+      const result = await handleFileUpload(fileToUpload);
+      options.onSuccess?.(result);
+    } catch (error) {
+      if (error instanceof Error) options.onError?.(error)
+      else options.onError?.(new Error(String(error)));
+    }
   },
   accept: Object.values(BOOK_FORMAT).map(format => `.${format}`).join(','),
 

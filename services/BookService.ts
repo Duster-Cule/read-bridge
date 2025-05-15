@@ -5,6 +5,7 @@ import { initEpubBook } from '@/services/Epub';
 import { initTXTBook } from '@/services/TXT';
 
 import type { Book } from '@/types/book';
+import { initMDBook } from './MD';
 
 /**
  * 处理书籍
@@ -25,9 +26,9 @@ export async function processBook(buffer: Buffer, type: BOOK_MIME_TYPE_TYPE, nam
       case BOOK_MIME_TYPE.TXT:
         initFile = initTXTBook(buffer, name)
         break
-      // case BOOK_MIME_TYPE.MD:
-      //   initFile = initMDBook(buffer, name)
-      //   break
+      case BOOK_MIME_TYPE.MD:
+        initFile = initMDBook(buffer, name)
+        break
       default:
         throw new Error(`Unsupported book format: ${type}`)
     }
