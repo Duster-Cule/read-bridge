@@ -5,7 +5,6 @@ import { useTheme } from 'next-themes';
 import { useStyleStore } from '@/store/useStyleStore';
 import { useEffect, useState } from 'react';
 
-
 export default function Footer() {
   const { theme: currentTheme } = useTheme();
   const { token } = theme.useToken();

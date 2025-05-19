@@ -60,6 +60,9 @@ function AntdProvider({ children }: { children: React.ReactNode }) {
           colorBgContainer: '#313131',
           colorBorderSecondary: '#636363',
           bodyPadding: 8
+        },
+        Menu: {
+          colorBgContainer: '#1f1f1f',
         }
       },
       light: {
@@ -67,7 +70,7 @@ function AntdProvider({ children }: { children: React.ReactNode }) {
           bodyPadding: 8,
           colorBorderSecondary: '#d4d4d4'
         }
-      }
+      },
     };
 
     return components[currentTheme === 'dark' ? 'dark' : 'light'];

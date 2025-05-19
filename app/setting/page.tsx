@@ -62,8 +62,8 @@ export default function Setting() {
     <Layout className="w-full h-full p-4 " >
       <Sider
         width={200}
+        className="h-full"
         style={{
-          background: token.colorBgContainer,
           position: "fixed",
           left: 0,
           overflow: "auto",
@@ -71,10 +71,11 @@ export default function Setting() {
       >
         <Menu
           mode="inline"
-          style={{ borderRight: 0 }}
+          className="h-full"
           items={menuItems}
           defaultSelectedKeys={["ai"]}
           onClick={({ key }) => handleMenuClick(key.toString())}
+
         />
       </Sider>
       <Content

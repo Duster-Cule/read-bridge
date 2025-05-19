@@ -123,11 +123,11 @@ export default function AiSection() {
 
   return (
     <Card className='h-[50vh] flex justify-between overflow-hidden'>
-      <div className='w-[20%] flex flex-col overflow-y-auto'>
+      <div className='w-[20%] h-full flex flex-col overflow-y-auto'>
         <Menu
-          mode="inline"
+          mode="vertical"
           selectedKeys={[selectedProviderId]}
-          className="w-full"
+          className="w-full h-40vh"
           items={menuItems}
           onClick={handleMenuSelect}
         />
