@@ -2,6 +2,7 @@ import { Form, Select, Slider, Row, Col, Button, Tooltip } from 'antd';
 import { SoundOutlined } from "@ant-design/icons";
 import useTranslation from "@/i18n/useTranslation";
 import { useState, useEffect } from 'react';
+import { TTSAPI } from '@/types/tts';
 
 const { Option } = Select;
 
@@ -28,15 +29,8 @@ interface TTSConfig {
 interface TTSFormProps {
   ttsConfig: TTSConfig;
   providerId: string;
-  setTTSConfig: (provider: string, config: any) => void;
-  TTS: {
-    getVoices: () => any[];
-    speak: (text: string, voiceType: string, speedRatio: number) => void;
-    pause: () => void;
-    resume: () => void;
-    stop: () => void;
-    getStatus: () => { isSpeaking: boolean; isPaused: boolean };
-  };
+  setTTSConfig: (provider: string, config: TTSConfig) => void;
+  TTS: TTSAPI
 }
 
 export default function TTSForm({
