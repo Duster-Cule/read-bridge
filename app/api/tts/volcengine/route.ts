@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { TTSRequest } from '@/app/types/tts';
 
+export const runtime = 'edge';
+
 const VOLCENGINE_TTS_URL = 'https://openspeech.bytedance.com/api/v1/tts';
 
 export async function POST(req: Request) {

@@ -109,7 +109,14 @@
     "sentenceConfigPrompt": "规则提示词",
     "resetSentenceConfig": "重置句子配置",
     "resetSentenceConfigDescription": "确定要将句子配置重置为默认吗？",
-    "batchProcessingSizeTooltip": "选择一次性处理的句子数量，建议根据实际需求选择合适的数量"
+    "batchProcessingSizeTooltip": "选择一次性处理的句子数量，建议根据实际需求选择合适的数量",
+    "ttsConfig": "发音源设置",
+    "ttsVoice": "发音人",
+    "ttsSpeed": "语速",
+    "autoSentenceTTS": "自动朗读句子",
+    "autoWordTTS": "自动朗读单词",
+    "systemTTS": "系统TTS",
+    "volcengineTTS": "火山引擎TTS"
   },
   "sider": {
     "selectSentence": "选中句子",

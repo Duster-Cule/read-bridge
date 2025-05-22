@@ -107,7 +107,14 @@
     "sentenceConfigPrompt": "Rule Prompt",
     "resetSentenceConfig": "Reset Sentence Config",
     "resetSentenceConfigDescription": "Are you sure you want to reset the sentence configurations to default?",
-    "batchProcessingSizeTooltip": "Select the number of sentences to process at once, choose an appropriate number based on your needs"
+    "batchProcessingSizeTooltip": "Select the number of sentences to process at once, choose an appropriate number based on your needs",
+    "ttsConfig": "TTS Configuration",
+    "ttsVoice": "Voice",
+    "ttsSpeed": "Speed",
+    "autoSentenceTTS": "Auto Pronunciation of Sentence",
+    "autoWordTTS": "Auto Pronunciation of Word",
+    "systemTTS": "System TTS",
+    "volcengineTTS": "Volcengine TTS"
   },
   "sider": {
     "selectSentence": "Select Sentence",
