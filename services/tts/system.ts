@@ -1,5 +1,3 @@
-import { useTTSStore } from "@/store/useTTSStore"
-
 function getSystemTTS() {
   // 检查浏览器是否支持语音合成API
   const isSpeechSynthesisSupported = typeof window !== 'undefined' &&
