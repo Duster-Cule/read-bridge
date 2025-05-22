@@ -22,6 +22,14 @@ interface TTSStore {
     appid?: string
     token?: string
   }) => void
+  ttsGlobalConfig: {
+    autoSentenceTTS: boolean
+    autoWordTTS: boolean
+  }
+  setTTSGlobalConfig: (config: {
+    autoSentenceTTS?: boolean
+    autoWordTTS?: boolean
+  }) => void
 }
 
 export const useTTSStore = create<TTSStore>()(
@@ -32,11 +40,11 @@ export const useTTSStore = create<TTSStore>()(
 
       ttsConfig: {
         system: {
-          voiceType: 'xiaoyan',
+          voiceType: '',
           speedRatio: '1.0',
         },
         volcengine: {
-          voiceType: 'xiaoyan',
+          voiceType: '',
           speedRatio: '1.0',
           appid: '',
           token: '',
@@ -46,6 +54,17 @@ export const useTTSStore = create<TTSStore>()(
         ttsConfig: {
           ...state.ttsConfig,
           [type]: config,
+        },
+      })),
+
+      ttsGlobalConfig: {
+        autoSentenceTTS: true,
+        autoWordTTS: true,
+      },
+      setTTSGlobalConfig: (config) => set((state) => ({
+        ttsGlobalConfig: {
+          ...state.ttsGlobalConfig,
+          ...config,
         },
       })),
     }),

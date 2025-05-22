@@ -116,7 +116,8 @@
     "autoSentenceTTS": "自动朗读句子",
     "autoWordTTS": "自动朗读单词",
     "systemTTS": "系统TTS",
-    "volcengineTTS": "火山引擎TTS"
+    "volcengineTTS": "火山引擎TTS",
+    "testVoice": "测试语音"
   },
   "sider": {
     "selectSentence": "选中句子",

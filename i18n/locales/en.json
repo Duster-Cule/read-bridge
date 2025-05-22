@@ -114,7 +114,8 @@
     "autoSentenceTTS": "Auto Pronunciation of Sentence",
     "autoWordTTS": "Auto Pronunciation of Word",
     "systemTTS": "System TTS",
-    "volcengineTTS": "Volcengine TTS"
+    "volcengineTTS": "Volcengine TTS",
+    "testVoice": "Test Voice"
   },
   "sider": {
     "selectSentence": "Select Sentence",
