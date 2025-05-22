@@ -1,6 +1,7 @@
 import { Form, Select, Slider, Row, Col, Button, Tooltip } from 'antd';
 import { SoundOutlined } from "@ant-design/icons";
 import useTranslation from "@/i18n/useTranslation";
+import { useState, useEffect } from 'react';
 
 const { Option } = Select;
 
@@ -19,21 +20,16 @@ const testTextByLanguage: Record<string, string> = {
   'ru-RU': 'Это тест преобразования текста в речь',
 };
 
-interface SystemTTSConfig {
+interface TTSConfig {
   voiceType: string;
-  speedRatio: string;
+  speedRatio: number;
 }
 
-interface SystemTTSFormProps {
-  ttsConfig: SystemTTSConfig;
-  voiceOptions: Array<{
-    label: string;
-    options: Array<{ label: string; value: string }>;
-  }>;
-  voiceLanguageMap: Record<string, string>;
+interface TTSFormProps {
+  ttsConfig: TTSConfig;
   providerId: string;
   setTTSConfig: (provider: string, config: any) => void;
-  systemTTS: {
+  TTS: {
     getVoices: () => any[];
     speak: (text: string, voiceType: string, speedRatio: number) => void;
     pause: () => void;
@@ -43,15 +39,50 @@ interface SystemTTSFormProps {
   };
 }
 
-export default function SystemTTSForm({
+export default function TTSForm({
   ttsConfig,
-  voiceOptions,
-  voiceLanguageMap,
   providerId,
   setTTSConfig,
-  systemTTS
-}: SystemTTSFormProps) {
+  TTS
+}: TTSFormProps) {
   const { t } = useTranslation();
+  const [voiceOptions, setVoiceOptions] = useState<Array<{
+    label: string;
+    options: Array<{ label: string; value: string }>;
+  }>>([]);
+  const [voiceLanguageMap, setVoiceLanguageMap] = useState<Record<string, string>>({});
+
+  // 获取系统可用的声音列表
+  useEffect(() => {
+    const voices = TTS.getVoices();
+
+    // 按语言分组
+    const voicesByLang: Record<string, { label: string, value: string }[]> = {};
+    const voiceLangMap: Record<string, string> = {};
+
+    voices.forEach(voice => {
+      const lang = voice.lang || 'Unknown';
+      if (!voicesByLang[lang]) {
+        voicesByLang[lang] = [];
+      }
+      voicesByLang[lang].push({
+        label: voice.name,
+        value: voice.name
+      });
+
+      // 保存每个声音对应的语言
+      voiceLangMap[voice.name] = lang;
+    });
+
+    // 转换为分组后的选项
+    setVoiceOptions(Object.entries(voicesByLang).map(([lang, voices]) => ({
+      label: lang,
+      options: voices
+    })));
+
+    // 保存声音到语言的映射
+    setVoiceLanguageMap(voiceLangMap);
+  }, [TTS]);
 
   // 处理声音类型变更
   const handleVoiceChange = (value: string) => {
@@ -65,7 +96,7 @@ export default function SystemTTSForm({
   const handleSpeedChange = (value: number) => {
     setTTSConfig(providerId, {
       ...ttsConfig,
-      speedRatio: value.toString()
+      speedRatio: value
     });
   };
 
@@ -77,10 +108,10 @@ export default function SystemTTSForm({
     // 获取对应语言的测试文本，如果没有则使用英文
     const testText = testTextByLanguage[voiceLanguage] || testTextByLanguage['en-US'];
 
-    systemTTS.speak(
+    TTS.speak(
       testText,
       selectedVoice,
-      parseFloat(ttsConfig.speedRatio)
+      ttsConfig.speedRatio
     );
   };
 
@@ -125,7 +156,7 @@ export default function SystemTTSForm({
             min={0.5}
             max={2}
             step={0.1}
-            value={parseFloat(ttsConfig.speedRatio)}
+            value={ttsConfig.speedRatio}
             onChange={handleSpeedChange}
             tooltip={{ formatter: (value) => `${value}x` }}
             style={{ width: 240 }}

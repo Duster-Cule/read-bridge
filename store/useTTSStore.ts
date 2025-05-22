@@ -7,18 +7,18 @@ interface TTSStore {
   ttsConfig: {
     system: {
       voiceType: string
-      speedRatio: string
+      speedRatio: number
     }
     volcengine: {
       voiceType: string
-      speedRatio: string
+      speedRatio: number
       appid: string
       token: string
     }
   }
   setTTSConfig: (type: string, config: {
     voiceType: string
-    speedRatio: string
+    speedRatio: number
     appid?: string
     token?: string
   }) => void
@@ -41,11 +41,11 @@ export const useTTSStore = create<TTSStore>()(
       ttsConfig: {
         system: {
           voiceType: '',
-          speedRatio: '1.0',
+          speedRatio: 1.0,
         },
         volcengine: {
           voiceType: '',
-          speedRatio: '1.0',
+          speedRatio: 1.0,
           appid: '',
           token: '',
         },

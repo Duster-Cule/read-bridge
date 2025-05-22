@@ -1,11 +1,13 @@
-function getSystemTTS() {
+import { TTSAPI, Voice } from "@/types/tts";
+
+function getSystemTTS(): TTSAPI {
   // 检查浏览器是否支持语音合成API
   const isSpeechSynthesisSupported = typeof window !== 'undefined' &&
     'speechSynthesis' in window &&
     'SpeechSynthesisUtterance' in window;
 
   // 本地存储声音列表
-  let voices: SpeechSynthesisVoice[] = [];
+  let voices: Voice[] = [];
 
   // 当声音列表准备好时加载
   if (isSpeechSynthesisSupported) {
@@ -23,7 +25,7 @@ function getSystemTTS() {
   // 判断是否暂停
   let isPaused = false;
 
-  function getVoices(): SpeechSynthesisVoice[] {
+  function getVoices(): Voice[] {
     if (!isSpeechSynthesisSupported) {
       console.warn('Speech synthesis is not supported in this browser');
       return [];
@@ -58,7 +60,7 @@ function getSystemTTS() {
     const voice = voices.find(v => v.name === voiceType);
 
     if (voice) {
-      utterance.voice = voice;
+      utterance.voice = voice as SpeechSynthesisVoice;
     } else {
       console.warn(`Voice "${voiceType}" not found, using default voice`);
     }

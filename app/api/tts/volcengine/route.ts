@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { TTSRequest } from '@/app/types/tts';
+import { TTSRequest } from '@/types/tts';
 
 export const runtime = 'edge';
 

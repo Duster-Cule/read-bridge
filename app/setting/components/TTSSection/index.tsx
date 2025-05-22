@@ -1,10 +1,10 @@
-import { Menu } from "antd";
+import { Menu, Switch } from "antd";
 import { Card } from "../index";
 import useTranslation from "@/i18n/useTranslation";
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTTSStore } from "@/store/useTTSStore";
-import getSystemTTS from "@/services/tts/system";
-import { SystemTTSForm } from "./cpns";
+import { getSystemTTS, getVolcengineTTS } from "@/services/tts";
+import { TTSForm } from "./cpns";
 
 export default function TTSSection() {
   const { t } = useTranslation()
@@ -13,59 +13,22 @@ export default function TTSSection() {
     setTTSProvider,
     ttsConfig,
     setTTSConfig,
+    ttsGlobalConfig,
+    setTTSGlobalConfig
   } = useTTSStore()
   const [selectedProviderId, setSelectedProviderId] = useState<string>(ttsProvider)
-  const [voiceOptions, setVoiceOptions] = useState<Array<{
-    label: string;
-    options: Array<{ label: string; value: string }>;
-  }>>([])
-  const [voiceLanguageMap, setVoiceLanguageMap] = useState<Record<string, string>>({})
 
-  const systemTTS = getSystemTTS()
-
-  // 获取系统可用的声音列表
-  useEffect(() => {
-    if (selectedProviderId === 'system') {
-      const voices = systemTTS.getVoices()
-
-      // 按语言分组
-      const voicesByLang: Record<string, { label: string, value: string }[]> = {}
-      const voiceLangMap: Record<string, string> = {}
-
-      voices.forEach(voice => {
-        const lang = voice.lang || 'Unknown'
-        if (!voicesByLang[lang]) {
-          voicesByLang[lang] = []
-        }
-        voicesByLang[lang].push({
-          label: voice.name,
-          value: voice.name
-        })
-
-        // 保存每个声音对应的语言
-        voiceLangMap[voice.name] = lang
-      })
-
-      // 转换为分组后的选项
-      setVoiceOptions(Object.entries(voicesByLang).map(([lang, voices]) => ({
-        label: lang,
-        options: voices
-      })))
-
-      // 保存声音到语言的映射
-      setVoiceLanguageMap(voiceLangMap)
-    }
-  }, [selectedProviderId])
-
+  const systemTTS = useMemo(() => getSystemTTS(), [])
+  const volcengineTTS = useMemo(() => getVolcengineTTS(ttsConfig.volcengine.token, ttsConfig.volcengine.appid), [ttsConfig.volcengine.token, ttsConfig.volcengine.appid])
   const menuItems = [
     {
       key: 'system',
       label: t('settings.systemTTS'),
     },
-    {
-      key: 'volcengine',
-      label: t('settings.volcengineTTS'),
-    },
+    // {
+    //   key: 'volcengine',
+    //   label: t('settings.volcengineTTS'),
+    // },
   ]
 
   const handleMenuSelect = useCallback(({ key }: { key: string }) => {
@@ -86,18 +49,42 @@ export default function TTSSection() {
 
     <div className="p-4 flex-1 overflow-y-auto">
       {selectedProviderId === 'system' && (
-        <SystemTTSForm
+        <TTSForm
           ttsConfig={ttsConfig.system}
-          voiceOptions={voiceOptions}
-          voiceLanguageMap={voiceLanguageMap}
           providerId="system"
           setTTSConfig={setTTSConfig}
-          systemTTS={systemTTS}
+          TTS={systemTTS}
+        />
+      )}
+      {selectedProviderId === 'volcengine' && (
+        <TTSForm
+          ttsConfig={ttsConfig.volcengine}
+          providerId="volcengine"
+          setTTSConfig={setTTSConfig}
+          TTS={volcengineTTS}
         />
       )}
     </div>
-    <div className="w-[20%] flex-1 flex flex-col overflow-y-auto">
-
+    <div className="w-[25%] flex flex-col overflow-y-auto border-l border-[var(--ant-color-border)]">
+      <div className="p-4">
+        <h3 className="mb-4 font-medium">{t('settings.globalTTSSettings')}</h3>
+        <div className="flex flex-col gap-4">
+          <div className="flex justify-between items-center">
+            <span>{t('settings.autoSentenceTTS')}</span>
+            <Switch
+              checked={ttsGlobalConfig.autoSentenceTTS}
+              onChange={(checked) => setTTSGlobalConfig({ autoSentenceTTS: checked })}
+            />
+          </div>
+          <div className="flex justify-between items-center">
+            <span>{t('settings.autoWordTTS')}</span>
+            <Switch
+              checked={ttsGlobalConfig.autoWordTTS}
+              onChange={(checked) => setTTSGlobalConfig({ autoWordTTS: checked })}
+            />
+          </div>
+        </div>
+      </div>
     </div>
   </Card>
 }

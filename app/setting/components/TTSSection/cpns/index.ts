@@ -1,1 +1,1 @@
-export { default as SystemTTSForm } from './SystemTTSForm';
+export { default as TTSForm } from './TTSForm';
