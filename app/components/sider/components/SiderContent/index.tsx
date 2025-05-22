@@ -2,7 +2,7 @@ import { EVENT_NAMES, EventEmitter } from "@/services/EventService"
 import { createLLMClient } from "@/services/llm"
 import { useLLMStore } from "@/store/useLLMStore"
 import getGeneratorThinkAndHTMLTag from "@/utils/generator"
-import { Divider, Empty, message } from "antd"
+import { Divider, Empty } from "antd"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { CurrentSentence, MenuLine, Sentences, WordDetails } from "./cpns"
 import { useOutputOptions } from "@/store/useOutputOptions"
@@ -29,6 +29,7 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
   const { parseModel } = useLLMStore()
   const { getSpeak, ttsGlobalConfig, ttsConfig } = useTTSStore()
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const speak = useMemo(() => {
     if (ttsGlobalConfig.autoSentenceTTS || ttsGlobalConfig.autoWordTTS) {
       return getSpeak()
