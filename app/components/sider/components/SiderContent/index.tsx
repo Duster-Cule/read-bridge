@@ -2,13 +2,14 @@ import { EVENT_NAMES, EventEmitter } from "@/services/EventService"
 import { createLLMClient } from "@/services/llm"
 import { useLLMStore } from "@/store/useLLMStore"
 import getGeneratorThinkAndHTMLTag from "@/utils/generator"
-import { Divider, Empty } from "antd"
+import { Divider, Empty, message } from "antd"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { CurrentSentence, MenuLine, Sentences, WordDetails } from "./cpns"
 import { useOutputOptions } from "@/store/useOutputOptions"
 import { assemblePrompt, contextMessages, INPUT_PROMPT } from "@/constants/prompt"
 import { OUTPUT_PROMPT } from "@/constants/prompt"
 import { useTranslation } from "@/i18n/useTranslation"
+import { useTTSStore } from "@/store/useTTSStore"
 
 interface SiderContentProps {
   currentChapter: string[]
@@ -26,7 +27,13 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
   const [wordDetails, setWordDetails] = useState<string>("")
 
   const { parseModel } = useLLMStore()
+  const { getSpeak, ttsGlobalConfig, ttsConfig } = useTTSStore()
 
+  const speak = useMemo(() => {
+    if (ttsGlobalConfig.autoSentenceTTS || ttsGlobalConfig.autoWordTTS) {
+      return getSpeak()
+    } else return null
+  }, [getSpeak, ttsGlobalConfig.autoSentenceTTS, ttsGlobalConfig.autoWordTTS, ttsConfig])
   const controllerRef = useRef<AbortController | null>(null);
   const defaultLLMClient = useMemo(() => {
     return parseModel
@@ -73,6 +80,10 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
       text = currentChapter[index]
     }
 
+    // 阅读
+    if (speak && text && ttsGlobalConfig.autoSentenceTTS) {
+      speak(text)
+    }
     setSelectedTab("sentence-analysis")
     setSentence(text)
     setWord("")
@@ -160,6 +171,12 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
 
     setWordDetails("")
     handleTabChange('word-details')
+
+    // 阅读
+    if (speak && word && ttsGlobalConfig.autoWordTTS) {
+      speak(word)
+    }
+
     if (!defaultLLMClient) return
     const wordDetailGenerator = defaultLLMClient.completionsGenerator([{ role: 'user', content: `${word} ${sentence}` }], INPUT_PROMPT.FUNC_WORD_DETAILS, signal)
     for await (const chunk of wordDetailGenerator) {
