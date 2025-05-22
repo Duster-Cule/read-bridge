@@ -1,5 +1,6 @@
 export const BOOK_MIME_TYPE = {
-  EPUB: 'application/epub+zip',
+  EPUB: 'application/epub',
+  EPUB_ZIP: 'application/epub+zip',
   TXT: 'text/plain',
   MD: 'text/markdown',
 } as const;
