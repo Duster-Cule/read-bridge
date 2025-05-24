@@ -8,7 +8,7 @@ import db from '@/services/DB';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from '@/i18n/useTranslation';
 import BookAddOrEditModal from '../BookAddOrEditModal';
-import { useReadingProgress } from '@/hooks/useReadingProgress';
+import { useReadingProgressStore } from '@/store/useReadingProgress';
 import { useBook } from '@/hooks/useBook';
 import { useSiderStore } from '@/store/useSiderStore';
 
@@ -30,7 +30,7 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
   const [editModalOpen, setEditModalOpen] = useState(false);
   const router = useRouter();
   const { readingId, setReadingId } = useSiderStore()
-  const [, updateReadingProgress] = useReadingProgress();
+  const { updateReadingProgress } = useReadingProgressStore()
   const [, , updateBook] = useBook()
   const { t } = useTranslation();
 
@@ -76,7 +76,7 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
         setReadingId(null)
       }
       await db.deleteReadingProgress(bookId)
-      await updateReadingProgress()
+      await updateReadingProgress(bookId)
       await updateBook()
       setLoading(false);
     }
@@ -121,7 +121,7 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
     } finally {
       setLoading(false);
       await db.resetReadingProgress(bookId)
-      await updateReadingProgress()
+      await updateReadingProgress(bookId)
       await updateBook()
       onClose();
     }
