@@ -5,7 +5,7 @@ import { LoadingOutlined, FileUnknownOutlined } from '@ant-design/icons';
 import { useEffect, useState } from "react"
 import ReadMenu from "./components/menu"
 import db from "@/services/DB"
-import { useReadingProgress } from "@/hooks/useReadingProgress"
+import { useReadingProgressStore } from "@/store/useReadingProgress"
 import { Spin, Result } from "antd"
 import ReadArea from "./components/readArea"
 
@@ -17,7 +17,7 @@ export default function ReadPage() {
   const [isChapterLoading, setIsChapterLoading] = useState(false)
   const [fadeVisible, setFadeVisible] = useState(true)
   const [book] = useBook()
-  const [readingProgress, updateReadingProgress] = useReadingProgress()
+  const { readingProgress, updateReadingProgress } = useReadingProgressStore()
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -52,7 +52,7 @@ export default function ReadPage() {
       setIsChapterLoading(true)
       const start = Date.now()
       await db.updateCurrentLocation(readingId, { chapterIndex: index, lineIndex: 0 })
-      await updateReadingProgress()
+      await updateReadingProgress(readingId)
       const elapsed = Date.now() - start
       if (elapsed < 200) {
         await new Promise(resolve => setTimeout(resolve, 200 - elapsed))

@@ -1,14 +1,16 @@
 'use client'
 
-import { useReadingProgress } from "@/hooks/useReadingProgress"
+import { useReadingProgressStore } from "@/store/useReadingProgress"
 import { usePathname } from "next/navigation"
 import React, { useEffect, useMemo } from "react"
 
 import SiderContent from "@/app/components/sider/components/SiderContent"
 import SiderChat from "@/app/components/sider/components/SiderChat"
+import { useSiderStore } from "@/store/useSiderStore"
 
 export default function Sider() {
-  const [readingProgress, updateReadingProgress] = useReadingProgress()
+  const { readingId } = useSiderStore()
+  const { readingProgress, updateReadingProgress } = useReadingProgressStore()
   const sentenceChapters = useMemo(() => {
     return readingProgress.sentenceChapters || null
   }, [readingProgress])
@@ -24,10 +26,10 @@ export default function Sider() {
 
   // 当返回阅读页面时 更新阅读进度
   useEffect(() => {
-    if (pathname.includes('/read')) {
-      updateReadingProgress()
+    if (pathname.includes('/read') && readingId) {
+      updateReadingProgress(readingId)
     }
-  }, [updateReadingProgress, pathname])
+  }, [updateReadingProgress, pathname, readingId])
 
 
   return (
