@@ -4,6 +4,33 @@ import { Collapse } from "antd"
 import { LoadingOutlined } from "@ant-design/icons"
 import { useCallback, useEffect, useState } from "react"
 
+// 自定义hook抽取think处理逻辑
+function useThinkGenerator(generator: AsyncGenerator<string, void, unknown>, outputType: 'text' | 'list') {
+  const [text, setText] = useState<string>("")
+  const [list, setList] = useState<string[]>([])
+  const [thinkContext, setThinkContext] = useState<string>('')
+
+  useEffect(() => {
+    setText("");
+    setList([]);
+    setThinkContext('')
+
+    if (outputType === 'text') {
+      handleThink(generator,
+        (value) => setText((prev) => prev + value),
+        (value) => setThinkContext((prev) => prev + value)
+      )
+    } else {
+      handleThink(generator,
+        (value) => setList((prev) => [...prev, value]),
+        (value) => setThinkContext((prev) => prev + value)
+      )
+    }
+  }, [generator, outputType])
+
+  return { text, list, thinkContext }
+}
+
 export default function Sentences({ sentenceProcessingList }: { sentenceProcessingList: { name: string, type: string, generator: AsyncGenerator<string, void, unknown> }[] }) {
   return (
     <div className="w-full h-[262px] overflow-y-auto p-4">
@@ -24,17 +51,8 @@ export default function Sentences({ sentenceProcessingList }: { sentenceProcessi
 }
 
 function TextGenerator({ generator }: { generator: AsyncGenerator<string, void, unknown> }) {
-  const [text, setText] = useState<string>("")
-  const [thinkContext, setThinkContext] = useState<string>('')
+  const { text, thinkContext } = useThinkGenerator(generator, 'text')
 
-  useEffect(() => {
-    setText("");
-    setThinkContext('')
-    handleThink(generator,
-      (value) => setText((prev) => prev + value),
-      (value) => setThinkContext((prev) => prev + value)
-    )
-  }, [generator])
   return <div>
     <ThinkCollapse thinkContext={thinkContext} />
     {text.length === 0 && <LoadingOutlined />}
@@ -48,17 +66,7 @@ function ListGenerator({ generator, type }: { generator: AsyncGenerator<string, 
     return <div className="text-[var(--ant-color-text)] mb-2" key={index}><span className=" font-semibold">{keyWord}</span>:{rest}</div>
   }, [])
 
-  const [list, setList] = useState<string[]>([])
-  const [thinkContext, setThinkContext] = useState<string>('')
-
-  useEffect(() => {
-    setList([])
-    setThinkContext('')
-    handleThink(generator,
-      (value) => setList((prev) => [...prev, value]),
-      (value) => setThinkContext((prev) => prev + value)
-    )
-  }, [generator, type])
+  const { list, thinkContext } = useThinkGenerator(generator, 'list')
 
   return (
     <div>
