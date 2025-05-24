@@ -31,6 +31,7 @@ export default function MarkdownViewer({
           id: "vditor-markdown-viewer"
         },
         minHeight,
+
         theme: theme === 'dark' ? 'dark' : 'classic',
         preview: {
           theme: {
@@ -40,6 +41,20 @@ export default function MarkdownViewer({
             style: theme === 'dark' ? 'github-dark' : 'github',
           },
         },
+        toolbar: ['edit-mode', 'fullscreen', {
+          name: "more",
+          toolbar: [
+            "both",
+            "code-theme",
+            "content-theme",
+            "export",
+            "outline",
+            "preview",
+            "devtools",
+            "info",
+            "help",
+          ],
+        },],
         after: () => {
           setVditorReady(true);
         },
