@@ -103,10 +103,9 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
         try {
           if (type === OUTPUT_TYPE.MD) {
             generator = defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, `theme: ${theme} output: ${OUTPUT_PROMPT[type]}`), signal)
+          } else {
+            generator = getGeneratorThinkAndHTMLTag(defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, OUTPUT_PROMPT[type]), signal))
           }
-          // const originGenerator = defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, OUTPUT_PROMPT[type]), signal)
-          // if (type != OUTPUT_TYPE.MD) generator = getGeneratorThinkAndHTMLTag(originGenerator)
-          // else generator = originGenerator
         } catch (error) {
           console.log(t('common.templates.analysisFailed', { entity: t('common.entities.sentenceAnalysisGeneric') }), error, index, name, type, text)
         }
