@@ -3,6 +3,7 @@ import { OUTPUT_TYPE } from "@/constants/prompt"
 import { Collapse } from "antd"
 import { LoadingOutlined } from "@ant-design/icons"
 import { useCallback, useEffect, useState } from "react"
+import MarkdownViewer from "@/app/components/common/MarkdownViewer"
 
 // 自定义hook抽取think处理逻辑
 function useThinkGenerator(generator: AsyncGenerator<string, void, unknown>, outputType: 'text' | 'list') {
@@ -31,20 +32,23 @@ function useThinkGenerator(generator: AsyncGenerator<string, void, unknown>, out
   return { text, list, thinkContext }
 }
 
-export default function Sentences({ sentenceProcessingList }: { sentenceProcessingList: { name: string, type: string, generator: AsyncGenerator<string, void, unknown> }[] }) {
+export default function Sentences({ sentenceProcessingList }: { sentenceProcessingList: { name: string, id: string, type: string, generator: AsyncGenerator<string, void, unknown> }[] }) {
   return (
     <div className="w-full h-[262px] overflow-y-auto p-4">
       {
-        sentenceProcessingList.map((item) => (
-          <CardComponent className="mb-2" key={item.name} title={item.name} loading={!item.generator}>
-            {
-              item.type === OUTPUT_TYPE.TEXT ? <TextGenerator generator={item.generator} /> :
-                item.type === OUTPUT_TYPE.SIMPLE_LIST ? <SimpleListGenerator generator={item.generator} /> :
-                  item.type === OUTPUT_TYPE.KEY_VALUE_LIST ? <KeyValueListGenerator generator={item.generator} /> :
-                    null
-            }
-          </CardComponent>
-        ))
+        sentenceProcessingList.map((item) => {
+          return (
+            item.type === OUTPUT_TYPE.MD ? <MDGenerator generator={item.generator} key={item.id} /> :
+              <CardComponent className="mb-2" key={item.id} title={item.name} loading={!item.generator}>
+                {
+                  item.type === OUTPUT_TYPE.TEXT ? <TextGenerator generator={item.generator} /> :
+                    item.type === OUTPUT_TYPE.SIMPLE_LIST ? <SimpleListGenerator generator={item.generator} /> :
+                      item.type === OUTPUT_TYPE.KEY_VALUE_LIST ? <KeyValueListGenerator generator={item.generator} /> :
+                        null
+                }
+              </CardComponent>
+          )
+        })
       }
     </div>
   )
@@ -120,3 +124,12 @@ function ThinkCollapse({ thinkContext }: { thinkContext: string }) {
     />
   );
 }
+
+function MDGenerator({ generator }: { generator: AsyncGenerator<string, void, unknown> }) {
+  const { text, thinkContext } = useThinkGenerator(generator, 'text')
+  return <>
+    <ThinkCollapse thinkContext={thinkContext} />
+    <MarkdownViewer content={text} />
+  </>
+}
+

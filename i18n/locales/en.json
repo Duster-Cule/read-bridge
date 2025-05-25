@@ -98,6 +98,7 @@
     "simpleList": "List Output",
     "text": "Text Output",
     "keyValueList": "Key Value List",
+    "markdown": "markdown",
     "sentenceTypeTooltip": "Text output is suitable for most cases, list output is suitable for displaying multiple results, key value list is suitable for extracting and explaining important elements in text, where the keyword is the 'key' and the corresponding explanation or background information is the 'value'. This format is particularly suitable for scenarios that require a deep analysis of sentences, highlighting important concepts and providing contextual explanations.",
     "addSentenceConfig": "Add Sentence Processing Configuration",
     "editSentenceConfig": "Edit Sentence Processing Configuration",

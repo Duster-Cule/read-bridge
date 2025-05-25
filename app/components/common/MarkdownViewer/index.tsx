@@ -3,7 +3,7 @@ import Vditor from "vditor"
 import { useTheme } from 'next-themes'
 import { Spin } from "antd"
 import { LoadingOutlined } from '@ant-design/icons'
-
+import './index.css'
 interface MarkdownViewerProps {
   content: string
   minHeight?: number

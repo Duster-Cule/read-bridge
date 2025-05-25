@@ -20,6 +20,7 @@ export default function SentenceProcessingSection() {
     [OUTPUT_TYPE.TEXT]: t('settings.text'),
     [OUTPUT_TYPE.SIMPLE_LIST]: t('settings.simpleList'),
     [OUTPUT_TYPE.KEY_VALUE_LIST]: t('settings.keyValueList'),
+    [OUTPUT_TYPE.MD]: t('settings.markdown')
   }), [t]);
 
   const handleAdd = () => {

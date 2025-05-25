@@ -6,18 +6,19 @@ import { Divider, Empty } from "antd"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { CurrentSentence, MenuLine, Sentences, WordDetails } from "./cpns"
 import { useOutputOptions } from "@/store/useOutputOptions"
-import { assemblePrompt, contextMessages, INPUT_PROMPT } from "@/constants/prompt"
+import { assemblePrompt, contextMessages, INPUT_PROMPT, OUTPUT_TYPE } from "@/constants/prompt"
 import { OUTPUT_PROMPT } from "@/constants/prompt"
 import { useTranslation } from "@/i18n/useTranslation"
 import { useTTSStore } from "@/store/useTTSStore"
-
+import { useTheme } from 'next-themes'
 interface SiderContentProps {
   currentChapter: string[]
 }
 
 export default function SiderContent({ currentChapter }: SiderContentProps) {
   const { t } = useTranslation()
-  const [sentenceProcessingList, setSentenceProcessingList] = useState<{ name: string, type: string, generator: AsyncGenerator<string, void, unknown> }[]>([])
+  const { theme } = useTheme()
+  const [sentenceProcessingList, setSentenceProcessingList] = useState<{ name: string, type: string, generator: AsyncGenerator<string, void, unknown>, id: string }[]>([])
   const { sentenceOptions, batchProcessingSize } = useOutputOptions()
   const [sentence, setSentence] = useState<string>("")
 
@@ -39,7 +40,7 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
   const defaultLLMClient = useMemo(() => {
     return parseModel
       ? createLLMClient(parseModel, {
-        max_tokens: 500
+        max_tokens: 2000
       })
       : null
   }, [parseModel])
@@ -97,15 +98,20 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
     const addProcessorsWithDelay = async () => {
       for (let i = 0; i < sentenceOptions.length; i++) {
         const option = sentenceOptions[i]
-        const { name, type, rulePrompt } = option
+        const { name, type, rulePrompt, id } = option
         let generator: AsyncGenerator<string, void, unknown> | null = null
         try {
-          generator = getGeneratorThinkAndHTMLTag(defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, OUTPUT_PROMPT[type]), signal))
+          if (type === OUTPUT_TYPE.MD) {
+            generator = defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, `theme: ${theme} output: ${OUTPUT_PROMPT[type]}`), signal)
+          }
+          // const originGenerator = defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, OUTPUT_PROMPT[type]), signal)
+          // if (type != OUTPUT_TYPE.MD) generator = getGeneratorThinkAndHTMLTag(originGenerator)
+          // else generator = originGenerator
         } catch (error) {
           console.log(t('common.templates.analysisFailed', { entity: t('common.entities.sentenceAnalysisGeneric') }), error, index, name, type, text)
         }
         if (generator) {
-          setSentenceProcessingList(prev => [...prev, { name, type, generator }])
+          setSentenceProcessingList(prev => [...prev, { name, type, generator, id }])
         }
 
         if (i < sentenceOptions.length - 1) {

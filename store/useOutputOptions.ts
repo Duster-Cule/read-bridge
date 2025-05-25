@@ -23,6 +23,12 @@ function defaultSentenceOutputOption(): OutputOption[] {
       name: 'Key Word Analysis',
       type: OUTPUT_TYPE.KEY_VALUE_LIST,
       rulePrompt: INPUT_PROMPT.EXTRACT_KEY_WORDS,
+    },
+    {
+      id: crypto.randomUUID(),
+      name: 'Sentence Analysis',
+      type: OUTPUT_TYPE.MD,
+      rulePrompt: INPUT_PROMPT.MD_SENTENCE_ANALYZING,
     }
   ]
 }
