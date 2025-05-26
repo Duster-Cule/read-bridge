@@ -12,7 +12,7 @@ const nextConfig = {
       skipDefaultConversion: true,
     },
   },
-  output: 'export', // 输出纯静态
+  // output: 'export', // 输出纯静态
   images: {
     unoptimized: true,
   },
