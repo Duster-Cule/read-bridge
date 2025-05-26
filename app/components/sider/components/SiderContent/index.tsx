@@ -11,12 +11,10 @@ import { OUTPUT_PROMPT } from "@/constants/prompt"
 import { useTranslation } from "@/i18n/useTranslation"
 import { useTTSStore } from "@/store/useTTSStore"
 import { useTheme } from 'next-themes'
+import { ReadingProgress } from "@/types/book"
 
-interface SiderContentProps {
-  currentChapter: string[]
-}
 
-export default function SiderContent({ currentChapter }: SiderContentProps) {
+export default function SiderContent() {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const [sentenceProcessingList, setSentenceProcessingList] = useState<{ name: string, type: string, generator: AsyncGenerator<string, void, unknown>, id: string }[]>([])
@@ -47,8 +45,11 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
   }, [parseModel])
 
   // 处理行索引
-  const handleLineIndex = useCallback(async (index: number) => {
-
+  const handleLineIndex = useCallback(async (readingProgress: ReadingProgress) => {
+    // 取出lineindex和currentChapter
+    const { currentLocation, sentenceChapters } = readingProgress
+    const { chapterIndex, lineIndex: index } = currentLocation
+    const currentChapter = sentenceChapters[chapterIndex]
     // 取消之前的请求
     if (controllerRef.current) {
       controllerRef.current.abort();
@@ -122,17 +123,17 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
 
     // 执行添加处理器的函数
     addProcessorsWithDelay()
-  }, [currentChapter, defaultLLMClient, sentenceOptions, setSentenceProcessingList, batchProcessingSize, t])
+  }, [defaultLLMClient, sentenceOptions, setSentenceProcessingList, batchProcessingSize, t])
 
   useEffect(() => {
-    const unsub = EventEmitter.on(EVENT_NAMES.SEND_LINE_INDEX, handleLineIndex)
+    const unsub = EventEmitter.on(EVENT_NAMES.SEND_MESSAGE, handleLineIndex)
     return () => {
       unsub()
       if (controllerRef.current) {
         controllerRef.current.abort();
       }
     }
-  }, [currentChapter, handleLineIndex])
+  }, [handleLineIndex])
 
   // 菜单项
   const items = useMemo(() => {

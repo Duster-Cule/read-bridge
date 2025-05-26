@@ -33,16 +33,15 @@ export default function Sider() {
       updateReadingProgress(readingId)
     }
   }, [updateReadingProgress, pathname, readingId])
-  const updateLineIndex = useCallback((lineIndex: number) => {
+  const updateLineIndex = useCallback(async (lineIndex: number) => {
     // 发送完成后更新line
     if (!readingId) return
-    setTimeout(async () => {
-      await db.updateCurrentLocation(readingId, {
-        chapterIndex: currentLocation.chapterIndex,
-        lineIndex
-      })
-      await updateReadingProgress(readingId)
-    }, 600)
+    await db.updateCurrentLocation(readingId, {
+      chapterIndex: currentLocation.chapterIndex,
+      lineIndex
+    })
+    const readingProgress = await updateReadingProgress(readingId)
+    EventEmitter.emit(EVENT_NAMES.SEND_MESSAGE, readingProgress)
   }, [readingId, currentLocation])
 
 
@@ -56,7 +55,7 @@ export default function Sider() {
 
   return (
     <div className="w-full h-full flex flex-col">
-      <SiderContent currentChapter={currentChapter} />
+      <SiderContent />
       <SiderChat currentChapter={currentChapter} lineIndex={readingProgress.currentLocation.lineIndex} />
     </div>
   )

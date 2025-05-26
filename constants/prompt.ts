@@ -108,14 +108,14 @@ Create a detailed word-by-word analysis display for the following sentence: "[IN
 For each word, display in a beautiful and visually appealing format:
 1. Pronunciation/reading on top fontsize 12px
 2. The word itself in the middle fontsize 18px  dark mode: #fff, light mode: #000
-3. Color-coded underline at the bottom based on part of speech:
+3. Color-coded underline at the bottom based on part of speech(but don't Output part of speech symbols):
  Nouns (#F53), Verbs (#3AF), Adjectives (#3F5), Adverbs (#A3F), Pronouns (#F93), Prepositions (#3FF), Conjunctions (#F3A), Interjections (#FF3)
 Monitor the incoming theme to determine the output's background color and word color.
 Use minimal HTML/CSS with inline styles
 Display the words/grammar chunks of the entire sentence.
 Ensure all words are displayed with compact spacing
 Avoid unnecessary attributes and complex structures
-
+Cannot be missing parent div
 Do not provide any explanations, just output the content as requested.
 `;
 

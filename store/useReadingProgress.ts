@@ -6,7 +6,7 @@ import { persist } from 'zustand/middleware'
 interface ReadingProgressStore {
   readingProgress: ReadingProgress
   setReadingProgress: (readingProgress: ReadingProgress) => void
-  updateReadingProgress: (bookId: string) => Promise<void>
+  updateReadingProgress: (bookId: string) => Promise<ReadingProgress>
 }
 
 export const useReadingProgressStore = create<ReadingProgressStore>()(
@@ -25,6 +25,7 @@ export const useReadingProgressStore = create<ReadingProgressStore>()(
       updateReadingProgress: async (bookId) => {
         const res = await db.getCurrentLocation(bookId)
         set({ readingProgress: res })
+        return res
       },
     }),
     {
