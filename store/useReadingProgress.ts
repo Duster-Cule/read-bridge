@@ -17,9 +17,7 @@ export const useReadingProgressStore = create<ReadingProgressStore>()(
         lastReadTime: 0,
         currentLocation: {
           chapterIndex: 0,
-          lineIndex: 0,
-          sentenceIndex: 0,
-          wordIndex: 0,
+          lineIndex: 0
         },
         sentenceChapters: {},
       },

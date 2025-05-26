@@ -11,6 +11,7 @@ import { OUTPUT_PROMPT } from "@/constants/prompt"
 import { useTranslation } from "@/i18n/useTranslation"
 import { useTTSStore } from "@/store/useTTSStore"
 import { useTheme } from 'next-themes'
+
 interface SiderContentProps {
   currentChapter: string[]
 }
@@ -121,7 +122,6 @@ export default function SiderContent({ currentChapter }: SiderContentProps) {
 
     // 执行添加处理器的函数
     addProcessorsWithDelay()
-
   }, [currentChapter, defaultLLMClient, sentenceOptions, setSentenceProcessingList, batchProcessingSize, t])
 
   useEffect(() => {

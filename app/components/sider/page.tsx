@@ -2,11 +2,14 @@
 
 import { useReadingProgressStore } from "@/store/useReadingProgress"
 import { usePathname } from "next/navigation"
-import React, { useEffect, useMemo } from "react"
+import React, { useCallback, useEffect, useMemo } from "react"
 
 import SiderContent from "@/app/components/sider/components/SiderContent"
 import SiderChat from "@/app/components/sider/components/SiderChat"
 import { useSiderStore } from "@/store/useSiderStore"
+
+import { EventEmitter, EVENT_NAMES } from "@/services/EventService"
+import db from "@/services/DB"
 
 export default function Sider() {
   const { readingId } = useSiderStore()
@@ -30,6 +33,25 @@ export default function Sider() {
       updateReadingProgress(readingId)
     }
   }, [updateReadingProgress, pathname, readingId])
+  const updateLineIndex = useCallback((lineIndex: number) => {
+    // 发送完成后更新line
+    if (!readingId) return
+    setTimeout(async () => {
+      await db.updateCurrentLocation(readingId, {
+        chapterIndex: currentLocation.chapterIndex,
+        lineIndex
+      })
+      await updateReadingProgress(readingId)
+    }, 600)
+  }, [readingId, currentLocation])
+
+
+  useEffect(() => {
+    const unsub = EventEmitter.on(EVENT_NAMES.SEND_LINE_INDEX, updateLineIndex)
+    return () => {
+      unsub()
+    }
+  }, [updateLineIndex])
 
 
   return (
