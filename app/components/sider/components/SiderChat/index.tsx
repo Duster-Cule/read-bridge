@@ -132,7 +132,6 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
           ...prev,
           messages: currentMessages
         }
-        setStoreHistory(newHistory)
         return newHistory
       })
 
@@ -167,16 +166,17 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
             ...prev,
             messages: handleMessage(prev.messages, '已中断聊天生成', chatLLMClient.name, false, thinkingStartTime ? (dayjs().unix() - thinkingStartTime) : null)
           }
-          setStoreHistory(newHistory)
+
           return newHistory
         });
       } else {
         setHistory(prev => {
-          setStoreHistory(prev)
           return prev
         });
       }
-
+      setTimeout(() => {
+        setStoreHistory(newHistory)
+      }, 0)
       setIsGenerating(false)
       abortControllerRef.current = null
     }
