@@ -38,7 +38,7 @@ export default function Sentences({ sentenceProcessingList }: { sentenceProcessi
       {
         sentenceProcessingList.map((item) => {
           return (
-            item.type === OUTPUT_TYPE.MD ? <MDGenerator generator={item.generator} key={item.id} /> :
+            item.type === OUTPUT_TYPE.MD ? <MDGenerator className="mb-2" generator={item.generator} key={item.id} /> :
               <CardComponent className="mb-2" key={item.id} title={item.name} loading={!item.generator}>
                 {
                   item.type === OUTPUT_TYPE.TEXT ? <TextGenerator generator={item.generator} /> :
@@ -125,11 +125,11 @@ function ThinkCollapse({ thinkContext }: { thinkContext: string }) {
   );
 }
 
-function MDGenerator({ generator }: { generator: AsyncGenerator<string, void, unknown> }) {
+function MDGenerator({ generator, className }: { generator: AsyncGenerator<string, void, unknown>, className?: string }) {
   const { text, thinkContext } = useThinkGenerator(generator, 'text')
-  return <>
+  return <div className={className}>
     <ThinkCollapse thinkContext={thinkContext} />
     <MarkdownViewer content={text} />
-  </>
+  </div>
 }
 
