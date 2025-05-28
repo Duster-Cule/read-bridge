@@ -6,13 +6,20 @@ import { useEffect, useState } from 'react';
 import { useStyleStore } from '@/store/useStyleStore';
 
 function AntdProvider({ children }: { children: React.ReactNode }) {
-  const { theme: currentTheme = '' } = useTheme();
+  const { theme: currentTheme = '', setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const { lightModeTextColor, darkModeTextColor } = useStyleStore();
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (mounted && (!currentTheme || currentTheme === 'system')) {
+      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      setTheme(systemTheme);
+    }
+  }, [mounted, currentTheme, setTheme]);
 
   useEffect(() => {
     if (mounted) {
