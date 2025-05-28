@@ -4,6 +4,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Next.js](https://img.shields.io/badge/Next.js-black?logo=next.js&logoColor=white)](https://nextjs.org/) [![Tauri](https://img.shields.io/badge/Tauri-24C8D8?logo=tauri&logoColor=white)](https://tauri.app/) [![Web](https://img.shields.io/badge/-Web-blue)](https://nextjs.org/) [![Windows](https://img.shields.io/badge/平台-Windows-blue?logo=windows&logoColor=white)](https://tauri.app/) [![macOS](https://img.shields.io/badge/平台-macOS-blue?logo=apple&logoColor=white)](https://tauri.app/) [![Linux](https://img.shields.io/badge/平台-Linux-blue?logo=linux&logoColor=white)](https://tauri.app/)
 
+[![文档](https://img.shields.io/badge/文档-docs.readbridge.cc-blue)](https://docs.readbridge.cc/)
+
 ReadBridge是一款AI驱动的阅读助手，同时提供网页应用和桌面软件（通过Tauri）。它通过"n+1"可理解输入方法辅助语言学习，帮助学习者更有效地阅读目标语言内容。
 
 ## 概述
