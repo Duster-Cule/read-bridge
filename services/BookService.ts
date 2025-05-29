@@ -18,9 +18,13 @@ import { initMDBook } from './MD';
  */
 export async function processBook(buffer: Buffer, type: BOOK_MIME_TYPE_TYPE, name: string, hash: string): Promise<Book> {
   let initFile: FormattedBook | null = null
+  console.log(type, 'type')
   try {
     switch (type) {
       case BOOK_MIME_TYPE.EPUB:
+        initFile = initEpubBook(buffer)
+        break
+      case BOOK_MIME_TYPE.EPUB_ZIP:
         initFile = initEpubBook(buffer)
         break
       case BOOK_MIME_TYPE.TXT:
