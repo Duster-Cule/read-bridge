@@ -60,7 +60,7 @@ export function initEpubBook(buffer: Buffer): FormattedBook {
   })
 
   const chapterXMLs = sortChapters.map((item) => {
-    const possiblePrefixes = ['OEBPS/', 'EPUB/', '']
+    const possiblePrefixes = ['OEBPS/', 'EPUB/', 'OPS/', '']
     let contentXML = ''
 
     for (const prefix of possiblePrefixes) {
@@ -72,7 +72,7 @@ export function initEpubBook(buffer: Buffer): FormattedBook {
     }
 
     if (contentXML === '') {
-      throw new Error(`Content file not found: ${item.href}`)
+      console.error(`Content file not found: ${item.href}`)
     }
 
     return contentXML

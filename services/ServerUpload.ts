@@ -18,15 +18,18 @@ export async function handleFileUpload(
   file: File
 ) {
   if (!file) {
+    console.error('No file uploaded');
     throw new Error('No file uploaded');
   }
   const { name, size, type } = file
 
   if (!isValidBookFormat(type)) {
+    console.error('Invalid file format', type);
     throw new Error('Invalid file format');
   }
 
   if (size > UPLOAD_CONFIG.MAX_SIZE) {
+    console.error('File size too large', size);
     throw new Error('File size too large');
   }
 
@@ -46,6 +49,7 @@ export async function handleFileUpload(
     const book = await processBook(buffer, type, nameWithoutExt, hash);
     return book;
   } catch (error) {
+    console.error('Error processing book', error);
     if (error instanceof Error) throw error;
     throw new Error(String(error));
   }
