@@ -156,6 +156,7 @@
     "chapterList": "Chapter List",
     "addChapter": "Add Chapter",
     "editChapter": "Edit Chapter",
-    "deleteChapter": "Delete Chapter"
+    "deleteChapter": "Delete Chapter",
+    "noChapterSelected": "No chapter selected"
   }
 }

@@ -158,6 +158,7 @@
     "chapterList": "章节列表",
     "addChapter": "添加章节",
     "editChapter": "编辑章节",
-    "deleteChapter": "删除章节"
+    "deleteChapter": "删除章节",
+    "noChapterSelected": "未选择章节"
   }
 }

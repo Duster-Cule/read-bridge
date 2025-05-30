@@ -141,19 +141,34 @@ export default function ChapterManager({ book, onChange }: ChapterManagerProps) 
   const handleDeleteChapter = useCallback(() => {
     const newChapterList = [...book.chapterList];
     newChapterList.splice(selectedChapterIndex, 1);
-    const newToc = [...book.toc];
-    newToc.splice(selectedChapterIndex, 1);
 
-    setSelectedChapterIndex((prev) => {
-      onChange({ ...book, chapterList: newChapterList, toc: newToc });
-      return Math.max(prev - 1, 0)
-    });
+    const tocItemToDelete = book.toc.find(item => item.index === selectedChapterIndex);
+    if (!tocItemToDelete) return;
+
+    const newToc = book.toc.filter(item => item.index !== selectedChapterIndex);
+
+    // 重新计算索引
+    const recalculatedToc = newToc.map((item, idx) => ({
+      ...item,
+      index: idx
+    }));
+
+    setSelectedChapterIndex(0);
+    onChange({ ...book, chapterList: newChapterList, toc: recalculatedToc });
   }, [book, onChange, selectedChapterIndex]);
 
   const handleEditChapterTitle = useCallback((title: string) => {
     const newChapterList = [...book.chapterList];
     newChapterList[selectedChapterIndex].title = title;
-    onChange({ ...book, chapterList: newChapterList });
+
+    // 更新toc中对应章节的标题
+    const newToc = [...book.toc];
+    const tocIndex = newToc.findIndex(item => item.index === selectedChapterIndex);
+    if (tocIndex !== -1) {
+      newToc[tocIndex].title = title;
+    }
+
+    onChange({ ...book, chapterList: newChapterList, toc: newToc });
   }, [book, onChange, selectedChapterIndex]);
 
   const startEditingTitle = useCallback(() => {
@@ -266,16 +281,12 @@ export default function ChapterManager({ book, onChange }: ChapterManagerProps) 
               </Popconfirm>}
             </div>
             <div className=" h-[534px]">
-              {selectedChapterText.length > 0 ? (
-                <TextArea
-                  value={selectedChapterText}
-                  onChange={(e) => handleEditChapterText(e.target.value)}
-                  className="block mb-3"
-                  autoSize={{ minRows: 23, maxRows: 23 }}
-                />
-              ) : (
-                <Empty description={t('book.noContent')} />
-              )}
+              <TextArea
+                value={selectedChapterText}
+                onChange={(e) => handleEditChapterText(e.target.value)}
+                className="block mb-3"
+                autoSize={{ minRows: 23, maxRows: 23 }}
+              />
             </div>
           </div>
         ) : (
