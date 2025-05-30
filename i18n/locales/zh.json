@@ -34,6 +34,9 @@
       "sentenceConfigPrompt": "规则提示词",
       "sentenceConfigType": "句子处理类型",
       "sentenceAnalysisGeneric": "句子分析",
+      "wordConfigAsObject": "这个单词配置",
+      "wordConfigName": "单词配置名称",
+      "wordConfigPrompt": "单词处理规则",
       "book": "图书"
     },
     "confirm": "确定"
@@ -96,6 +99,7 @@
     "resetPrompt": "重置提示词",
     "resetPromptDescription": "确定要将提示词重置为默认吗？",
     "sentenceConfig": "句子处理配置",
+    "wordConfig": "单词处理配置",
     "sentenceType": "处理类型",
     "text": "列表输出",
     "simpleList": "纯文本输出",
@@ -119,7 +123,15 @@
     "systemTTS": "系统TTS",
     "volcengineTTS": "火山引擎TTS",
     "testVoice": "测试语音",
-    "globalTTSSettings": "全局TTS设置"
+    "globalTTSSettings": "全局TTS设置",
+    "addWordConfig": "添加单词配置",
+    "editWordConfig": "编辑单词配置",
+    "deleteWordProcessing": "删除单词配置",
+    "wordConfigName": "配置名称",
+    "wordConfigPrompt": "规则提示词",
+    "resetWordConfig": "重置单词配置",
+    "resetWordConfigDescription": "确定要将单词配置重置为默认吗？",
+    "wordProcessingSelectionTooltip": "选择要使用的单词处理配置"
   },
   "sider": {
     "selectSentence": "选中句子",

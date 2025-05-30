@@ -18,13 +18,20 @@ export default function SiderContent() {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const [sentenceProcessingList, setSentenceProcessingList] = useState<{ name: string, type: string, generator: AsyncGenerator<string, void, unknown>, id: string }[]>([])
-  const { sentenceOptions, batchProcessingSize } = useOutputOptions()
+  const { sentenceOptions, batchProcessingSize, wordOptions, selectedWordId } = useOutputOptions()
   const [sentence, setSentence] = useState<string>("")
 
   const [selectedTab, setSelectedTab] = useState<string>("sentence-analysis")
 
   const [word, setWord] = useState<string>("")
   const [wordDetails, setWordDetails] = useState<string>("")
+  const wordOption = useMemo(() => {
+    return wordOptions.find(option => option.id === selectedWordId) || wordOptions[0] || {
+      id: crypto.randomUUID(),
+      name: 'default',
+      rulePrompt: INPUT_PROMPT.FUNC_WORD_DETAILS
+    }
+  }, [wordOptions, selectedWordId])
 
   const { parseModel } = useLLMStore()
   const { getSpeak, ttsGlobalConfig, ttsConfig } = useTTSStore()
@@ -185,12 +192,12 @@ export default function SiderContent() {
     }
 
     if (!defaultLLMClient) return
-    const wordDetailGenerator = defaultLLMClient.completionsGenerator([{ role: 'user', content: `${word} ${sentence}` }], INPUT_PROMPT.FUNC_WORD_DETAILS, signal)
+    const wordDetailGenerator = defaultLLMClient.completionsGenerator([{ role: 'user', content: `word:${word} sentence:${sentence}` }], wordOption.rulePrompt + OUTPUT_PROMPT.MD_WORD, signal)
     for await (const chunk of wordDetailGenerator) {
       if (!chunk) continue
       setWordDetails((prev) => (prev || "") + chunk)
     }
-  }, [defaultLLMClient, handleTabChange, sentence, isSameWord])
+  }, [defaultLLMClient, handleTabChange, sentence, isSameWord, wordOption])
   return (
     <div className="w-full h-[534px] flex flex-col">
       <CurrentSentence sentence={sentence} handleWord={handleWord} />

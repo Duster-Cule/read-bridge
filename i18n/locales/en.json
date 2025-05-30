@@ -33,7 +33,10 @@
       "sentenceConfigName": "sentence config name",
       "sentenceConfigPrompt": "rule prompt",
       "sentenceConfigType": "sentence processing type",
-      "sentenceAnalysisGeneric": "Sentence analysis"
+      "sentenceAnalysisGeneric": "Sentence analysis",
+      "wordConfigAsObject": "this word config",
+      "wordConfigName": "word config name",
+      "wordConfigPrompt": "word processing rule"
     }
   },
   "bookDetails": {
@@ -95,6 +98,7 @@
     "resetPromptDescription": "Are you sure you want to reset the prompts to default?",
     "sentenceConfig": "Sentence Processing Configuration",
     "sentenceType": "Sentence Processing Type",
+    "wordConfig": "Word Processing Configuration",
     "simpleList": "List Output",
     "text": "Text Output",
     "keyValueList": "Key Value List",
@@ -117,7 +121,15 @@
     "systemTTS": "System TTS",
     "volcengineTTS": "Volcengine TTS",
     "testVoice": "Test Voice",
-    "globalTTSSettings": "Global TTS Settings"
+    "globalTTSSettings": "Global TTS Settings",
+    "addWordConfig": "Add Word Config",
+    "editWordConfig": "Edit Word Config",
+    "deleteWordProcessing": "Delete Word Processing",
+    "wordConfigName": "Word Config Name",
+    "wordConfigPrompt": "Word Processing Rule",
+    "resetWordConfig": "Reset Word Config",
+    "resetWordConfigDescription": "Are you sure you want to reset the word configurations to default?",
+    "wordProcessingSelectionTooltip": "Select the word processing configuration to use"
   },
   "sider": {
     "selectSentence": "Select Sentence",

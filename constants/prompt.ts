@@ -1,42 +1,30 @@
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs"
 
 const WORD_DETAILS = `
-# Single-Language Word Analyzer Prompt
-## Input Format
-level(1 - 3) word context
-## System Overview
-Create a modern vocabulary analysis card that explains words in their native language context based on three proficiency levels.
+function WordHelper(word: string, sentence: string) {
+  /**
+   * Purpose: Help language learners understand unfamiliar words in context
+   * Input: A word and the sentence containing it
+   * Output: All output must be in the same language as the input, including format markers
+   * The function automatically detects the input language and responds accordingly
+   * Use simpler words in proportional sentences to help users learn.
+   */
+    return \`
+    ## \${word} [/Standard IPA pronunciation that matches the language of \${word}/ For example, English is phonetic and Chinese is pinyin]
+    **Definition**: [simple definition using easier vocabulary]
 
-## Level Definitions
-- **Level 1**: Beginners - Basic vocabulary, simple explanations
-- **Level 2**: Intermediate - More detailed explanations, expanded usage
-- **Level 3**: Advanced - Comprehensive analysis for near-native speakers
-- default level: 2 and don't output level
-## Output Requirements
-- Direct HTML with TailwindCSS (no code blocks)
-- Responsive width (500-600px)
-- Modern UI aesthetics
-- Important: Content only - DO NOT add card borders or containers as content will be inserted into an existing card component
-- Content depth varies by level
+    **In this context**: [specific meaning in the given sentence]
 
-## Content Structure
-- Word on the top
-- Part of Speech | (Base Form) on the second line
-- Definition specific to context
-- Grammar/usage notes
-- Example sentences (adaptively choose 1-5 sentences based on word complexity)
-- Related words (increases with level)
-- any other information you think is relevant
+    **Example**: [one clear example showing similar usage]
 
-## Design Guidelines
-- Clean, minimalist interface
-- Accessible typography
-- Consistent color scheme
-- Collapsible sections where appropriate
-- Responsive layout for all devices
-- Visual hierarchy emphasizing the most important information
+    **Synonyms**: [1-4 words, fewer is better, only include terms that could substitute]
 
-Remember to output clean HTML directly without markdown code blocks.
+    **Antonyms**: [if there are related antonyms]
+
+    **Common Phrases**: [common phrases or fixed expressions]
+  // Do not output anything other than the return statement
+  // Return only the formatted response in the same language as the input
+}
 `
 
 const FUNC_WORD_DETAILS = `
@@ -69,7 +57,6 @@ function Single_LanguageWordAnalyzer(word: string, sentence?: string): string {
 
     ### Definitions 3-4: {optional, maximum of four definitions total}
     \`
-  // Please output pure Markdown directly without code block markers (\`\`\`markdown), ensuring content is directly renderable.
   return markdown_string
 }
 `
@@ -171,12 +158,17 @@ INPUT: {SENTENCE}
 OUTPUT: markdown
 Please output pure Markdown directly without code block markers (\`\`\`markdown), ensuring content is directly renderable.
 `
-
+const MD_WORD = `
+INPUT: word: {WORD} sentence: {SENTENCE}
+OUTPUT: markdown
+Please output pure Markdown directly without code block markers (\`\`\`markdown), ensuring content is directly renderable.
+`
 export const OUTPUT_PROMPT = {
   TEXT,
   SIMPLE_LIST,
   KEY_VALUE_LIST,
-  MD
+  MD,
+  MD_WORD
 } as const;
 
 export const OUTPUT_TYPE = {

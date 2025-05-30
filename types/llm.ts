@@ -48,6 +48,12 @@ export type OutputOption = {
   rulePrompt: string
 }
 
+export type WordOption = {
+  id: string
+  name: string
+  rulePrompt: string
+}
+
 export type PromptOption = {
   id: string
   name: string
