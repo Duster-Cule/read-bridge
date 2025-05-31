@@ -31,6 +31,7 @@ export function initEpubBook(buffer: Buffer): FormattedBook {
   }
 
   const unzipped: Unzipped = unzipSync(new Uint8Array(buffer));
+  const commonPrefix = getPrefixes(unzipped)
   const containerXML = strFromU8(unzipped['META-INF/container.xml'])
   const $container = cheerio.load(containerXML, { xml: true })
   const fullPath = $container('rootfile').attr('full-path')
@@ -60,10 +61,10 @@ export function initEpubBook(buffer: Buffer): FormattedBook {
   })
 
   const chapterXMLs = sortChapters.map((item) => {
-    const possiblePrefixes = ['OEBPS/', 'EPUB/', 'OPS/', '']
+    const possiblePrefixesList = [commonPrefix, 'OEBPS/', 'EPUB/', 'OPS/', '']
     let contentXML = ''
 
-    for (const prefix of possiblePrefixes) {
+    for (const prefix of possiblePrefixesList) {
       const fullPath = prefix + item.href
       if (fullPath in unzipped) {
         contentXML = strFromU8(unzipped[fullPath])
@@ -112,6 +113,13 @@ export function initEpubBook(buffer: Buffer): FormattedBook {
     chapterCounter++;
   }
 
+  // 空章节
+  if (chapterList.length === 0) {
+    chapterList.push({
+      title: '书籍获取章节失败',
+      paragraphs: [Object.keys(unzipped).join('\n')]
+    })
+  }
 
   return {
     metadata: metadata as FormattedBook['metadata'],
@@ -225,3 +233,36 @@ function isValidEpub(buffer: Buffer): boolean {
   return true;
 }
 
+function getPrefixes(zip: Unzipped) {
+  const paths = Object.keys(zip);
+  const prefixCandidates: string[] = [];
+
+  for (const path of paths) {
+    // 跳过META-INF目录和mimetype文件
+    if (path.startsWith('META-INF/') || path === 'mimetype') {
+      continue;
+    }
+
+    const parts = path.split('/');
+    // 防止无前缀路径情况
+    if (parts.length > 2) {
+      // 只取第一层
+      const prefix = parts[0] + '/';
+      prefixCandidates.push(prefix);
+    }
+  }
+
+  // 统计数量
+  const prefixCount = new Map<string, number>();
+
+  for (const prefix of prefixCandidates) {
+    prefixCount.set(prefix, (prefixCount.get(prefix) || 0) + 1);
+  }
+
+  const mostCommonPrefix = [...prefixCount.entries()].reduce(
+    (max, [prefix, count]) => count > max[1] ? [prefix, count] : max,
+    ['', 0]
+  )[0];
+
+  return mostCommonPrefix;
+}
