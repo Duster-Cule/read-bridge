@@ -172,6 +172,7 @@
     "addChapter": "添加章节",
     "editChapter": "编辑章节",
     "deleteChapter": "删除章节",
-    "noChapterSelected": "未选择章节"
+    "noChapterSelected": "未选择章节",
+    "atLeastOneChapter": "至少需要一个章节"
   }
 }

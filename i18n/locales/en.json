@@ -170,6 +170,7 @@
     "addChapter": "Add Chapter",
     "editChapter": "Edit Chapter",
     "deleteChapter": "Delete Chapter",
-    "noChapterSelected": "No chapter selected"
+    "noChapterSelected": "No chapter selected",
+    "atLeastOneChapter": "At least one chapter is required"
   }
 }

@@ -1,5 +1,5 @@
 import { useState, memo, useCallback, useMemo } from 'react';
-import { Button, Typography, Empty, Popconfirm, Input } from 'antd';
+import { Button, Typography, Empty, Popconfirm, Input, message } from 'antd';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { PlusOutlined, MenuOutlined, DeleteOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { Book, PlainTextChapter } from '@/types/book';
@@ -139,6 +139,10 @@ export default function ChapterManager({ book, onChange }: ChapterManagerProps) 
   }, [book, onChange, t]);
 
   const handleDeleteChapter = useCallback(() => {
+    if (book.chapterList.length === 1) {
+      message.warning(t('book.atLeastOneChapter'));
+      return;
+    }
     const newChapterList = [...book.chapterList];
     newChapterList.splice(selectedChapterIndex, 1);
 
@@ -155,7 +159,7 @@ export default function ChapterManager({ book, onChange }: ChapterManagerProps) 
 
     setSelectedChapterIndex(0);
     onChange({ ...book, chapterList: newChapterList, toc: recalculatedToc });
-  }, [book, onChange, selectedChapterIndex]);
+  }, [book, onChange, selectedChapterIndex, t]);
 
   const handleEditChapterTitle = useCallback((title: string) => {
     const newChapterList = [...book.chapterList];
