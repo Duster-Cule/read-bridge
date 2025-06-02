@@ -56,7 +56,7 @@ export default function Sider() {
   return (
     <div className="w-full h-full flex flex-col">
       <SiderContent />
-      <SiderChat currentChapter={currentChapter} lineIndex={readingProgress.currentLocation.lineIndex} />
+      {/* <SiderChat currentChapter={currentChapter} lineIndex={readingProgress.currentLocation.lineIndex} /> */}
     </div>
   )
 }

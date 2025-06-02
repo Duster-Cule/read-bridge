@@ -199,7 +199,7 @@ export default function SiderContent() {
     }
   }, [defaultLLMClient, handleTabChange, sentence, isSameWord, wordOption])
   return (
-    <div className="w-full h-[534px] flex flex-col">
+    <div className="w-full h-[798px] flex flex-col">
       <CurrentSentence sentence={sentence} handleWord={handleWord} />
       <Divider className="my-0" />
       <MenuLine selectedTab={selectedTab} items={items} onTabChange={handleTabChange} />

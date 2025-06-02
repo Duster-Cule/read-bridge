@@ -34,7 +34,7 @@ function useThinkGenerator(generator: AsyncGenerator<string, void, unknown>, out
 
 export default function Sentences({ sentenceProcessingList }: { sentenceProcessingList: { name: string, id: string, type: string, generator: AsyncGenerator<string, void, unknown> }[] }) {
   return (
-    <div className="w-full h-[262px] overflow-y-auto p-4">
+    <div className="w-full h-[578px] p-4 overflow-y-auto">
       {
         sentenceProcessingList.map((item) => {
           return (
