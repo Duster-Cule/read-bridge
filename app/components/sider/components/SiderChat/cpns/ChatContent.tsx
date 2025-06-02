@@ -91,7 +91,7 @@ export default function ChatContent({ history, containerRef }: ChatContent) {
 
 
   return (
-    <div ref={contentRef} className="overflow-y-auto p-2 w-full overflow-x-hidden" style={{ height: Math.max(0, height) }}>
+    <div ref={contentRef} className="overflow-y-auto p-2 w-full h-[500px] overflow-x-hidden" >
       <Tooltip
         title={<div className="text-sm">{prompt}</div>}
         placement="bottom"
