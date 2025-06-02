@@ -1,14 +1,13 @@
 import { LLMHistory } from "@/types/llm";
-import { RefObject, useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { Tooltip } from "antd"
 import MessageBubble from './MessageBubble'
 
 type ChatContent = {
   history: LLMHistory
-  containerRef: RefObject<HTMLDivElement>
 }
 
-export default function ChatContent({ history, containerRef }: ChatContent) {
+export default function ChatContent({ history }: ChatContent) {
   const contentRef = useRef<HTMLDivElement>(null);
   const isAutoScrollTo = useRef(false)
   const prevSizeRef = useRef(0);

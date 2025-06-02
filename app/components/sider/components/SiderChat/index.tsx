@@ -18,7 +18,6 @@ import { CommentOutlined } from "@ant-design/icons"
 export default function StandardChat() {
   const { t } = useTranslation()
   const { readingProgress } = useReadingProgressStore()
-  const containerRef = useRef<HTMLDivElement>(null);
   const { selectedId, promptOptions } = useOutputOptions()
   const [history, setHistory] = useState<LLMHistory>(() => getNewHistory(promptOptions, selectedId))
   const { setHistory: setStoreHistory, historys } = useHistoryStore()
@@ -262,9 +261,9 @@ export default function StandardChat() {
         width={800}
         destroyOnClose={false}
       >
-        <div ref={containerRef} className="w-full h-full flex flex-col text-[var(--ant-color-text)]">
+        <div className="w-full h-full flex flex-col text-[var(--ant-color-text)]">
           <ChatTools isGenerating={isGenerating} onPlus={handlePlus} onChangePrompt={handleChangePrompt} onHistory={handleHistory} onCloseModal={handleCloseModal} />
-          <ChatContent containerRef={containerRef} history={history} />
+          <ChatContent history={history} />
           <ChatInput
             onSent={handleSend}
             tagOptions={tagOptions}
