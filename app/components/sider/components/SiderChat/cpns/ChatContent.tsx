@@ -9,7 +9,6 @@ type ChatContent = {
 }
 
 export default function ChatContent({ history, containerRef }: ChatContent) {
-  const [height, setHeight] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
   const isAutoScrollTo = useRef(false)
   const prevSizeRef = useRef(0);
@@ -56,11 +55,6 @@ export default function ChatContent({ history, containerRef }: ChatContent) {
   }, [size, scrollToBottom])
 
 
-  useEffect(() => {
-    if (!containerRef.current) return;
-    const height = containerRef.current.getBoundingClientRect().height;
-    setHeight(height - 142);
-  }, [containerRef]);
   useEffect(() => {
     const contentElement = contentRef.current;
     if (!contentElement) return;

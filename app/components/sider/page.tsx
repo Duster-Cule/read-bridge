@@ -35,7 +35,7 @@ export default function Sider() {
     })
     const readingProgress = await updateReadingProgress(readingId)
     EventEmitter.emit(EVENT_NAMES.SEND_MESSAGE, readingProgress)
-  }, [readingId, currentLocation])
+  }, [readingId, currentLocation, updateReadingProgress])
 
 
   useEffect(() => {
