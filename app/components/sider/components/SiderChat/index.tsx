@@ -1,4 +1,4 @@
-import { message } from "antd"
+import { message, Modal, Button } from "antd"
 
 import { useHistoryStore } from "@/store/useHistoryStore"
 import { LLMHistory } from "@/types/llm"
@@ -12,12 +12,12 @@ import { ChatTools, ChatContent, ChatInput, ChatHistory } from "./cpns"
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs"
 import { useOutputOptions } from "@/store/useOutputOptions"
 import { useTranslation } from "@/i18n/useTranslation"
-interface SiderChatProps {
-  currentChapter: string[]
-  lineIndex: number
-}
-export default function StandardChat({ currentChapter, lineIndex }: SiderChatProps) {
+import { useReadingProgressStore } from "@/store/useReadingProgress"
+import { CommentOutlined } from "@ant-design/icons"
+
+export default function StandardChat() {
   const { t } = useTranslation()
+  const { readingProgress } = useReadingProgressStore()
   const containerRef = useRef<HTMLDivElement>(null);
   const { selectedId, promptOptions } = useOutputOptions()
   const [history, setHistory] = useState<LLMHistory>(() => getNewHistory(promptOptions, selectedId))
@@ -31,6 +31,15 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
 
   const [isGenerating, setIsGenerating] = useState(false)
   const abortControllerRef = useRef<AbortController | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+  }
 
   function handlePlus() {
     if (!history) return
@@ -73,6 +82,9 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
   }, [])
 
   const handleTags = useCallback((tags: string[]): ChatCompletionMessageParam[] => {
+    const { sentenceChapters = [], currentLocation = { chapterIndex: 0, lineIndex: 0 } } = readingProgress
+    const { chapterIndex = 0, lineIndex = 0 } = currentLocation
+    const currentChapter = sentenceChapters[chapterIndex] || []
     const tagContext = tags.map(tag => {
       if (currentChapter.length === 0) return null
       switch (tag) {
@@ -100,7 +112,7 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
       });
     });
     return finalContext
-  }, [currentChapter, lineIndex])
+  }, [readingProgress])
 
   const handleChat = useCallback(async (newHistory: LLMHistory, tags: string[]) => {
     if (!newHistory) throw new Error('newHistory is undefined')
@@ -209,13 +221,13 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
   }, [chatLLMClient, setHistory, handleChat])
 
   // history
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false)
   const handleHistory = useCallback(() => {
-    setIsModalOpen(true)
-  }, [setIsModalOpen])
+    setIsHistoryModalOpen(true)
+  }, [setIsHistoryModalOpen])
   const handleCloseHistory = useCallback(() => {
-    setIsModalOpen(false)
-  }, [setIsModalOpen])
+    setIsHistoryModalOpen(false)
+  }, [setIsHistoryModalOpen])
 
 
   function handleChangePrompt(id: string) {
@@ -229,18 +241,40 @@ export default function StandardChat({ currentChapter, lineIndex }: SiderChatPro
       }
     })
   }
+
   return (
-    <div ref={containerRef} className="w-full h-full flex flex-col text-[var(--ant-color-text)]">
-      <ChatTools isGenerating={isGenerating} onPlus={handlePlus} onChangePrompt={handleChangePrompt} onHistory={handleHistory} />
-      <ChatContent containerRef={containerRef} history={history} />
-      <ChatInput
-        onSent={handleSend}
-        tagOptions={tagOptions}
-        isGenerating={isGenerating}
-        onStopGeneration={handleStopGeneration}
-      />
-      <ChatHistory isModalOpen={isModalOpen} onClose={handleCloseHistory} onSelect={handleSelectHistory} />
-    </div>
+    <>
+      <Button
+
+        icon={<CommentOutlined />}
+        onClick={handleOpenModal}
+        className="m-2 mt-0"
+      >
+        {t('sider.chat')}
+      </Button>
+
+      <Modal
+        open={isModalOpen}
+        onCancel={handleCloseModal}
+        title={null}
+        footer={null}
+        closeIcon={null}
+        width={800}
+        destroyOnClose={false}
+      >
+        <div ref={containerRef} className="w-full h-full flex flex-col text-[var(--ant-color-text)]">
+          <ChatTools isGenerating={isGenerating} onPlus={handlePlus} onChangePrompt={handleChangePrompt} onHistory={handleHistory} onCloseModal={handleCloseModal} />
+          <ChatContent containerRef={containerRef} history={history} />
+          <ChatInput
+            onSent={handleSend}
+            tagOptions={tagOptions}
+            isGenerating={isGenerating}
+            onStopGeneration={handleStopGeneration}
+          />
+          <ChatHistory isModalOpen={isHistoryModalOpen} onClose={handleCloseHistory} onSelect={handleSelectHistory} />
+        </div>
+      </Modal>
+    </>
   )
 }
 

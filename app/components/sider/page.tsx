@@ -14,17 +14,10 @@ import db from "@/services/DB"
 export default function Sider() {
   const { readingId } = useSiderStore()
   const { readingProgress, updateReadingProgress } = useReadingProgressStore()
-  const sentenceChapters = useMemo(() => {
-    return readingProgress.sentenceChapters || null
-  }, [readingProgress])
   const currentLocation = useMemo(() => {
     return readingProgress.currentLocation || null
   }, [readingProgress])
-  // 当前章节
-  const currentChapter = useMemo(() => {
-    if (!sentenceChapters || !currentLocation) return []
-    return sentenceChapters[currentLocation.chapterIndex] || []
-  }, [sentenceChapters, currentLocation])
+
   const pathname = usePathname()
 
   // 当返回阅读页面时 更新阅读进度
@@ -56,7 +49,7 @@ export default function Sider() {
   return (
     <div className="w-full h-full flex flex-col">
       <SiderContent />
-      {/* <SiderChat currentChapter={currentChapter} lineIndex={readingProgress.currentLocation.lineIndex} /> */}
+      <SiderChat />
     </div>
   )
 }

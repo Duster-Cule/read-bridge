@@ -1,7 +1,7 @@
 'use client'
 
 import { Button, Popover, Tooltip } from "antd"
-import { PlusOutlined, AlignLeftOutlined, HistoryOutlined } from "@ant-design/icons"
+import { PlusOutlined, AlignLeftOutlined, HistoryOutlined, CloseOutlined } from "@ant-design/icons"
 import { useOutputOptions } from "@/store/useOutputOptions"
 import { useState } from "react"
 import { useTranslation } from "@/i18n/useTranslation";
@@ -11,9 +11,10 @@ type ChatTools = {
   onPlus: () => void
   onChangePrompt: (id: string) => void
   onHistory: () => void
+  onCloseModal: () => void
 }
 
-export default function ChatTools({ isGenerating, onPlus, onChangePrompt, onHistory }: ChatTools) {
+export default function ChatTools({ isGenerating, onPlus, onChangePrompt, onHistory, onCloseModal }: ChatTools) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false);
 
@@ -39,6 +40,7 @@ export default function ChatTools({ isGenerating, onPlus, onChangePrompt, onHist
         </Popover>
         <Button type="text" disabled={isGenerating} icon={<PlusOutlined />} onClick={onPlus} />
         <Button type="text" disabled={isGenerating} icon={<HistoryOutlined />} onClick={onHistory} />
+        <Button type="text" disabled={isGenerating} icon={<CloseOutlined />} onClick={onCloseModal} />
       </div>
     </>
   )

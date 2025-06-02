@@ -146,7 +146,8 @@
     "noun": "名词",
     "noAnalysisModelSelected": "未选择解析模型",
     "noSentenceSelected": "未选择句子",
-    "noWordSelected": "未选择单词"
+    "noWordSelected": "未选择单词",
+    "chat": "AI聊天助手"
   },
   "book": {
     "title": "书名",

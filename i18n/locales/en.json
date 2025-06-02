@@ -144,7 +144,8 @@
     "noun": "Noun",
     "noAnalysisModelSelected": "No model selected",
     "noSentenceSelected": "No sentence selected",
-    "noWordSelected": "No word selected"
+    "noWordSelected": "No word selected",
+    "chat": "Chat with AI"
   },
   "book": {
     "title": "Title",
