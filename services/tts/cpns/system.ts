@@ -79,7 +79,10 @@ function getSystemTTS(): TTSAPI {
     };
 
     utterance.onerror = (event) => {
-      console.error('Speech synthesis error:', event);
+      // 以防主动终端时显示预期中的报错
+      if (event.error !== 'interrupted') {
+        console.error('Speech synthesis error:', event);
+      }
       isSpeaking = false;
       isPaused = false;
     };

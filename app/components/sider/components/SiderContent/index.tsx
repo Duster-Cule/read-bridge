@@ -176,6 +176,11 @@ export default function SiderContent() {
 
   // 处理点击单词
   const handleWord = useCallback(async (word: string) => {
+    // 阅读
+    if (speak && word && ttsGlobalConfig.autoWordTTS) {
+      speak(word)
+    }
+
     if (await isSameWord(word)) return
     if (wordAbortControllerRef.current) {
       wordAbortControllerRef.current.abort();
@@ -185,11 +190,6 @@ export default function SiderContent() {
 
     setWordDetails("")
     handleTabChange('word-details')
-
-    // 阅读
-    if (speak && word && ttsGlobalConfig.autoWordTTS) {
-      speak(word)
-    }
 
     if (!defaultLLMClient) return
     const wordDetailGenerator = defaultLLMClient.completionsGenerator([{ role: 'user', content: `word:${word} sentence:${sentence}` }], wordOption.rulePrompt + OUTPUT_PROMPT.MD_WORD, signal)
