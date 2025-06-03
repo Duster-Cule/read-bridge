@@ -68,17 +68,31 @@ function getSystemTTS(): TTSAPI {
     // 设置语音速率
     utterance.rate = speedRatio;
 
+    // 添加超时检测
+    let hasStarted = false;
+    const timeoutId = setTimeout(() => {
+      if (!hasStarted) {
+        console.error('Speech synthesis timeout: Voice not started after 5 seconds');
+        stop();
+        isSpeaking = false;
+      }
+    }, 5000);
+
     // 设置事件处理器
     utterance.onstart = () => {
+      hasStarted = true;
+      clearTimeout(timeoutId);
       isSpeaking = true;
     };
 
     utterance.onend = () => {
+      clearTimeout(timeoutId);
       isSpeaking = false;
       isPaused = false;
     };
 
     utterance.onerror = (event) => {
+      clearTimeout(timeoutId);
       // 以防主动终端时显示预期中的报错
       if (event.error !== 'interrupted') {
         console.error('Speech synthesis error:', event);
