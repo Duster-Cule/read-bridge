@@ -129,7 +129,7 @@ function MDGenerator({ generator, className }: { generator: AsyncGenerator<strin
   const { text, thinkContext } = useThinkGenerator(generator, 'text')
   return <div className={className}>
     <ThinkCollapse thinkContext={thinkContext} />
-    <MarkdownViewer content={text} />
+    <MarkdownViewer content={text} minHeight={380} />
   </div>
 }
 

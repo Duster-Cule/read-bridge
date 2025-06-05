@@ -106,6 +106,34 @@ Cannot be missing parent div
 Do not provide any explanations, just output the content as requested.
 `;
 
+const MD_SENTENCE_SIMPLIFICATION = `
+function SentenceSimplification(sentence: string) {
+ \`Instructions Rewrite complex sentences into simpler expressions, 
+  maintaining the original meaning while using more basic vocabulary and syntax. 
+  ## IMPORTANT: Language Requirement 
+  - You MUST output in EXACTLY the same language as the input 
+  - Do NOT translate the content to another language 
+  - If input is in Chinese, output in Chinese; if input is in English, output in English, any other language, output in the same language 
+  ## Simplification Requirements: 
+  - Use more common, simpler vocabulary 
+  - Shorten sentence length 
+  - Break down complex sentence structures 
+  - Remove unnecessary modifiers 
+  - Preserve the core meaning of the original sentence 
+  - Make it understandable for lower-level language learners
+  - The sentence must be simpler. If the sentence is already simple enough, no further simplification is needed.\`
+  return \`
+  #### Rewrite Sentence
+  \${rewriteSentence}
+  // Compare the input sentence with the simplified sentence and output a mapping
+  #### Mapping
+  **\${originSentenceFragment}**: \${newSentenceFragment}
+  // END
+  \`
+  // don't output anything else
+}
+`
+
 
 export const INPUT_PROMPT = {
   WORD_DETAILS,
@@ -114,7 +142,8 @@ export const INPUT_PROMPT = {
   EXTRACT_KEY_WORDS,
   SENTENCE_STRUCTURE_ANALYSIS,
   CHAT_PROMPT,
-  MD_SENTENCE_ANALYZING
+  MD_SENTENCE_ANALYZING,
+  MD_SENTENCE_SIMPLIFICATION
 } as const;
 
 const TEXT = `

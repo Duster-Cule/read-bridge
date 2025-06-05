@@ -13,7 +13,7 @@ interface MarkdownViewerProps {
 export default function MarkdownViewer({
   content,
   minHeight = 262,
-  className = "w-full h-[262px] overflow-y-auto"
+  className = "w-full overflow-y-auto"
 }: MarkdownViewerProps) {
   const isLoading = useMemo(() => {
     return !content
@@ -95,7 +95,7 @@ export default function MarkdownViewer({
 
   return (
     <Spin spinning={isLoading} indicator={<LoadingOutlined spin />}>
-      <div className={className}>
+      <div className={`${className} h-[${minHeight}px]`}>
         <div ref={previewRef} />
       </div>
     </Spin>

@@ -29,6 +29,12 @@ function defaultSentenceOutputOption(): OutputOption[] {
       name: 'Sentence Analysis',
       type: OUTPUT_TYPE.MD,
       rulePrompt: INPUT_PROMPT.MD_SENTENCE_ANALYZING,
+    },
+    {
+      id: crypto.randomUUID(),
+      name: 'Sentence Simplification',
+      type: OUTPUT_TYPE.MD,
+      rulePrompt: INPUT_PROMPT.MD_SENTENCE_SIMPLIFICATION,
     }
   ]
 }
