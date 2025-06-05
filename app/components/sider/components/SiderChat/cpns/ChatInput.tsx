@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { Button, Popover, Tag } from "antd"
 import { ArrowUpOutlined, PauseOutlined } from "@ant-design/icons"
 import TextArea from "antd/es/input/TextArea"
@@ -11,23 +11,36 @@ type ChatInput = {
   }[]
   isGenerating?: boolean
   onStopGeneration?: () => void
+  shouldFocus?: number
 }
 
 export default function ChatInput({
   onSent,
   tagOptions,
   isGenerating = false,
-  onStopGeneration
+  onStopGeneration,
+  shouldFocus = 0
 }: ChatInput) {
   const [input, setInput] = useState('')
   const [tags, setTags] = useState<Array<{ label: string, value: string }>>([])
   const [tagSelectorOpen, setTagSelectorOpen] = useState(false)
+  const textAreaRef = useRef<any>(null)
 
   useEffect(() => {
     if (tagOptions.length > 0) {
       setTags([tagOptions[0]])
     }
   }, [tagOptions])
+
+  useEffect(() => {
+    if (shouldFocus > 0 && textAreaRef.current) {
+      setTimeout(() => {
+        textAreaRef.current?.focus({
+          cursor: 'end'
+        })
+      }, 100)
+    }
+  }, [shouldFocus])
 
   const handleSend = () => {
     onSent(input, tags.map(tag => tag.value))
@@ -89,6 +102,7 @@ export default function ChatInput({
       </div>
       <div className="flex-1 w-full flex items-end justify-between p-2 relative">
         <TextArea
+          ref={textAreaRef}
           className="resize-none pr-16"
           value={input}
           onChange={(e) => setInput(e.target.value)}

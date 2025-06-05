@@ -34,9 +34,11 @@ export default function StandardChat() {
   const [isGenerating, setIsGenerating] = useState(false)
   const abortControllerRef = useRef<AbortController | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [focusTrigger, setFocusTrigger] = useState(0)
 
   const handleOpenModal = () => {
     setIsModalOpen(true)
+    setFocusTrigger(prev => prev + 1)
   }
 
   const handleCloseModal = () => {
@@ -298,6 +300,7 @@ export default function StandardChat() {
             tagOptions={tagOptions}
             isGenerating={isGenerating}
             onStopGeneration={handleStopGeneration}
+            shouldFocus={focusTrigger}
           />
           <ChatHistory isModalOpen={isHistoryModalOpen} onClose={handleCloseHistory} onSelect={handleSelectHistory} />
         </div>
