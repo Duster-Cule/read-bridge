@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react"
-import { Button, Popover, Tag } from "antd"
+import { Button, InputRef, Popover, Tag } from "antd"
 import { ArrowUpOutlined, PauseOutlined } from "@ant-design/icons"
 import TextArea from "antd/es/input/TextArea"
 
@@ -24,7 +24,7 @@ export default function ChatInput({
   const [input, setInput] = useState('')
   const [tags, setTags] = useState<Array<{ label: string, value: string }>>([])
   const [tagSelectorOpen, setTagSelectorOpen] = useState(false)
-  const textAreaRef = useRef<any>(null)
+  const textAreaRef = useRef<InputRef>(null)
 
   useEffect(() => {
     if (tagOptions.length > 0) {
