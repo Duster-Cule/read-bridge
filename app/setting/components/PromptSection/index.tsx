@@ -88,7 +88,7 @@ export default function PromptSection() {
       <div className="w-full flex justify-end mb-1 gap-2">
         <Button icon={<SettingOutlined />} onClick={showShortcutModal}>
           <span className="flex items-center gap-2">
-            快捷键设置
+            {t('settings.shortcutSettings')}
             <KeyboardShortcut shortcut={chatShortcut} />
           </span>
         </Button>
@@ -186,10 +186,10 @@ function ShortcutModal({ isModalOpen, onCancel, currentShortcut, onSave }: { isM
   const handleSave = () => {
     if (recordedShortcut) {
       onSave(recordedShortcut);
-      message.success('快捷键设置已保存');
+      message.success(t('settings.shortcutSaved'));
       onCancel();
     } else {
-      message.warning('请先录制快捷键');
+      message.warning(t('settings.pleaseRecordShortcut'));
     }
   };
 
@@ -246,34 +246,34 @@ function ShortcutModal({ isModalOpen, onCancel, currentShortcut, onSave }: { isM
 
   return (
     <Modal
-      title="快捷键设置"
+      title={t('settings.shortcutSettings')}
       open={isModalOpen}
       onCancel={handleCancel}
       destroyOnClose
       footer={[
-        <Button key="cancel" onClick={handleCancel}>取消</Button>,
+        <Button key="cancel" onClick={handleCancel}>{t('common.cancel')}</Button>,
         <Button key="save" type="primary" onClick={handleSave} disabled={!recordedShortcut}>
-          保存
+          {t('common.ok')}
         </Button>
       ]}
       width={500}
     >
       <div className="space-y-4">
         <div>
-          <div className="text-sm  mb-2">当前快捷键：</div>
+          <div className="text-sm  mb-2">{t('settings.currentShortcut')}</div>
           <div className="p-3 rounded border border-[var(--ant-color-border)]">
             <KeyboardShortcut shortcut={currentShortcut} />
           </div>
         </div>
 
         <div>
-          <div className="text-sm mb-2">新快捷键：</div>
+          <div className="text-sm mb-2">{t('settings.newShortcut')}</div>
           <div className="p-3 rounded border border-[var(--ant-color-border)] min-h-[40px] flex items-center">
             {recordedShortcut ? (
               <KeyboardShortcut shortcut={recordedShortcut} />
             ) : (
               <span className="text-gray-400">
-                {isRecording ? '请按下快捷键组合...' : '点击下方按钮开始录制'}
+                {isRecording ? t('settings.shortcutRecording') : t('settings.shortcutRecordingPlaceholder')}
               </span>
             )}
           </div>
@@ -284,26 +284,24 @@ function ShortcutModal({ isModalOpen, onCancel, currentShortcut, onSave }: { isM
             type={isRecording ? "default" : "primary"}
             onClick={isRecording ? handleStopRecording : handleStartRecording}
           >
-            {isRecording ? '停止录制' : '开始录制'}
+            {isRecording ? t('settings.stopRecording') : t('settings.startRecording')}
           </Button>
           <Button
             icon={<ClearOutlined />}
             onClick={handleClear}
             disabled={!recordedShortcut}
           >
-            清除
+            {t('settings.clear')}
           </Button>
         </Space>
 
         <div className="text-xs text-gray-500 mt-4">
-          <div>提示：</div>
-          <div>• 请使用 Ctrl/Alt/Shift + 字母/数字 的组合</div>
-          <div>• 建议避免使用系统常用快捷键</div>
-          <div>• 按下Esc键可退出录制状态</div>
+          <div>{t('settings.shortcutTips')}</div>
+          <div>{t('settings.shortcutTip1')}</div>
+          <div>{t('settings.shortcutTip2')}</div>
+          <div>{t('settings.shortcutTip3')}</div>
         </div>
       </div>
     </Modal>
   );
 }
-
-// TODO 这里放置修改快捷键弹窗Modal

@@ -129,7 +129,21 @@
     "wordConfigPrompt": "Word Processing Rule",
     "resetWordConfig": "Reset Word Config",
     "resetWordConfigDescription": "Are you sure you want to reset the word configurations to default?",
-    "wordProcessingSelectionTooltip": "Select the word processing configuration to use"
+    "wordProcessingSelectionTooltip": "Select the word processing configuration to use",
+    "shortcutSettings": "Shortcut Settings",
+    "currentShortcut": "Current Shortcut:",
+    "newShortcut": "New Shortcut:",
+    "shortcutRecording": "Press shortcut combination...",
+    "shortcutRecordingPlaceholder": "Click the button below to start recording",
+    "stopRecording": "Stop Recording",
+    "startRecording": "Start Recording",
+    "clear": "Clear",
+    "shortcutTips": "Tips:",
+    "shortcutTip1": "• Use Ctrl/Alt/Shift + letter/number combinations",
+    "shortcutTip2": "• Avoid using system common shortcuts",
+    "shortcutTip3": "• Press Esc to exit recording state",
+    "shortcutSaved": "Shortcut settings saved",
+    "pleaseRecordShortcut": "Please record a shortcut first"
   },
   "sider": {
     "selectSentence": "Select Sentence",

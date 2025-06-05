@@ -131,7 +131,21 @@
     "wordConfigPrompt": "规则提示词",
     "resetWordConfig": "重置单词配置",
     "resetWordConfigDescription": "确定要将单词配置重置为默认吗？",
-    "wordProcessingSelectionTooltip": "选择要使用的单词处理配置"
+    "wordProcessingSelectionTooltip": "选择要使用的单词处理配置",
+    "shortcutSettings": "快捷键设置",
+    "currentShortcut": "当前快捷键：",
+    "newShortcut": "新快捷键：",
+    "shortcutRecording": "请按下快捷键组合...",
+    "shortcutRecordingPlaceholder": "点击下方按钮开始录制",
+    "stopRecording": "停止录制",
+    "startRecording": "开始录制",
+    "clear": "清除",
+    "shortcutTips": "提示：",
+    "shortcutTip1": "• 请使用 Ctrl/Alt/Shift + 字母/数字 的组合",
+    "shortcutTip2": "• 建议避免使用系统常用快捷键",
+    "shortcutTip3": "• 按下Esc键可退出录制状态",
+    "shortcutSaved": "快捷键设置已保存",
+    "pleaseRecordShortcut": "请先录制快捷键"
   },
   "sider": {
     "selectSentence": "选中句子",
