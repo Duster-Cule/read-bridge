@@ -15,6 +15,7 @@ import { useTranslation } from "@/i18n/useTranslation"
 import { useReadingProgressStore } from "@/store/useReadingProgress"
 import { CommentOutlined } from "@ant-design/icons"
 import { useSiderStore } from "@/store/useSiderStore"
+import KeyboardShortcut from "@/app/components/KeyboardShortcut"
 
 export default function StandardChat() {
   const { t } = useTranslation()
@@ -270,12 +271,14 @@ export default function StandardChat() {
   return (
     <>
       <Button
-
         icon={<CommentOutlined />}
         onClick={handleOpenModal}
         className="m-2 mt-0"
       >
-        {t('sider.chat')}
+        <span className="flex items-center gap-2">
+          {t('sider.chat')}
+          <KeyboardShortcut shortcut={chatShortcut} />
+        </span>
       </Button>
 
       <Modal
