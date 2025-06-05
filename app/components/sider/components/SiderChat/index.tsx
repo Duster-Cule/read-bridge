@@ -69,6 +69,21 @@ export default function StandardChat() {
     }
   }, [chatShortcut])
 
+  // ESC键监听 - 关闭modal
+  useEffect(() => {
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isModalOpen) {
+        event.preventDefault()
+        handleCloseModal()
+      }
+    }
+
+    document.addEventListener('keydown', handleEscapeKey)
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey)
+    }
+  }, [isModalOpen])
+
   function handlePlus() {
     if (!history) return
     setHistory(getNewHistory(promptOptions, selectedId))
