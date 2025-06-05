@@ -3,7 +3,7 @@ import { message, Modal, Button } from "antd"
 import { useHistoryStore } from "@/store/useHistoryStore"
 import { LLMHistory } from "@/types/llm"
 
-import { useCallback, useMemo, useState, useRef } from "react"
+import { useCallback, useMemo, useState, useRef, useEffect } from "react"
 import { useLLMStore } from "@/store/useLLMStore"
 import { createLLMClient } from "@/services/llm"
 import dayjs from "dayjs"
@@ -14,11 +14,13 @@ import { useOutputOptions } from "@/store/useOutputOptions"
 import { useTranslation } from "@/i18n/useTranslation"
 import { useReadingProgressStore } from "@/store/useReadingProgress"
 import { CommentOutlined } from "@ant-design/icons"
+import { useSiderStore } from "@/store/useSiderStore"
 
 export default function StandardChat() {
   const { t } = useTranslation()
   const { readingProgress } = useReadingProgressStore()
   const { selectedId, promptOptions } = useOutputOptions()
+  const { chatShortcut } = useSiderStore()
   const [history, setHistory] = useState<LLMHistory>(() => getNewHistory(promptOptions, selectedId))
   const { setHistory: setStoreHistory, historys } = useHistoryStore()
   const { chatModel } = useLLMStore()
@@ -39,6 +41,30 @@ export default function StandardChat() {
   const handleCloseModal = () => {
     setIsModalOpen(false)
   }
+
+  // 快捷键监听
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const shortcutParts = chatShortcut.toLowerCase().split('+')
+      const isCtrlPressed = shortcutParts.includes('ctrl') && event.ctrlKey
+      const isAltPressed = shortcutParts.includes('alt') && event.altKey
+      const isShiftPressed = shortcutParts.includes('shift') && event.shiftKey
+      const key = shortcutParts[shortcutParts.length - 1]
+
+      if (event.key.toLowerCase() === key &&
+        (shortcutParts.includes('ctrl') ? isCtrlPressed : !event.ctrlKey) &&
+        (shortcutParts.includes('alt') ? isAltPressed : !event.altKey) &&
+        (shortcutParts.includes('shift') ? isShiftPressed : !event.shiftKey)) {
+        event.preventDefault()
+        handleOpenModal()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [chatShortcut])
 
   function handlePlus() {
     if (!history) return
