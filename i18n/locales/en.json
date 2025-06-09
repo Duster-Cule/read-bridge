@@ -159,7 +159,8 @@
     "noAnalysisModelSelected": "No model selected",
     "noSentenceSelected": "No sentence selected",
     "noWordSelected": "No word selected",
-    "chat": "Chat with AI"
+    "chat": "Chat with AI",
+    "defaultChat": "Default Chat"
   },
   "book": {
     "title": "Title",

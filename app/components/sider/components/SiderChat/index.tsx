@@ -20,7 +20,7 @@ import KeyboardShortcut from "@/app/components/KeyboardShortcut"
 export default function StandardChat() {
   const { t } = useTranslation()
   const { readingProgress } = useReadingProgressStore()
-  const { selectedId, promptOptions } = useOutputOptions()
+  const { selectedId, promptOptions, setSelectedId } = useOutputOptions()
   const { chatShortcut } = useSiderStore()
   const [history, setHistory] = useState<LLMHistory>(() => getNewHistory(promptOptions, selectedId))
   const { setHistory: setStoreHistory, historys } = useHistoryStore()
@@ -230,7 +230,10 @@ export default function StandardChat() {
         });
       }
       setTimeout(() => {
-        setStoreHistory(newHistory)
+        setHistory(prev => {
+          setStoreHistory(prev)
+          return prev
+        })
       }, 0)
       setIsGenerating(false)
       abortControllerRef.current = null
@@ -274,10 +277,12 @@ export default function StandardChat() {
 
 
   function handleChangePrompt(id: string) {
-    const prompt = promptOptions.find(option => option.id === id)?.prompt
-    if (!prompt) return
+    const promptItem = promptOptions.find(option => option.id === id)
+    if (!promptItem) return
+    const prompt = promptItem.prompt || ''
     setHistory(prev => {
       if (prompt === prev.prompt) return prev
+      setSelectedId(id)
       return {
         ...prev,
         prompt

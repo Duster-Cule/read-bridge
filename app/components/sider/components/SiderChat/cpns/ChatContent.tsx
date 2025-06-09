@@ -2,12 +2,14 @@ import { LLMHistory } from "@/types/llm";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { Tooltip } from "antd"
 import MessageBubble from './MessageBubble'
+import useTranslation from "@/i18n/useTranslation";
 
 type ChatContent = {
   history: LLMHistory
 }
 
 export default function ChatContent({ history }: ChatContent) {
+  const { t } = useTranslation();
   const contentRef = useRef<HTMLDivElement>(null);
   const isAutoScrollTo = useRef(false)
   const prevSizeRef = useRef(0);
@@ -90,7 +92,7 @@ export default function ChatContent({ history }: ChatContent) {
         placement="bottom"
       >
         <div className="text-sm text-gray-500 rounded-md p-2 mb-2 border border-[var(--ant-color-border)] line-clamp-3 overflow-hidden cursor-pointer">
-          {prompt}
+          {prompt ? prompt : t('sider.defaultChat')}
         </div>
       </Tooltip>
       {messages.map((msg, index) => {

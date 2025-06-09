@@ -192,7 +192,7 @@ export const getNewHistory = (promptOptions: PromptOption[], selectedId: string)
     id: crypto.randomUUID(),
     title: 'New Chat',
     timestamp: new Date().getTime(),
-    prompt: promptOptions.find(option => option.id === selectedId)?.prompt || INPUT_PROMPT.CHAT_PROMPT,
+    prompt: promptOptions.find(option => option.id === selectedId)?.prompt || '',
     messages: []
   }
 }
