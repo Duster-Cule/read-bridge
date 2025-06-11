@@ -7,7 +7,7 @@ import { Radio } from "antd"
 
 export default function ReadArea({ book, readingProgress }: { book: Book, readingProgress: ReadingProgress }) {
   const title = useMemo(() => {
-    return book.chapterList[readingProgress.currentLocation.chapterIndex].title
+    return book.chapterList[readingProgress.currentLocation.chapterIndex]?.title || ''
   }, [book, readingProgress.currentLocation.chapterIndex])
 
   const lines = useMemo(() => {

@@ -1,4 +1,4 @@
-import type { UploadProps } from 'antd';
+import type { UploadProps, UploadFile } from 'antd';
 import { message, Upload } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { BOOK_FORMAT } from '@/constants/book';
@@ -7,7 +7,7 @@ import db from '@/services/DB';
 import { Book } from '@/types/book';
 import { handleFileUpload } from '@/services/ServerUpload';
 import { useTranslation } from '@/i18n/useTranslation';
-import { useCallback } from 'react';
+import { useCallback, useState, useRef } from 'react';
 
 const { Dragger } = Upload;
 
@@ -20,6 +20,9 @@ function checkFileFormat(file: File): boolean {
 
 export default function BookUploader() {
   const { t } = useTranslation();
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const errorShownRef = useRef<Set<string>>(new Set());
+  const batchInfoRef = useRef<{ total: number; processed: number }>({ total: 0, processed: 0 });
 
   const showError = useCallback((fileNames: string) => {
     const supportedFormats = Object.values(BOOK_FORMAT).join('/');
@@ -27,7 +30,16 @@ export default function BookUploader() {
   }, [t]);
 
   const showCountError = useCallback(() => {
-    message.error(t('uploader.maxCountExceeded', { maxCount: UPLOAD_CONFIG.MAX_BOOK_COUNT.toString() }));
+    // 避免重复显示相同的错误
+    const errorKey = 'maxCountExceeded';
+    if (!errorShownRef.current.has(errorKey)) {
+      errorShownRef.current.add(errorKey);
+      message.error(t('uploader.maxCountExceeded', { maxCount: UPLOAD_CONFIG.MAX_BOOK_COUNT.toString() }));
+      // 2秒后清除错误标记，允许再次显示
+      setTimeout(() => {
+        errorShownRef.current.delete(errorKey);
+      }, 2000);
+    }
   }, [t]);
 
   const props: UploadProps = {
@@ -36,6 +48,7 @@ export default function BookUploader() {
     action: '',
     maxCount: UPLOAD_CONFIG.MAX_BOOK_COUNT,
     showUploadList: false,
+    fileList,
     customRequest: async (options) => {
       const { file } = options;
       let fileToUpload = file as File;
@@ -71,6 +84,11 @@ export default function BookUploader() {
         return Upload.LIST_IGNORE;
       }
 
+      // 初始化批次信息
+      if (batchInfoRef.current.total === 0) {
+        batchInfoRef.current = { total: fileList.length, processed: 0 };
+      }
+
       return true;
     },
     onDrop(e) {
@@ -88,21 +106,30 @@ export default function BookUploader() {
     },
     onChange: async (info) => {
       const { status, response } = info.file;
+
+      // 检查是否应该清空列表的函数
+      const checkAndClearList = () => {
+        batchInfoRef.current.processed++;
+        if (batchInfoRef.current.processed >= batchInfoRef.current.total) {
+          setFileList([]);
+          batchInfoRef.current = { total: 0, processed: 0 };
+        }
+      };
+
       if (status === 'error') {
         const errorMsg = response?.error || t('uploader.importFailed', { fileName: info.file.name });
-        return message.error(t('uploader.importFailedWithError', {
+        message.error(t('uploader.importFailedWithError', {
           fileName: info.file.name,
           error: errorMsg
         }));
+        checkAndClearList();
+        return;
       }
       else if (status === 'done') {
         try {
           const id = await db.addBook(response as Book)
           await db.addReadingProgress(id)
           message.success(t('uploader.importSuccess', { fileName: info.file.name }));
-
-          // 清空文件列表，防止阻塞后续上传
-          info.fileList.length = 0;
         } catch (error) {
           if (error instanceof Error) {
             message.error(t('uploader.importFailedWithError', {
@@ -113,6 +140,10 @@ export default function BookUploader() {
             message.error(t('uploader.importFailed', { fileName: info.file.name }));
           }
         }
+        checkAndClearList();
+      } else {
+        // 更新文件列表状态
+        setFileList(info.fileList);
       }
     },
   };
