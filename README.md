@@ -99,6 +99,7 @@ ReadBridge offers several configuration options:
 - Configure different AI providers (OpenAI, etc.)
 - Set up custom models and endpoints
 - Manage API keys and access
+- **Privacy Note**: Your API keys are never saved to our servers - they are stored locally in your browser's local storage for security
 
 ### Model Configuration
 - Select default models for different functionalities
