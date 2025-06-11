@@ -1,3 +1,5 @@
+import { theme } from 'antd'
+
 interface KeyboardShortcutProps {
   shortcut: string
   className?: string
@@ -5,6 +7,7 @@ interface KeyboardShortcutProps {
 
 export default function KeyboardShortcut({ shortcut, className = '' }: KeyboardShortcutProps) {
   const keys = shortcut.split('+').map(key => key.trim())
+  const { token } = theme.useToken()
 
   return (
     <span className={`inline-flex items-center gap-1 ${className}`}>
@@ -12,8 +15,13 @@ export default function KeyboardShortcut({ shortcut, className = '' }: KeyboardS
         <kbd
           key={index}
           className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-mono font-medium 
-                     bg-gray-100 border border-gray-300 rounded shadow-sm 
-                     dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300"
+                     rounded shadow-sm"
+          style={{
+            backgroundColor: token.colorBgContainer,
+            borderColor: token.colorBorder,
+            color: token.colorText,
+            border: `1px solid ${token.colorBorder}`
+          }}
         >
           {key}
         </kbd>
