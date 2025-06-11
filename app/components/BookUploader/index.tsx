@@ -2,6 +2,7 @@ import type { UploadProps } from 'antd';
 import { message, Upload } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { BOOK_FORMAT } from '@/constants/book';
+import { UPLOAD_CONFIG } from '@/constants/upload';
 import db from '@/services/DB';
 import { Book } from '@/types/book';
 import { handleFileUpload } from '@/services/ServerUpload';
@@ -16,11 +17,14 @@ function checkFileFormat(file: File): boolean {
 function showError(fileNames: string) {
   message.error(`${fileNames} 格式不支持，请上传 ${Object.values(BOOK_FORMAT).join('/')} 格式的文件`);
 }
+function showCountError() {
+  message.error(`一次性最多只能上传 ${UPLOAD_CONFIG.MAX_BOOK_COUNT} 本书籍`);
+}
 const props: UploadProps = {
   name: 'file',
   multiple: true,
   action: '',
-  maxCount: 1,
+  maxCount: UPLOAD_CONFIG.MAX_BOOK_COUNT,
   showUploadList: false,
   customRequest: async (options) => {
     const { file } = options;
@@ -44,11 +48,16 @@ const props: UploadProps = {
   },
   accept: Object.values(BOOK_FORMAT).map(format => `.${format}`).join(','),
 
-  beforeUpload: (file) => {
+  beforeUpload: (file, fileList) => {
     const isAcceptedFormat = checkFileFormat(file);
 
     if (!isAcceptedFormat) {
       showError(file.name)
+      return Upload.LIST_IGNORE;
+    }
+
+    if (fileList.length > UPLOAD_CONFIG.MAX_BOOK_COUNT) {
+      showCountError();
       return Upload.LIST_IGNORE;
     }
 
@@ -62,6 +71,10 @@ const props: UploadProps = {
       const fileNames = invalidFiles.map(file => file.name).join(', ');
       showError(fileNames)
     }
+
+    if (files.length > UPLOAD_CONFIG.MAX_BOOK_COUNT) {
+      showCountError();
+    }
   },
   onChange: async (info) => {
     const { status, response } = info.file;
@@ -71,6 +84,9 @@ const props: UploadProps = {
         const id = await db.addBook(response as Book)
         await db.addReadingProgress(id)
         message.success(`${info.file.name} 文件导入 成功`);
+
+        // 清空文件列表，防止阻塞后续上传
+        info.fileList.length = 0;
       } catch (error) {
         if (error instanceof Error) message.error(`${info.file.name} 文件导入失败: ${error.message}`);
         else message.error(`${info.file.name} 文件导入失败`);

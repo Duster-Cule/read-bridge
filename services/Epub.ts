@@ -64,12 +64,23 @@ export function initEpubBook(buffer: Buffer): FormattedBook {
     const possiblePrefixesList = [commonPrefix, 'OEBPS/', 'EPUB/', 'OPS/', '']
     let contentXML = ''
 
+    const hrefs: string[] = []
+    try {
+      hrefs.push(decodeURIComponent(item.href))
+    } catch (e) {
+      console.warn(`Decode href failed: ${item.href}`)
+    }
+    hrefs.push(item.href)
+
     for (const prefix of possiblePrefixesList) {
-      const fullPath = prefix + item.href
-      if (fullPath in unzipped) {
-        contentXML = strFromU8(unzipped[fullPath])
-        break
+      for (const href of hrefs) {
+        const fullPath = prefix + href
+        if (fullPath in unzipped) {
+          contentXML = strFromU8(unzipped[fullPath])
+          break
+        }
       }
+      if (contentXML !== '') break
     }
 
     if (contentXML === '') {
