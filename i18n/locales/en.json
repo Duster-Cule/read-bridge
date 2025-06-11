@@ -187,5 +187,12 @@
     "deleteChapter": "Delete Chapter",
     "noChapterSelected": "No chapter selected",
     "atLeastOneChapter": "At least one chapter is required"
+  },
+  "uploader": {
+    "formatNotSupported": "{fileNames} format not supported, please upload {supportedFormats} format files",
+    "maxCountExceeded": "Maximum {maxCount} books can be uploaded at once",
+    "importFailed": "Failed to import {fileName}",
+    "importFailedWithError": "Failed to import {fileName}: {error}",
+    "importSuccess": "{fileName} imported successfully"
   }
 }

@@ -189,5 +189,12 @@
     "deleteChapter": "删除章节",
     "noChapterSelected": "未选择章节",
     "atLeastOneChapter": "至少需要一个章节"
+  },
+  "uploader": {
+    "formatNotSupported": "{fileNames} 格式不支持，请上传 {supportedFormats} 格式的文件",
+    "maxCountExceeded": "一次性最多只能上传 {maxCount} 本书籍",
+    "importFailed": "{fileName} 文件导入失败",
+    "importFailedWithError": "{fileName} 文件导入失败，{error}",
+    "importSuccess": "{fileName} 文件导入成功"
   }
 }
