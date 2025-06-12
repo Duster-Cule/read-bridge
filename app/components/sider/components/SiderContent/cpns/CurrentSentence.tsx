@@ -4,13 +4,14 @@ import nlp from "compromise";
 import { useCallback, useMemo, useState, useRef, useEffect } from "react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { useTheme } from "next-themes";
+import { TextAreaRef } from "antd/es/input/TextArea";
 
 export default function CurrentSentence({ sentence, handleWord, onEditComplete }: { sentence: string, handleWord: (word: string) => void, onEditComplete: (text: string) => void }) {
   const { t } = useTranslation()
   const { theme: currentTheme } = useTheme();
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState('');
-  const inputRef = useRef<any>(null);
+  const inputRef = useRef<TextAreaRef>(null);
 
   const wordTypeColors = useMemo(() => ({
     'Verb': 'text-[var(--ant-green-6)]',
