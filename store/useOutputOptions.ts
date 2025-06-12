@@ -3,35 +3,36 @@ import { persist } from 'zustand/middleware'
 import { OutputOption, PromptOption, WordOption } from "@/types/llm";
 import { OUTPUT_TYPE, INPUT_PROMPT } from "@/constants/prompt";
 import { message } from 'antd';
+import generateUUID from '@/utils/uuid'
 
 function defaultSentenceOutputOption(): OutputOption[] {
   return [
     {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       name: 'Sentence Analysis',
       type: OUTPUT_TYPE.SIMPLE_LIST,
       rulePrompt: INPUT_PROMPT.SENTENCE_STRUCTURE_ANALYSIS,
     },
     {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       name: 'Sentence Rewrite',
       type: OUTPUT_TYPE.TEXT,
       rulePrompt: INPUT_PROMPT.SENTENCE_REWRITE,
     },
     {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       name: 'Key Word Analysis',
       type: OUTPUT_TYPE.KEY_VALUE_LIST,
       rulePrompt: INPUT_PROMPT.EXTRACT_KEY_WORDS,
     },
     {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       name: 'Sentence Analysis',
       type: OUTPUT_TYPE.MD,
       rulePrompt: INPUT_PROMPT.MD_SENTENCE_ANALYZING,
     },
     {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       name: 'Sentence Simplification',
       type: OUTPUT_TYPE.MD,
       rulePrompt: INPUT_PROMPT.MD_SENTENCE_SIMPLIFICATION,
@@ -42,12 +43,12 @@ function defaultSentenceOutputOption(): OutputOption[] {
 function defaultWordOutputOption(): WordOption[] {
   return [
     {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       name: '单词基础分析',
       rulePrompt: INPUT_PROMPT.WORD_DETAILS,
     },
     {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       name: '单词详细分析',
       rulePrompt: INPUT_PROMPT.FUNC_WORD_DETAILS,
     }
@@ -83,7 +84,7 @@ interface OutputOptionsStore {
 function defaultPromptOutputOption(): PromptOption[] {
   return [
     {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       name: 'default chat',
       prompt: INPUT_PROMPT.CHAT_PROMPT,
     }
@@ -92,12 +93,12 @@ function defaultPromptOutputOption(): PromptOption[] {
 
 export const useOutputOptions = create<OutputOptionsStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       sentenceOptions: defaultSentenceOutputOption(),
       addSentenceOptions: (newOption) => set((state) => ({
         sentenceOptions: [...state.sentenceOptions, {
           ...newOption,
-          id: crypto.randomUUID()
+          id: generateUUID()
         }]
       })),
       deleteSentenceOptions: (targetOption) => set((state) => ({
@@ -117,7 +118,7 @@ export const useOutputOptions = create<OutputOptionsStore>()(
       addPromptOptions: (newPrompt) => set((state) => ({
         promptOptions: [...state.promptOptions, {
           ...newPrompt,
-          id: crypto.randomUUID()
+          id: generateUUID()
         }]
       })),
       deletePromptOptions: (targetPrompt) => set((state) => {
@@ -145,7 +146,7 @@ export const useOutputOptions = create<OutputOptionsStore>()(
       addWordOptions: (newOption) => set((state) => ({
         wordOptions: [...state.wordOptions, {
           ...newOption,
-          id: crypto.randomUUID()
+          id: generateUUID()
         }]
       })),
       deleteWordOptions: (targetOption) => set((state) => {
@@ -189,7 +190,7 @@ export const useOutputOptions = create<OutputOptionsStore>()(
 
 export const getNewHistory = (promptOptions: PromptOption[], selectedId: string) => {
   return {
-    id: crypto.randomUUID(),
+    id: generateUUID(),
     title: 'New Chat',
     timestamp: new Date().getTime(),
     prompt: promptOptions.find(option => option.id === selectedId)?.prompt || '',

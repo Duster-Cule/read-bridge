@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { TTSRequest } from '@/types/tts';
-
+import { generateUUID } from '@/utils/uuid'
 export const runtime = 'edge';
 
 const VOLCENGINE_TTS_URL = 'https://openspeech.bytedance.com/api/v1/tts';
@@ -29,7 +29,7 @@ export async function POST(req: Request) {
           speed_ratio: speedRatio,
         },
         request: {
-          reqid: crypto.randomUUID(),
+          reqid: generateUUID(),
           text,
           operation: 'query',
         },

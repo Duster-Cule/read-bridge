@@ -6,7 +6,7 @@ import { initTXTBook } from '@/services/TXT';
 
 import type { Book } from '@/types/book';
 import { initMDBook } from './MD';
-
+import { generateUUID } from '@/utils/uuid'
 /**
  * 处理书籍
  * @param buffer 书籍文件
@@ -49,7 +49,7 @@ export async function processBook(buffer: Buffer, type: BOOK_MIME_TYPE_TYPE, nam
 
 function createBookModel(formattedBook: FormattedBook, hash: string): Book {
   return {
-    id: self.crypto.randomUUID(),
+    id: generateUUID(),
     fileHash: hash,
     createTime: Date.now(),
     title: formattedBook.metadata.title,

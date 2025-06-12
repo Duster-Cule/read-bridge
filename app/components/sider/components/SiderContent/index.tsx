@@ -51,12 +51,8 @@ export default function SiderContent() {
       : null
   }, [parseModel])
 
-  // 处理行索引
-  const handleLineIndex = useCallback(async (readingProgress: ReadingProgress) => {
-    // 取出lineindex和currentChapter
-    const { currentLocation, sentenceChapters } = readingProgress
-    const { chapterIndex, lineIndex: index } = currentLocation
-    const currentChapter = sentenceChapters[chapterIndex]
+
+  const processingSentences = useCallback((text: string) => {
     // 取消之前的请求
     if (controllerRef.current) {
       controllerRef.current.abort();
@@ -65,6 +61,54 @@ export default function SiderContent() {
     // 创建新的 controller
     controllerRef.current = new AbortController();
     const { signal } = controllerRef.current;
+    // 阅读
+    if (speak && text && ttsGlobalConfig.autoSentenceTTS) {
+      speak(text)
+    }
+    setSelectedTab("sentence-analysis")
+    setSentence(text)
+    setWord("")
+    setWordDetails("")
+    if (!text || !defaultLLMClient) return
+
+    // 清空现有列表
+    setSentenceProcessingList([])
+
+    const addProcessorsWithDelay = async () => {
+      for (let i = 0; i < sentenceOptions.length; i++) {
+        const option = sentenceOptions[i]
+        const { name, type, rulePrompt, id } = option
+        let generator: AsyncGenerator<string, void, unknown> | null = null
+        try {
+          if (type === OUTPUT_TYPE.MD) {
+            generator = defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, `theme: ${theme} output: ${OUTPUT_PROMPT[type]}`), signal)
+          } else {
+            generator = getGeneratorThinkAndHTMLTag(defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, OUTPUT_PROMPT[type]), signal))
+          }
+        } catch (error) {
+          console.log(t('common.templates.analysisFailed', { entity: t('common.entities.sentenceAnalysisGeneric') }), error, name, type, text)
+        }
+        if (generator) {
+          setSentenceProcessingList(prev => [...prev, { name, type, generator, id }])
+        }
+
+        if (i < sentenceOptions.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 50))
+        }
+      }
+    }
+
+    // 执行添加处理器的函数
+    addProcessorsWithDelay()
+  }, [defaultLLMClient, sentenceOptions, setSentenceProcessingList, batchProcessingSize, t])
+
+  // 处理行索引
+  const handleLineIndex = useCallback(async (readingProgress: ReadingProgress) => {
+    // 取出lineindex和currentChapter
+    const { currentLocation, sentenceChapters } = readingProgress
+    const { chapterIndex, lineIndex: index } = currentLocation
+    const currentChapter = sentenceChapters[chapterIndex]
+
     let text = ''
     try {
       let nextIndex = index;
@@ -91,46 +135,8 @@ export default function SiderContent() {
       text = currentChapter[index]
     }
 
-    // 阅读
-    if (speak && text && ttsGlobalConfig.autoSentenceTTS) {
-      speak(text)
-    }
-    setSelectedTab("sentence-analysis")
-    setSentence(text)
-    setWord("")
-    setWordDetails("")
-    if (!text || !defaultLLMClient) return
-
-    // 清空现有列表
-    setSentenceProcessingList([])
-
-    const addProcessorsWithDelay = async () => {
-      for (let i = 0; i < sentenceOptions.length; i++) {
-        const option = sentenceOptions[i]
-        const { name, type, rulePrompt, id } = option
-        let generator: AsyncGenerator<string, void, unknown> | null = null
-        try {
-          if (type === OUTPUT_TYPE.MD) {
-            generator = defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, `theme: ${theme} output: ${OUTPUT_PROMPT[type]}`), signal)
-          } else {
-            generator = getGeneratorThinkAndHTMLTag(defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, OUTPUT_PROMPT[type]), signal))
-          }
-        } catch (error) {
-          console.log(t('common.templates.analysisFailed', { entity: t('common.entities.sentenceAnalysisGeneric') }), error, index, name, type, text)
-        }
-        if (generator) {
-          setSentenceProcessingList(prev => [...prev, { name, type, generator, id }])
-        }
-
-        if (i < sentenceOptions.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 50))
-        }
-      }
-    }
-
-    // 执行添加处理器的函数
-    addProcessorsWithDelay()
-  }, [defaultLLMClient, sentenceOptions, setSentenceProcessingList, batchProcessingSize, t])
+    processingSentences(text)
+  }, [defaultLLMClient, sentenceOptions, setSentenceProcessingList, batchProcessingSize, t, processingSentences])
 
   useEffect(() => {
     const unsub = EventEmitter.on(EVENT_NAMES.SEND_MESSAGE, handleLineIndex)
@@ -198,9 +204,16 @@ export default function SiderContent() {
       setWordDetails((prev) => (prev || "") + chunk)
     }
   }, [defaultLLMClient, handleTabChange, sentence, isSameWord, wordOption])
+
+
+  const handleEditComplete = useCallback((text: string) => {
+    setSentence(text)
+    processingSentences(text)
+  }, [processingSentences, setSentence])
+
   return (
     <div className="w-full h-full flex flex-col">
-      <CurrentSentence sentence={sentence} handleWord={handleWord} />
+      <CurrentSentence sentence={sentence} handleWord={handleWord} onEditComplete={handleEditComplete} />
       <Divider className="my-0" />
       <MenuLine selectedTab={selectedTab} items={items} onTabChange={handleTabChange} />
       <div className={`${selectedTab === 'sentence-analysis' ? 'block' : 'hidden'}`}>
