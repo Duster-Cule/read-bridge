@@ -93,14 +93,13 @@ export default function ReadArea({ book, readingProgress }: { book: Book, readin
 
   // 处理行点击
   const handleLineClick = useCallback((index: number) => {
-    setSelectedLine(prevSelectedLine => {
-      const newSelectedLine = prevSelectedLine === index ? Infinity : index;
-      EventEmitter.emit(EVENT_NAMES.SEND_LINE_INDEX, newSelectedLine);
-      db.updateCurrentLocation(book.id, {
+    setSelectedLine((prev) => {
+      EventEmitter.emit(EVENT_NAMES.SEND_LINE_INDEX, index);
+      if (prev !== index) db.updateCurrentLocation(book.id, {
         chapterIndex: readingProgress.currentLocation.chapterIndex,
-        lineIndex: newSelectedLine
+        lineIndex: index
       });
-      return newSelectedLine;
+      return index;
     });
   }, [book.id, readingProgress.currentLocation.chapterIndex]);
 

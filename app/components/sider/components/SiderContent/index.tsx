@@ -53,6 +53,16 @@ export default function SiderContent() {
 
 
   const processingSentences = useCallback((text: string) => {
+    // 阅读
+    if (speak && text && ttsGlobalConfig.autoSentenceTTS) {
+      speak(text)
+    }
+
+    // 判断句子是否相同 如相同则只阅读即可
+    let skip = false
+    setSentence(prev => prev === text ? (skip = true, prev) : text)
+    if (skip) return
+
     // 取消之前的请求
     if (controllerRef.current) {
       controllerRef.current.abort();
@@ -61,12 +71,7 @@ export default function SiderContent() {
     // 创建新的 controller
     controllerRef.current = new AbortController();
     const { signal } = controllerRef.current;
-    // 阅读
-    if (speak && text && ttsGlobalConfig.autoSentenceTTS) {
-      speak(text)
-    }
     setSelectedTab("sentence-analysis")
-    setSentence(text)
     setWord("")
     setWordDetails("")
     if (!text || !defaultLLMClient) return
