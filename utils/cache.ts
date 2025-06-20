@@ -103,3 +103,59 @@ export function isTimeExpired(createTime: string, expireHours: number): boolean 
   const now = dayjs();
   return now.diff(createDateTime, 'hour') >= expireHours;
 }
+
+/**
+ * 解析时间槽ID为Date对象
+ * 
+ * @param slotId - 时间槽ID，格式为 YYYY-MM-DD_HH
+ * @returns Date 解析后的日期对象
+ * 
+ * @example
+ * ```typescript
+ * const date = parseTimeSlot("2024-01-15_14");
+ * console.log(date); // Date object for 2024-01-15 14:00:00
+ * ```
+ */
+export function parseTimeSlot(slotId: string): Date {
+  const [datePart, hourPart] = slotId.split('_');
+  return dayjs(`${datePart} ${hourPart}:00:00`).toDate();
+}
+
+/**
+ * 检查时间槽是否比指定小时数更老
+ * 
+ * @param slotId - 时间槽ID
+ * @param hours - 小时数
+ * @returns boolean 是否更老
+ * 
+ * @example
+ * ```typescript
+ * const isOlder = isSlotOlderThan("2024-01-15_14", 24);
+ * console.log(isOlder); // true/false
+ * ```
+ */
+export function isSlotOlderThan(slotId: string, hours: number): boolean {
+  const slotDate = parseTimeSlot(slotId);
+  const now = dayjs();
+  return now.diff(dayjs(slotDate), 'hour') >= hours;
+}
+
+/**
+ * 按年龄排序时间槽（最老的在前）
+ * 
+ * @param slotIds - 时间槽ID数组
+ * @returns string[] 排序后的时间槽ID数组
+ * 
+ * @example
+ * ```typescript
+ * const sorted = sortSlotsByAge(["2024-01-15_14", "2024-01-15_13"]);
+ * console.log(sorted); // ["2024-01-15_13", "2024-01-15_14"]
+ * ```
+ */
+export function sortSlotsByAge(slotIds: string[]): string[] {
+  return slotIds.sort((a, b) => {
+    const dateA = parseTimeSlot(a);
+    const dateB = parseTimeSlot(b);
+    return dateA.getTime() - dateB.getTime();
+  });
+}

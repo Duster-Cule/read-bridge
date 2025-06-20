@@ -2,16 +2,28 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { CacheSystem, CacheItem, CacheKeyParams } from '@/types/cache'
 import { DEFAULT_CACHE_SETTINGS } from '@/constants/cache'
-import { generateCacheKey, isTimeExpired, getTimeSlot } from '@/utils/cache'
-import dayjs from 'dayjs'
 
 interface CacheStore extends CacheSystem {
-  // 设置缓存项
-  setCacheItem: (params: CacheKeyParams, item: Omit<CacheItem, 'createTime'>) => void
-  // 移除缓存项
-  removeCacheItem: (cacheKey: string) => void
-  // 获取缓存项
-  getCacheItem: (params: CacheKeyParams) => CacheItem | null
+  // 增删改 
+  setItem: (timeSlot: string, key: string, item: CacheItem) => void
+  removeItem: (timeSlot: string, key: string) => void
+  removeSlot: (timeSlot: string) => void
+  updateIndex: (key: string, timeSlot: string | null) => void
+
+  // 查
+  getItem: (timeSlot: string, key: string) => CacheItem | null
+  getSlot: (timeSlot: string) => Record<string, CacheItem>
+  getSlotForKey: (key: string) => string | null
+  getAllSlots: () => string[]
+
+  // 统计
+  getTotalCount: () => number
+  getSlotCount: () => number
+  getSlotStats: () => Array<{ slotId: string, itemCount: number }>
+
+  // 设置
+  getSettings: () => typeof DEFAULT_CACHE_SETTINGS
+  updateSettings: (settings: Partial<typeof DEFAULT_CACHE_SETTINGS>) => void
 }
 
 export const useCacheStore = create<CacheStore>()(
@@ -20,98 +32,113 @@ export const useCacheStore = create<CacheStore>()(
       buckets: {},
       globalIndex: {},
       settings: DEFAULT_CACHE_SETTINGS,
-      setCacheItem(params, item) {
-        // 1. 获取 cacheKey
-        const cacheKey = generateCacheKey(params)
 
-        // 2. 如果有老数据，则清除老数据
-        const { removeCacheItem } = get()
-        removeCacheItem(cacheKey)
-
-        // 3. 存入新数据
-        const timeSlot = getTimeSlot()
-        const cacheItem: CacheItem = {
-          ...item,
-          createTime: dayjs().toISOString()
-        }
-
+      // 增删改
+      setItem: (timeSlot: string, key: string, item: CacheItem) => {
         set(state => {
-          const newGlobalIndex = { ...state.globalIndex }
           const newBuckets = { ...state.buckets }
-
-          // 更新全局索引
-          newGlobalIndex[cacheKey] = timeSlot
-
-          // 更新对应的时间桶
           if (!newBuckets[timeSlot]) {
             newBuckets[timeSlot] = {}
           }
           newBuckets[timeSlot] = {
             ...newBuckets[timeSlot],
-            [cacheKey]: cacheItem
+            [key]: item
           }
-
-          return {
-            ...state,
-            globalIndex: newGlobalIndex,
-            buckets: newBuckets
-          }
+          return { ...state, buckets: newBuckets }
         })
       },
-      // 移除缓存项
-      removeCacheItem(cacheKey) {
-        const { globalIndex } = get()
-        const timeSlot = globalIndex[cacheKey]
-        if (!timeSlot) return
 
+      removeItem: (timeSlot: string, key: string) => {
         set(state => {
-          const newGlobalIndex = { ...state.globalIndex }
           const newBuckets = { ...state.buckets }
-
-          // 从全局索引中移除
-          delete newGlobalIndex[cacheKey]
-
-          // 从对应的时间桶中移除
           if (newBuckets[timeSlot]) {
             const newTimeBucket = { ...newBuckets[timeSlot] }
-            delete newTimeBucket[cacheKey]
+            delete newTimeBucket[key]
 
-            // 如果时间桶为空，则删除整个时间桶
             if (Object.keys(newTimeBucket).length === 0) {
               delete newBuckets[timeSlot]
             } else {
               newBuckets[timeSlot] = newTimeBucket
             }
           }
-
-          return {
-            ...state,
-            globalIndex: newGlobalIndex,
-            buckets: newBuckets
-          }
+          return { ...state, buckets: newBuckets }
         })
       },
-      // 获取缓存项
-      getCacheItem(params) {
-        const cacheKey = generateCacheKey(params)
-        const { globalIndex, buckets, settings } = get()
-        const timeSlot = globalIndex[cacheKey]
-        if (!timeSlot) return null
 
-        const timeBucket = buckets[timeSlot] ?? {}
-        if (!timeBucket[cacheKey]) return null
-
-        const cacheItem = timeBucket[cacheKey]
-
-        // 检测缓存是否过期
-        if (isTimeExpired(cacheItem.createTime, settings.expireHours)) {
-          // 立即清理过期项（懒惰清理策略）
-          get().removeCacheItem(cacheKey)
-          return null
-        }
-        return cacheItem
+      removeSlot: (timeSlot: string) => {
+        set(state => {
+          const newBuckets = { ...state.buckets }
+          delete newBuckets[timeSlot]
+          return { ...state, buckets: newBuckets }
+        })
       },
 
+      updateIndex: (key: string, timeSlot: string | null) => {
+        set(state => {
+          const newGlobalIndex = { ...state.globalIndex }
+          if (timeSlot === null) {
+            delete newGlobalIndex[key]
+          } else {
+            newGlobalIndex[key] = timeSlot
+          }
+          return { ...state, globalIndex: newGlobalIndex }
+        })
+      },
+
+      // 查询
+      getItem: (timeSlot: string, key: string) => {
+        const { buckets } = get()
+        const timeBucket = buckets[timeSlot]
+        return timeBucket?.[key] || null
+      },
+
+      getSlot: (timeSlot: string) => {
+        const { buckets } = get()
+        return buckets[timeSlot] || {}
+      },
+
+      getSlotForKey: (key: string) => {
+        const { globalIndex } = get()
+        return globalIndex[key] || null
+      },
+
+      getAllSlots: () => {
+        const { buckets } = get()
+        return Object.keys(buckets)
+      },
+
+      // 状态统计 read only
+      getTotalCount: () => {
+        const { buckets } = get()
+        return Object.values(buckets).reduce((total, slot) =>
+          total + Object.keys(slot).length, 0)
+      },
+
+      getSlotCount: () => {
+        const { buckets } = get()
+        return Object.keys(buckets).length
+      },
+
+      getSlotStats: () => {
+        const { buckets } = get()
+        return Object.entries(buckets).map(([slotId, slot]) => ({
+          slotId,
+          itemCount: Object.keys(slot).length
+        }))
+      },
+
+      // 设置处理
+      getSettings: () => {
+        const { settings } = get()
+        return settings
+      },
+
+      updateSettings: (newSettings) => {
+        set(state => ({
+          ...state,
+          settings: { ...state.settings, ...newSettings }
+        }))
+      },
     }),
     {
       name: 'cache-storage',
