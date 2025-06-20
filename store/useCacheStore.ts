@@ -2,15 +2,16 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { CacheSystem, CacheItem, CacheKeyParams } from '@/types/cache'
 import { DEFAULT_CACHE_SETTINGS } from '@/constants/cache'
-import { generateCacheKey, isTimeExpired } from '@/utils/cache'
+import { generateCacheKey, isTimeExpired, getTimeSlot } from '@/utils/cache'
+import dayjs from 'dayjs'
 
 interface CacheStore extends CacheSystem {
-  // 获取缓存项
-  getCacheItem: (params: CacheKeyParams) => CacheItem | null
-  // 移除缓存项
-  removeCacheItem: (cacheKey: string) => void
   // 设置缓存项
   setCacheItem: (params: CacheKeyParams, item: Omit<CacheItem, 'createTime'>) => void
+  // 移除缓存项
+  removeCacheItem: (cacheKey: string) => void
+  // 获取缓存项
+  getCacheItem: (params: CacheKeyParams) => CacheItem | null
 }
 
 export const useCacheStore = create<CacheStore>()(
@@ -19,6 +20,44 @@ export const useCacheStore = create<CacheStore>()(
       buckets: {},
       globalIndex: {},
       settings: DEFAULT_CACHE_SETTINGS,
+      setCacheItem(params, item) {
+        // 1. 获取 cacheKey
+        const cacheKey = generateCacheKey(params)
+
+        // 2. 如果有老数据，则清除老数据
+        const { removeCacheItem } = get()
+        removeCacheItem(cacheKey)
+
+        // 3. 存入新数据
+        const timeSlot = getTimeSlot()
+        const cacheItem: CacheItem = {
+          ...item,
+          createTime: dayjs().toISOString()
+        }
+
+        set(state => {
+          const newGlobalIndex = { ...state.globalIndex }
+          const newBuckets = { ...state.buckets }
+
+          // 更新全局索引
+          newGlobalIndex[cacheKey] = timeSlot
+
+          // 更新对应的时间桶
+          if (!newBuckets[timeSlot]) {
+            newBuckets[timeSlot] = {}
+          }
+          newBuckets[timeSlot] = {
+            ...newBuckets[timeSlot],
+            [cacheKey]: cacheItem
+          }
+
+          return {
+            ...state,
+            globalIndex: newGlobalIndex,
+            buckets: newBuckets
+          }
+        })
+      },
       // 移除缓存项
       removeCacheItem(cacheKey) {
         const { globalIndex } = get()
@@ -72,9 +111,7 @@ export const useCacheStore = create<CacheStore>()(
         }
         return cacheItem
       },
-      setCacheItem(params, item) {
 
-      }
     }),
     {
       name: 'cache-storage',
