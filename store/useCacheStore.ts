@@ -9,7 +9,7 @@ interface CacheStore extends CacheSystem {
   removeItem: (timeSlot: string, key: string) => void
   removeSlot: (timeSlot: string) => void
   updateIndex: (key: string, timeSlot: string | null) => void
-
+  removeIndex: (key: string) => void
   // 查
   getItem: (timeSlot: string, key: string) => CacheItem | null
   getSlot: (timeSlot: string) => Record<string, CacheItem>
@@ -81,6 +81,15 @@ export const useCacheStore = create<CacheStore>()(
           } else {
             newGlobalIndex[key] = timeSlot
           }
+          return { ...state, globalIndex: newGlobalIndex }
+        })
+      },
+      removeIndex: (timeSlot: string) => {
+        set(state => {
+          const { globalIndex } = state
+          const newGlobalIndex = Object.fromEntries(
+            Object.entries(globalIndex).filter(([key, value]) => value !== timeSlot)
+          )
           return { ...state, globalIndex: newGlobalIndex }
         })
       },
