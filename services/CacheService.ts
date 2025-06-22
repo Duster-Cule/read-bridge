@@ -1,6 +1,6 @@
 import { useCacheStore } from '@/store/useCacheStore'
 import { CacheKeyParams, CacheItem } from '@/types/cache'
-import { generateCacheKey, getTimeSlot, isSlotOlderThan, isTimeExpired } from '@/utils/cache'
+import { generateCacheKey, getTimeSlot, isSlotOlderThan, isTimeExpired, sortSlotsByAge } from '@/utils/cache'
 import { DEFAULT_CACHE_SETTINGS, SETTING_BOUNDS } from '@/constants/cache'
 import dayjs from 'dayjs'
 
@@ -118,10 +118,52 @@ export function CacheService() {
       }
     })
     store = useCacheStore.getState()
-    // 判断是否超量 TODO
+    // 判断是否超量
     const length = store.getTotalCount()
-    if (maxCacheSize > length) return
+    // 如果不超量 直接退出
+    if (maxCacheSize >= length) return
+    // 如果超量 需要清理
 
+    // 计算清理目标
+    const needToRemove = length - maxCacheSize
+
+    // 获取时间槽排序
+    const allSlots = store.getAllSlots()
+    const sortedSlots = sortSlotsByAge(allSlots)
+
+    // 混合清理
+    let removedCount = 0
+
+    for (const slot of sortedSlots) {
+      const slotData = store.getSlot(slot)
+      if (!slotData) continue
+
+      const slotItemCount = Object.keys(slotData).length
+      const remainingToRemove = needToRemove - removedCount
+
+      if (slotItemCount <= remainingToRemove) {
+        // 情况A：整槽清理 - 槽内项目数 ≤ 需要清理数
+        store.removeSlot(slot)
+        store.removeIndex(slot)
+        removedCount += slotItemCount
+      } else {
+        // 情况B：槽内精细清理 - 槽内项目数 > 需要清理数
+        const itemsWithTime = Object.entries(slotData)
+          .map(([key, item]) => ({ key, item, createTime: item.createTime }))
+          .sort((a, b) => a.createTime.localeCompare(b.createTime))
+
+        // 删除最老的项目
+        for (let i = 0; i < remainingToRemove; i++) {
+          const { key } = itemsWithTime[i]
+          store.removeItem(slot, key)
+          store.updateIndex(key, null)
+        }
+        removedCount += remainingToRemove
+        break // 精细清理后必然满足要求，退出循环
+      }
+
+      if (removedCount >= needToRemove) break
+    }
   }
 
   return {
