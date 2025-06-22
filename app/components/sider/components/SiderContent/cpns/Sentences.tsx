@@ -2,9 +2,12 @@ import CardComponent from "@/app/components/common/CardComponent"
 import { OUTPUT_TYPE } from "@/constants/prompt"
 import { Collapse } from "antd"
 import { LoadingOutlined } from "@ant-design/icons"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import MarkdownViewer from "@/app/components/common/MarkdownViewer"
-import { SentenceProcessing } from "@/types/cache"
+import { CacheItemValue, SentenceProcessing } from "@/types/cache"
+
+import { cacheService } from "@/services/CacheService"
+import { useSiderStore } from "@/store/useSiderStore"
 
 // 自定义hook抽取think处理逻辑
 function useThinkGenerator(SentenceProcessing: SentenceProcessing, outputType: 'text' | 'list') {
@@ -12,25 +15,37 @@ function useThinkGenerator(SentenceProcessing: SentenceProcessing, outputType: '
   const [text, setText] = useState<string>("")
   const [list, setList] = useState<string[]>([])
   const [thinkContext, setThinkContext] = useState<string>('')
-
+  const key = useRef(0)
+  const { readingId } = useSiderStore()
   useEffect(() => {
     setText("");
     setList([]);
     setThinkContext('')
 
-    if (outputType === 'text') {
-      handleThinkAndResult(generator,
-        (value) => setText((prev) => prev + value),
-        (value) => setThinkContext((prev) => prev + value)
-      )
-    } else {
-      handleThinkAndResult(generator,
-        (value) => setList((prev) => [...prev, value]),
-        (value) => setThinkContext((prev) => prev + value)
-      )
-    }
+    handleThinkAndResult(generator,
+      outputType === 'text' ? (value) => setText((prev) => prev + value) : (value) => setList((prev) => [...prev, value]),
+      (value) => setThinkContext((prev) => prev + value),
+    ).then(() => key.current += 1)
   }, [generator, outputType])
 
+
+  useEffect(() => {
+    const { id, type, text: sentence } = SentenceProcessing
+    cacheService.set(
+      {
+        bookId: readingId || '',
+        sentence,
+        ruleId: id
+      },
+      {
+        type: type,
+        ...(thinkContext.length > 0 ? { thinkContext } : {}),
+        ...(text.length > 0
+          ? { result: text }
+          : { resultArray: list })
+      } as CacheItemValue
+    )
+  }, [text, list, thinkContext, SentenceProcessing, readingId])
   return { text, list, thinkContext }
 }
 
@@ -89,7 +104,11 @@ function ListGenerator({ SentenceProcessing, type }: { SentenceProcessing: Sente
   )
 }
 
-function handleThinkAndResult(generator: AsyncGenerator<string, void, unknown>, onValue: (value: string) => void, onThinkContext: (value: string) => void) {
+async function handleThinkAndResult(
+  generator: AsyncGenerator<string, void, unknown>,
+  onValue: (value: string) => void,
+  onThinkContext: (value: string) => void,
+) {
   let thinking: boolean = false;
   (async () => {
     for await (const chunk of generator) {
