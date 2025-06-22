@@ -4,9 +4,11 @@ import { Collapse } from "antd"
 import { LoadingOutlined } from "@ant-design/icons"
 import { useCallback, useEffect, useState } from "react"
 import MarkdownViewer from "@/app/components/common/MarkdownViewer"
+import { SentenceProcessing } from "@/types/cache"
 
 // 自定义hook抽取think处理逻辑
-function useThinkGenerator(generator: AsyncGenerator<string, void, unknown>, outputType: 'text' | 'list') {
+function useThinkGenerator(SentenceProcessing: SentenceProcessing, outputType: 'text' | 'list') {
+  const generator = SentenceProcessing.generator
   const [text, setText] = useState<string>("")
   const [list, setList] = useState<string[]>([])
   const [thinkContext, setThinkContext] = useState<string>('')
@@ -17,12 +19,12 @@ function useThinkGenerator(generator: AsyncGenerator<string, void, unknown>, out
     setThinkContext('')
 
     if (outputType === 'text') {
-      handleThink(generator,
+      handleThinkAndResult(generator,
         (value) => setText((prev) => prev + value),
         (value) => setThinkContext((prev) => prev + value)
       )
     } else {
-      handleThink(generator,
+      handleThinkAndResult(generator,
         (value) => setList((prev) => [...prev, value]),
         (value) => setThinkContext((prev) => prev + value)
       )
@@ -32,18 +34,21 @@ function useThinkGenerator(generator: AsyncGenerator<string, void, unknown>, out
   return { text, list, thinkContext }
 }
 
-export default function Sentences({ sentenceProcessingList }: { sentenceProcessingList: { name: string, id: string, type: string, generator: AsyncGenerator<string, void, unknown> }[] }) {
+export default function Sentences({ sentenceProcessingList }: {
+  sentenceProcessingList:
+  SentenceProcessing[]
+}) {
   return (
     <div className="w-full h-[578px] p-4 overflow-y-auto">
       {
         sentenceProcessingList.map((item) => {
           return (
-            item.type === OUTPUT_TYPE.MD ? <MDGenerator className="mb-2" generator={item.generator} key={item.id} /> :
-              <CardComponent className="mb-2" key={item.id} title={item.name} loading={!item.generator}>
+            item.type === OUTPUT_TYPE.MD ? <MDGenerator className="mb-2" SentenceProcessing={item} key={item.id} /> :
+              <CardComponent className="mb-2" key={item.id} title={item.name} loading={!item}>
                 {
-                  item.type === OUTPUT_TYPE.TEXT ? <TextGenerator generator={item.generator} /> :
-                    item.type === OUTPUT_TYPE.SIMPLE_LIST ? <SimpleListGenerator generator={item.generator} /> :
-                      item.type === OUTPUT_TYPE.KEY_VALUE_LIST ? <KeyValueListGenerator generator={item.generator} /> :
+                  item.type === OUTPUT_TYPE.TEXT ? <TextGenerator SentenceProcessing={item} /> :
+                    item.type === OUTPUT_TYPE.SIMPLE_LIST ? <SimpleListGenerator SentenceProcessing={item} /> :
+                      item.type === OUTPUT_TYPE.KEY_VALUE_LIST ? <KeyValueListGenerator SentenceProcessing={item} /> :
                         null
                 }
               </CardComponent>
@@ -54,8 +59,8 @@ export default function Sentences({ sentenceProcessingList }: { sentenceProcessi
   )
 }
 
-function TextGenerator({ generator }: { generator: AsyncGenerator<string, void, unknown> }) {
-  const { text, thinkContext } = useThinkGenerator(generator, 'text')
+function TextGenerator({ SentenceProcessing }: { SentenceProcessing: SentenceProcessing }) {
+  const { text, thinkContext } = useThinkGenerator(SentenceProcessing, 'text')
 
   return <div>
     <ThinkCollapse thinkContext={thinkContext} />
@@ -64,13 +69,13 @@ function TextGenerator({ generator }: { generator: AsyncGenerator<string, void, 
   </div>
 }
 
-function ListGenerator({ generator, type }: { generator: AsyncGenerator<string, void, unknown>, type: string }) {
+function ListGenerator({ SentenceProcessing, type }: { SentenceProcessing: SentenceProcessing, type: string }) {
   const handleWordAnalysis = useCallback((analysis: string, index: number) => {
     const [keyWord, ...rest] = analysis.split(':')
     return <div className="text-[var(--ant-color-text)] mb-2" key={index}><span className=" font-semibold">{keyWord}</span>:{rest}</div>
   }, [])
 
-  const { list, thinkContext } = useThinkGenerator(generator, 'list')
+  const { list, thinkContext } = useThinkGenerator(SentenceProcessing, 'list')
 
   return (
     <div>
@@ -84,7 +89,7 @@ function ListGenerator({ generator, type }: { generator: AsyncGenerator<string, 
   )
 }
 
-function handleThink(generator: AsyncGenerator<string, void, unknown>, onValue: (value: string) => void, onThinkContext: (value: string) => void) {
+function handleThinkAndResult(generator: AsyncGenerator<string, void, unknown>, onValue: (value: string) => void, onThinkContext: (value: string) => void) {
   let thinking: boolean = false;
   (async () => {
     for await (const chunk of generator) {
@@ -105,12 +110,12 @@ function handleThink(generator: AsyncGenerator<string, void, unknown>, onValue: 
   })()
 }
 
-function SimpleListGenerator({ generator }: { generator: AsyncGenerator<string, void, unknown> }) {
-  return <ListGenerator generator={generator} type={OUTPUT_TYPE.SIMPLE_LIST} />
+function SimpleListGenerator({ SentenceProcessing }: { SentenceProcessing: SentenceProcessing }) {
+  return <ListGenerator SentenceProcessing={SentenceProcessing} type={OUTPUT_TYPE.SIMPLE_LIST} />
 }
 
-function KeyValueListGenerator({ generator }: { generator: AsyncGenerator<string, void, unknown> }) {
-  return <ListGenerator generator={generator} type={OUTPUT_TYPE.KEY_VALUE_LIST} />
+function KeyValueListGenerator({ SentenceProcessing }: { SentenceProcessing: SentenceProcessing }) {
+  return <ListGenerator SentenceProcessing={SentenceProcessing} type={OUTPUT_TYPE.KEY_VALUE_LIST} />
 }
 
 function ThinkCollapse({ thinkContext }: { thinkContext: string }) {
@@ -125,8 +130,8 @@ function ThinkCollapse({ thinkContext }: { thinkContext: string }) {
   );
 }
 
-function MDGenerator({ generator, className }: { generator: AsyncGenerator<string, void, unknown>, className?: string }) {
-  const { text, thinkContext } = useThinkGenerator(generator, 'text')
+function MDGenerator({ SentenceProcessing, className }: { SentenceProcessing: SentenceProcessing, className?: string }) {
+  const { text, thinkContext } = useThinkGenerator(SentenceProcessing, 'text')
   return <div className={className}>
     <ThinkCollapse thinkContext={thinkContext} />
     <MarkdownViewer content={text} minHeight={380} />

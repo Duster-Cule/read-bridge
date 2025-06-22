@@ -1,15 +1,27 @@
+import { OutputType } from "./prompt";
+
 /**
- * 缓存项接口
+ * 缓存项值类型
  */
-export interface CacheItem {
+export type CacheItemValue =
+  {
+    type: OutputType
+    thinkContext?: string;
+    result: string
+  } | {
+    type: OutputType
+    thinkContext?: string;
+    resultArray: string[]
+  }
+
+
+/**
+ * 缓存项Type
+ */
+export type CacheItem = {
   /** 创建时间 ISO字符串格式 */
   createTime: string;
-  /** 缓存的分析结果 */
-  result: string;
-  /** 可选的思考上下文 */
-  thinkContext?: string;
-}
-
+} & CacheItemValue
 /**
  * 缓存配置接口
  */
@@ -40,8 +52,6 @@ export interface CacheSystem {
 export interface CacheKeyParams {
   /** 书籍ID */
   bookId: string;
-  /** 章节索引 */
-  chapterIndex: number;
   /** 句子内容 */
   sentence: string;
   /** 规则ID */
@@ -49,3 +59,4 @@ export interface CacheKeyParams {
 }
 
 
+export type SentenceProcessing = { name: string, type: string, generator: AsyncGenerator<string, void, unknown>, id: string, text: string }

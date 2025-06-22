@@ -12,12 +12,13 @@ import { useTranslation } from "@/i18n/useTranslation"
 import { useTTSStore } from "@/store/useTTSStore"
 import { useTheme } from 'next-themes'
 import { ReadingProgress } from "@/types/book"
+import { SentenceProcessing } from "@/types/cache"
 
 
 export default function SiderContent() {
   const { t } = useTranslation()
   const { theme } = useTheme()
-  const [sentenceProcessingList, setSentenceProcessingList] = useState<{ name: string, type: string, generator: AsyncGenerator<string, void, unknown>, id: string }[]>([])
+  const [sentenceProcessingList, setSentenceProcessingList] = useState<SentenceProcessing[]>([])
   const { sentenceOptions, batchProcessingSize, wordOptions, selectedWordId } = useOutputOptions()
   const [sentence, setSentence] = useState<string>("")
 
@@ -94,7 +95,7 @@ export default function SiderContent() {
           console.log(t('common.templates.analysisFailed', { entity: t('common.entities.sentenceAnalysisGeneric') }), error, name, type, text)
         }
         if (generator) {
-          setSentenceProcessingList(prev => [...prev, { name, type, generator, id }])
+          setSentenceProcessingList(prev => [...prev, { name, type, generator, id, text }])
         }
 
         if (i < sentenceOptions.length - 1) {

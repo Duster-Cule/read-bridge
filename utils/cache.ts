@@ -76,13 +76,13 @@ export function getTimeSlot(): string {
  * ```
  */
 export function generateCacheKey(params: CacheKeyParams): string {
-  const { bookId, chapterIndex, sentence, ruleId } = params;
+  const { bookId, sentence, ruleId } = params;
 
   const bookSuffix = extractUUIDSuffix(bookId);
   const sentenceHash = generateSentenceHash(sentence);
   const ruleSuffix = extractUUIDSuffix(ruleId);
 
-  return `${bookSuffix}|${chapterIndex}|${sentenceHash}|${ruleSuffix}`;
+  return `${bookSuffix}|${sentenceHash}|${ruleSuffix}`;
 }
 
 /**
@@ -159,3 +159,4 @@ export function sortSlotsByAge(slotIds: string[]): string[] {
     return dateA.getTime() - dateB.getTime();
   });
 }
+

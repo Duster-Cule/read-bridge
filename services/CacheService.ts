@@ -1,5 +1,5 @@
 import { useCacheStore } from '@/store/useCacheStore'
-import { CacheKeyParams, CacheItem } from '@/types/cache'
+import { CacheKeyParams, CacheItem, CacheItemValue } from '@/types/cache'
 import { generateCacheKey, getTimeSlot, isSlotOlderThan, isTimeExpired, sortSlotsByAge } from '@/utils/cache'
 import { DEFAULT_CACHE_SETTINGS, SETTING_BOUNDS } from '@/constants/cache'
 import dayjs from 'dayjs'
@@ -34,8 +34,9 @@ export function CacheService() {
 
   /**
    * 设置缓存项
+   *  result?: string resultArray?: string[], 二选一 
    */
-  async function set(params: CacheKeyParams, result: string, thinkContext?: string): Promise<void> {
+  async function set(params: CacheKeyParams, values: CacheItemValue): Promise<void> {
     const store = useCacheStore.getState()
 
     const cacheKey = generateCacheKey(params)
@@ -46,9 +47,8 @@ export function CacheService() {
 
     // 创建缓存项
     const cacheItem: CacheItem = {
-      result,
-      thinkContext,
-      createTime: dayjs().toISOString()
+      createTime: dayjs().toISOString(),
+      ...values
     }
 
     // 存储新数据

@@ -4,12 +4,12 @@ import { useState } from 'react'
 import { cacheService } from '@/services/CacheService'
 import { CacheKeyParams, CacheItem } from '@/types/cache'
 import { useCacheStore } from '@/store/useCacheStore'
+import { OUTPUT_TYPE } from '@/constants/prompt'
 
 export default function CacheTestPage() {
   const [testResult, setTestResult] = useState<string>('')
   const [cacheKey, setCacheKey] = useState<CacheKeyParams>({
     bookId: '550e8400-e29b-41d4-a716-446655440000',
-    chapterIndex: 1,
     sentence: 'Hello world',
     ruleId: '123e4567-e89b-12d3-a456-426614174000'
   })
@@ -27,7 +27,11 @@ export default function CacheTestPage() {
   const testSet = async () => {
     try {
       addLog('开始测试 set 方法...')
-      await cacheService.set(cacheKey, result, thinkContext)
+      await cacheService.set(cacheKey, {
+        type: OUTPUT_TYPE.MD,
+        result,
+        thinkContext
+      })
       addLog('✅ set 方法测试成功')
     } catch (error) {
       addLog(`❌ set 方法测试失败: ${error}`)
@@ -95,12 +99,15 @@ export default function CacheTestPage() {
       for (let i = 0; i < batchCount; i++) {
         const testKey: CacheKeyParams = {
           bookId: cacheKey.bookId,
-          chapterIndex: cacheKey.chapterIndex,
           sentence: `${cacheKey.sentence} - ${i}`,
           ruleId: cacheKey.ruleId
         }
 
-        await cacheService.set(testKey, `${result} - ${i}`, `${thinkContext} - ${i}`)
+        await cacheService.set(testKey, {
+          type: OUTPUT_TYPE.MD,
+          result: `${result} - ${i}`,
+          thinkContext: `${thinkContext} - ${i}`
+        })
 
         // 每5个项目添加一个小延时，模拟不同时间
         if (i % 5 === 0 && i > 0) {
@@ -212,12 +219,6 @@ export default function CacheTestPage() {
 
           <div>
             <label className="block text-sm font-medium mb-2">Chapter Index:</label>
-            <input
-              type="number"
-              value={cacheKey.chapterIndex}
-              onChange={e => setCacheKey({ ...cacheKey, chapterIndex: parseInt(e.target.value) })}
-              className="w-full p-2 border rounded"
-            />
           </div>
 
           <div>
