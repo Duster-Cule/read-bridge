@@ -5,8 +5,12 @@ import { useCallback, useMemo, useState, useRef, useEffect } from "react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { useTheme } from "next-themes";
 import { TextAreaRef } from "antd/es/input/TextArea";
-
-export default function CurrentSentence({ sentence, handleWord, onEditComplete }: { sentence: string, handleWord: (word: string) => void, onEditComplete: (text: string) => void }) {
+type CurrentSentenceProps = {
+  sentence: string;
+  handleWord: (word: string) => void;
+  onEditComplete: (text: string) => void;
+}
+export default function CurrentSentence({ sentence, handleWord, onEditComplete }: CurrentSentenceProps) {
   const { t } = useTranslation()
   const { theme: currentTheme } = useTheme();
   const [isEditing, setIsEditing] = useState(false);
