@@ -49,7 +49,10 @@ async function createSentenceGenerator(
     if (cacheItem) {
       // 缓存命中：创建模拟generator返回缓存数据
       return {
-        generator: createCacheGenerator(cacheItem, type),
+        generator:
+          type === OUTPUT_TYPE.MD || type === OUTPUT_TYPE.TEXT ?
+            createCacheGenerator(cacheItem) :
+            getGeneratorThinkAndHTMLTag(createCacheGenerator(cacheItem)),
         fromCache: true
       }
     }

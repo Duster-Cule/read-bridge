@@ -1,5 +1,6 @@
 import { CacheItem } from "@/types/cache"
 import { OUTPUT_TYPE } from "@/constants/prompt"
+import { OutputType } from "@/types/prompt"
 
 /**
  * 创建缓存模拟Generator
@@ -11,7 +12,6 @@ import { OUTPUT_TYPE } from "@/constants/prompt"
  */
 export async function* createCacheGenerator(
   cacheItem: CacheItem,
-  outputType: string
 ): AsyncGenerator<string, void, unknown> {
   // 模拟think过程
   if (cacheItem.thinkContext) {
@@ -25,12 +25,10 @@ export async function* createCacheGenerator(
     yield cacheItem.result
   } else if ('resultArray' in cacheItem) {
     // 处理数组结果，模拟HTML标签包装
+    yield '<ul>'
     for (const item of cacheItem.resultArray) {
-      if (outputType === OUTPUT_TYPE.KEY_VALUE_LIST) {
-        yield `<li>${item}</li>`
-      } else {
-        yield `<p>${item}</p>`
-      }
+      yield `<li>${item}</li>`
     }
+    yield '</ul>'
   }
 } 
