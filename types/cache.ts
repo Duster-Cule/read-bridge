@@ -59,4 +59,11 @@ export interface CacheKeyParams {
 }
 
 
-export type SentenceProcessing = { name: string, type: string, generator: AsyncGenerator<string, void, unknown>, id: string, text: string }
+export type SentenceProcessing = {
+  name: string,
+  type: string,
+  generator: AsyncGenerator<string, void, unknown>,
+  id: string,
+  text: string,
+  fromCache?: boolean
+}

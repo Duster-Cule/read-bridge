@@ -13,7 +13,78 @@ import { useTTSStore } from "@/store/useTTSStore"
 import { useTheme } from 'next-themes'
 import { ReadingProgress } from "@/types/book"
 import { SentenceProcessing } from "@/types/cache"
+import { cacheService } from "@/services/CacheService"
+import { useSiderStore } from "@/store/useSiderStore"
+import { createCacheGenerator } from "@/utils/cacheGenerator"
+import { Client as LLMClient } from "@/types/llm"
 
+
+/**
+ * 创建句子生成器（集成缓存逻辑）
+ */
+async function createSentenceGenerator(
+  option: { id: string; name: string; type: string; rulePrompt: string },
+  text: string,
+  readingId: string | null,
+  defaultLLMClient: LLMClient,
+  theme: string,
+  signal: AbortSignal
+): Promise<{
+  generator: AsyncGenerator<string, void, unknown> | null,
+  fromCache: boolean
+}> {
+  const { type, rulePrompt, id } = option
+
+  // 生成缓存键参数，如果没有readingId则使用空字符串
+  const cacheParams = {
+    bookId: readingId || '',
+    sentence: text,
+    ruleId: id
+  }
+
+  try {
+    // 尝试从缓存获取数据
+    const cacheItem = await cacheService.get(cacheParams)
+
+    if (cacheItem) {
+      // 缓存命中：创建模拟generator返回缓存数据
+      return {
+        generator: createCacheGenerator(cacheItem, type),
+        fromCache: true
+      }
+    }
+
+    // 缓存未命中：创建真实LLM generator
+    let generator: AsyncGenerator<string, void, unknown> | null = null
+
+    if (type === OUTPUT_TYPE.MD) {
+      generator = defaultLLMClient.completionsGenerator(
+        contextMessages(text),
+        assemblePrompt(rulePrompt, `theme: ${theme} output: ${OUTPUT_PROMPT[type]}`),
+        signal
+      )
+    } else {
+      generator = getGeneratorThinkAndHTMLTag(
+        defaultLLMClient.completionsGenerator(
+          contextMessages(text),
+          assemblePrompt(rulePrompt, OUTPUT_PROMPT[type]),
+          signal
+        )
+      )
+    }
+
+    return {
+      generator,
+      fromCache: false
+    }
+  } catch (error) {
+    console.error('创建句子生成器失败:', error)
+    return {
+      generator: null,
+      fromCache: false
+    }
+  }
+}
 
 export default function SiderContent() {
   const { t } = useTranslation()
@@ -36,6 +107,7 @@ export default function SiderContent() {
 
   const { parseModel } = useLLMStore()
   const { getSpeak, ttsGlobalConfig, ttsConfig } = useTTSStore()
+  const { readingId } = useSiderStore()
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const speak = useMemo(() => {
@@ -83,25 +155,39 @@ export default function SiderContent() {
     const addProcessorsWithDelay = async () => {
       for (let i = 0; i < sentenceOptions.length; i++) {
         const option = sentenceOptions[i]
-        const { name, type, rulePrompt, id } = option
-        let generator: AsyncGenerator<string, void, unknown> | null = null
+        const { name, type, id } = option
+
         try {
-          if (type === OUTPUT_TYPE.MD) {
-            generator = defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, `theme: ${theme} output: ${OUTPUT_PROMPT[type]}`), signal)
-          } else {
-            generator = getGeneratorThinkAndHTMLTag(defaultLLMClient.completionsGenerator(contextMessages(text), assemblePrompt(rulePrompt, OUTPUT_PROMPT[type]), signal))
+          const { generator, fromCache } = await createSentenceGenerator(
+            option,
+            text,
+            readingId,
+            defaultLLMClient,
+            theme || '',
+            signal
+          )
+
+          if (generator) {
+            setSentenceProcessingList(prev => [...prev, {
+              name,
+              type,
+              generator,
+              id,
+              text,
+              fromCache
+            }])
           }
         } catch (error) {
           console.log(t('common.templates.analysisFailed', { entity: t('common.entities.sentenceAnalysisGeneric') }), error, name, type, text)
-        }
-        if (generator) {
-          setSentenceProcessingList(prev => [...prev, { name, type, generator, id, text }])
         }
 
         if (i < sentenceOptions.length - 1) {
           await new Promise(resolve => setTimeout(resolve, 50))
         }
       }
+
+      // 处理完成后触发缓存清理
+      await cacheService.clearCacheOnTriggerEvents()
     }
 
     // 执行添加处理器的函数

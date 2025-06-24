@@ -30,7 +30,8 @@ function useThinkGenerator(SentenceProcessing: SentenceProcessing, outputType: '
 
 
   useEffect(() => {
-    const { id, type, text: sentence } = SentenceProcessing
+    const { id, type, text: sentence, fromCache } = SentenceProcessing
+    if (fromCache) return
     cacheService.set(
       {
         bookId: readingId || '',
