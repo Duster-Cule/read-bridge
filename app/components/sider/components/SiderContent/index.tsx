@@ -31,7 +31,8 @@ async function createSentenceGenerator(
   signal: AbortSignal
 ): Promise<{
   generator: AsyncGenerator<string, void, unknown> | null,
-  fromCache: boolean
+  fromCache: boolean,
+  signal: AbortSignal
 }> {
   const { type, rulePrompt, id } = option
 
@@ -53,7 +54,8 @@ async function createSentenceGenerator(
           type === OUTPUT_TYPE.MD || type === OUTPUT_TYPE.TEXT ?
             createCacheGenerator(cacheItem) :
             getGeneratorThinkAndHTMLTag(createCacheGenerator(cacheItem)),
-        fromCache: true
+        fromCache: true,
+        signal
       }
     }
 
@@ -78,13 +80,15 @@ async function createSentenceGenerator(
 
     return {
       generator,
-      fromCache: false
+      fromCache: false,
+      signal
     }
   } catch (error) {
     console.error('创建句子生成器失败:', error)
     return {
       generator: null,
-      fromCache: false
+      fromCache: false,
+      signal
     }
   }
 }
@@ -161,7 +165,7 @@ export default function SiderContent() {
         const { name, type, id } = option
 
         try {
-          const { generator, fromCache } = await createSentenceGenerator(
+          const { generator, fromCache, signal: generatorSignal } = await createSentenceGenerator(
             option,
             text,
             readingId,
@@ -177,7 +181,8 @@ export default function SiderContent() {
               generator,
               id,
               text,
-              fromCache
+              fromCache,
+              signal: generatorSignal  // 传递signal到SentenceProcessing
             }])
           }
         } catch (error) {

@@ -9,44 +9,75 @@ import { CacheItemValue, SentenceProcessing } from "@/types/cache"
 import { cacheService } from "@/services/CacheService"
 import { useSiderStore } from "@/store/useSiderStore"
 
+// 内容质量验证函数 - 使用OR逻辑：文本或列表满足其中一个条件即可
+function shouldCache(text: string, list: string[], thinkContext: string): boolean {
+  // 检查文本是否有效
+  const hasValidText = text && text.trim().length >= 5
+
+  // 检查列表是否有效
+  const hasValidList = list && list.length > 0 && list.some(item => item.trim().length >= 3)
+
+  // 文本或列表满足其中一个条件即可
+  return hasValidText || hasValidList
+}
+
 // 自定义hook抽取think处理逻辑
 function useThinkGenerator(SentenceProcessing: SentenceProcessing, outputType: 'text' | 'list') {
-  const generator = SentenceProcessing.generator
+  const { generator, signal } = SentenceProcessing  // 解构获取signal
   const [text, setText] = useState<string>("")
   const [list, setList] = useState<string[]>([])
   const [thinkContext, setThinkContext] = useState<string>('')
-  const key = useRef(0)
   const { readingId } = useSiderStore()
+
   useEffect(() => {
     setText("");
     setList([]);
     setThinkContext('')
 
-    handleThinkAndResult(generator,
+    handleThinkAndResult(
+      generator,
       outputType === 'text' ? (value) => setText((prev) => prev + value) : (value) => setList((prev) => [...prev, value]),
       (value) => setThinkContext((prev) => prev + value),
-    ).then(() => key.current += 1)
-  }, [generator, outputType])
+      signal  // 传递signal
+    ).then(({ completed, hasContent, thinkComplete }) => {
+      // 只有在请求完成且内容有效时才缓存
+      if (completed && hasContent && thinkComplete) {
+        // 获取最新状态进行缓存判断
+        setText(currentText => {
+          setList(currentList => {
+            setThinkContext(currentThinkContext => {
+              if (shouldCache(currentText, currentList, currentThinkContext)) {
+                const { id, type, text: sentence, fromCache } = SentenceProcessing
+                if (!fromCache) {
+                  cacheService.set(
+                    {
+                      bookId: readingId || '',
+                      sentence,
+                      ruleId: id
+                    },
+                    {
+                      type: type,
+                      ...(currentThinkContext.length > 0 ? { thinkContext: currentThinkContext } : {}),
+                      ...(currentText.length > 0
+                        ? { result: currentText }
+                        : { resultArray: currentList })
+                    } as CacheItemValue
+                  )
+                }
+              }
+              return currentThinkContext
+            })
+            return currentList
+          })
+          return currentText
+        })
+      }
+    }).catch(error => {
+      // 处理错误，不缓存
+      console.error('Generator failed:', error)
+    })
+  }, [generator, signal, outputType, SentenceProcessing, readingId])  // 依赖中添加signal
 
-
-  useEffect(() => {
-    const { id, type, text: sentence, fromCache } = SentenceProcessing
-    if (fromCache) return
-    cacheService.set(
-      {
-        bookId: readingId || '',
-        sentence,
-        ruleId: id
-      },
-      {
-        type: type,
-        ...(thinkContext.length > 0 ? { thinkContext } : {}),
-        ...(text.length > 0
-          ? { result: text }
-          : { resultArray: list })
-      } as CacheItemValue
-    )
-  }, [text, list, thinkContext, SentenceProcessing, readingId])
   return { text, list, thinkContext }
 }
 
@@ -109,25 +140,51 @@ async function handleThinkAndResult(
   generator: AsyncGenerator<string, void, unknown>,
   onValue: (value: string) => void,
   onThinkContext: (value: string) => void,
-) {
+  signal?: AbortSignal
+): Promise<{ completed: boolean, hasContent: boolean, thinkComplete: boolean }> {
   let thinking: boolean = false;
-  (async () => {
+  let hasThinkTag = false;
+  let contentLength = 0;
+  let thinkContentLength = 0;
+
+  try {
     for await (const chunk of generator) {
+      if (signal?.aborted) {
+        console.log('aborted')
+        return { completed: false, hasContent: false, thinkComplete: false };
+      }
+
       if (chunk === '<think>') {
-        thinking = true
-        continue
+        thinking = true;
+        hasThinkTag = true;
+        continue;
       }
       if (thinking) {
         if (chunk === '</think>') {
-          thinking = false
-          continue
+          thinking = false;
+          continue;
         }
-        onThinkContext(chunk)
+        onThinkContext(chunk);
+        thinkContentLength += chunk.length;
       } else {
-        onValue(chunk)
+        onValue(chunk);
+        contentLength += chunk.length;
       }
     }
-  })()
+
+    const hasContent = contentLength > 5;
+    const thinkComplete = !hasThinkTag || (!thinking && thinkContentLength > 0);
+
+    return {
+      completed: true,
+      hasContent,
+      thinkComplete
+    };
+
+  } catch (error) {
+    console.log(error, 'error')
+    return { completed: false, hasContent: false, thinkComplete: false };
+  }
 }
 
 function SimpleListGenerator({ SentenceProcessing }: { SentenceProcessing: SentenceProcessing }) {

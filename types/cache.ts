@@ -65,5 +65,6 @@ export type SentenceProcessing = {
   generator: AsyncGenerator<string, void, unknown>,
   id: string,
   text: string,
-  fromCache?: boolean
+  fromCache?: boolean,
+  signal?: AbortSignal
 }
