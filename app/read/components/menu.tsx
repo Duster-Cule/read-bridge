@@ -44,7 +44,7 @@ export default function ReadMenu({ toc, currentChapter, onChapterChange }: ReadM
   }
 
   return (
-    <div className={`flex flex-col h-full ${getWidth()}`}>
+    <div className={`flex flex-col h-full transition-all duration-300 ease-in-out ${getWidth()}`}>
       <div className="flex mb-2">
         <Button
           type="text"
