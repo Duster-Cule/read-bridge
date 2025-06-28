@@ -10,7 +10,7 @@ import { cacheService } from "@/services/CacheService"
 import { useSiderStore } from "@/store/useSiderStore"
 
 // 内容质量验证函数 - 使用OR逻辑：文本或列表满足其中一个条件即可
-function shouldCache(text: string, list: string[], thinkContext: string): boolean {
+function shouldCache(text: string, list: string[]): boolean {
   // 检查文本是否有效
   const hasValidText = text && text.trim().length >= 5
 
@@ -46,7 +46,7 @@ function useThinkGenerator(SentenceProcessing: SentenceProcessing, outputType: '
         setText(currentText => {
           setList(currentList => {
             setThinkContext(currentThinkContext => {
-              if (shouldCache(currentText, currentList, currentThinkContext)) {
+              if (shouldCache(currentText, currentList)) {
                 const { id, type, text: sentence, fromCache } = SentenceProcessing
                 if (!fromCache) {
                   cacheService.set(
