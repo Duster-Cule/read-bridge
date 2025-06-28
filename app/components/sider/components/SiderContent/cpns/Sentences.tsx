@@ -2,7 +2,7 @@ import CardComponent from "@/app/components/common/CardComponent"
 import { OUTPUT_TYPE } from "@/constants/prompt"
 import { Collapse } from "antd"
 import { LoadingOutlined } from "@ant-design/icons"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import MarkdownViewer from "@/app/components/common/MarkdownViewer"
 import { CacheItemValue, SentenceProcessing } from "@/types/cache"
 
