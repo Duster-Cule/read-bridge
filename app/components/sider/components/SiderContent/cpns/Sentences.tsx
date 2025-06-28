@@ -148,12 +148,13 @@ async function handleThinkAndResult(
   let thinkContentLength = 0;
 
   try {
-    for await (const chunk of generator) {
-      if (signal?.aborted) {
-        console.log('aborted')
-        return { completed: false, hasContent: false, thinkComplete: false };
-      }
+    // 在开始前检查是否已经被中断
+    if (signal?.aborted) {
+      console.log('Generator already aborted before start')
+      return { completed: false, hasContent: false, thinkComplete: false };
+    }
 
+    for await (const chunk of generator) {
       if (chunk === '<think>') {
         thinking = true;
         hasThinkTag = true;
@@ -172,9 +173,16 @@ async function handleThinkAndResult(
       }
     }
 
+    // 循环正常结束后，再次检查是否被中断
+    if (signal?.aborted) {
+      console.log('Generator was aborted during execution')
+      return { completed: false, hasContent: false, thinkComplete: false };
+    }
+
     const hasContent = contentLength > 5;
     const thinkComplete = !hasThinkTag || (!thinking && thinkContentLength > 0);
 
+    console.log('Generator completed normally')
     return {
       completed: true,
       hasContent,
@@ -182,7 +190,13 @@ async function handleThinkAndResult(
     };
 
   } catch (error) {
-    console.log(error, 'error')
+    // 检查是否是中断错误
+    if ((error as Error)?.name === 'AbortError' || signal?.aborted) {
+      console.log('Generator was aborted:', error)
+      return { completed: false, hasContent: false, thinkComplete: false };
+    }
+
+    console.log('Generator failed with error:', error)
     return { completed: false, hasContent: false, thinkComplete: false };
   }
 }
