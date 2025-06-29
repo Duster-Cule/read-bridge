@@ -14,7 +14,6 @@ import { useTheme } from 'next-themes'
 import { ReadingProgress } from "@/types/book"
 import { SentenceProcessing } from "@/types/cache"
 import { cacheService } from "@/services/CacheService"
-import { useSiderStore } from "@/store/useSiderStore"
 import { createCacheGenerator } from "@/utils/cacheGenerator"
 import { Client as LLMClient } from "@/types/llm"
 
@@ -25,7 +24,7 @@ import { Client as LLMClient } from "@/types/llm"
 async function createSentenceGenerator(
   option: { id: string; name: string; type: string; rulePrompt: string },
   text: string,
-  readingId: string | null,
+  bookId: string,
   defaultLLMClient: LLMClient,
   theme: string,
   signal: AbortSignal
@@ -36,9 +35,9 @@ async function createSentenceGenerator(
 }> {
   const { type, rulePrompt, id } = option
 
-  // 生成缓存键参数，如果没有readingId则使用空字符串
+  // 生成缓存键参数，如果没有bookId则使用空字符串
   const cacheParams = {
-    bookId: readingId || '',
+    bookId: bookId || '',
     sentence: text,
     ruleId: id
   }
@@ -114,7 +113,6 @@ export default function SiderContent() {
 
   const { parseModel } = useLLMStore()
   const { getSpeak, ttsGlobalConfig, ttsConfig } = useTTSStore()
-  const { readingId } = useSiderStore()
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const speak = useMemo(() => {
@@ -132,7 +130,7 @@ export default function SiderContent() {
   }, [parseModel])
 
 
-  const processingSentences = useCallback((text: string) => {
+  const processingSentences = useCallback((text: string, bookId: string) => {
     // 阅读
     if (speak && text && ttsGlobalConfig.autoSentenceTTS) {
       speak(text)
@@ -168,7 +166,7 @@ export default function SiderContent() {
           const { generator, fromCache, signal: generatorSignal } = await createSentenceGenerator(
             option,
             text,
-            readingId,
+            bookId,
             defaultLLMClient,
             theme || '',
             signal
@@ -182,6 +180,7 @@ export default function SiderContent() {
               id,
               text,
               fromCache,
+              bookId,
               signal: generatorSignal  // 传递signal到SentenceProcessing
             }])
           }
@@ -205,7 +204,7 @@ export default function SiderContent() {
   // 处理行索引
   const handleLineIndex = useCallback(async (readingProgress: ReadingProgress) => {
     // 取出lineindex和currentChapter
-    const { currentLocation, sentenceChapters } = readingProgress
+    const { currentLocation, sentenceChapters, bookId } = readingProgress
     const { chapterIndex, lineIndex: index } = currentLocation
     const currentChapter = sentenceChapters[chapterIndex]
 
@@ -235,7 +234,7 @@ export default function SiderContent() {
       text = currentChapter[index]
     }
 
-    processingSentences(text)
+    processingSentences(text, bookId)
   }, [defaultLLMClient, sentenceOptions, setSentenceProcessingList, batchProcessingSize, t, processingSentences])
 
   useEffect(() => {
@@ -308,7 +307,7 @@ export default function SiderContent() {
 
   const handleEditComplete = useCallback((text: string) => {
     setSentence(text)
-    processingSentences(text)
+    processingSentences(text, '')
   }, [processingSentences, setSentence])
 
   return (

@@ -66,5 +66,6 @@ export type SentenceProcessing = {
   id: string,
   text: string,
   fromCache?: boolean,
+  bookId?: string,
   signal?: AbortSignal
 }

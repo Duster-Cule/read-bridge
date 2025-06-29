@@ -7,7 +7,6 @@ import MarkdownViewer from "@/app/components/common/MarkdownViewer"
 import { CacheItemValue, SentenceProcessing } from "@/types/cache"
 
 import { cacheService } from "@/services/CacheService"
-import { useSiderStore } from "@/store/useSiderStore"
 
 // 内容质量验证函数 - 使用OR逻辑：文本或列表满足其中一个条件即可
 function shouldCache(text: string, list: string[]): boolean {
@@ -23,11 +22,10 @@ function shouldCache(text: string, list: string[]): boolean {
 
 // 自定义hook抽取think处理逻辑
 function useThinkGenerator(SentenceProcessing: SentenceProcessing, outputType: 'text' | 'list') {
-  const { generator, signal } = SentenceProcessing  // 解构获取signal
+  const { generator, signal, bookId } = SentenceProcessing  // 解构获取signal和bookId
   const [text, setText] = useState<string>("")
   const [list, setList] = useState<string[]>([])
   const [thinkContext, setThinkContext] = useState<string>('')
-  const { readingId } = useSiderStore()
 
   useEffect(() => {
     setText("");
@@ -51,7 +49,7 @@ function useThinkGenerator(SentenceProcessing: SentenceProcessing, outputType: '
                 if (!fromCache) {
                   cacheService.set(
                     {
-                      bookId: readingId || '',
+                      bookId: bookId || '',
                       sentence,
                       ruleId: id
                     },
@@ -76,7 +74,7 @@ function useThinkGenerator(SentenceProcessing: SentenceProcessing, outputType: '
       // 处理错误，不缓存
       console.error('Generator failed:', error)
     })
-  }, [generator, signal, outputType, SentenceProcessing, readingId])  // 依赖中添加signal
+  }, [generator, signal, outputType, SentenceProcessing, bookId])  // 依赖中添加bookId
 
   return { text, list, thinkContext }
 }
