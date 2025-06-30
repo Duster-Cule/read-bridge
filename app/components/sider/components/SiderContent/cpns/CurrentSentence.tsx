@@ -113,7 +113,7 @@ export default function CurrentSentence({ sentence, handleWord, onEditComplete, 
             />
           )}
 
-          {/* 原有编辑按钮 */}
+          {/* 编辑按钮 */}
           <Button
             type="text"
             size="small"

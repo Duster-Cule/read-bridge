@@ -16,10 +16,6 @@ export default function ReadMenu({ toc, currentChapter, onChapterChange }: ReadM
   const { collapsed, setCollapsed } = useSiderStore()
   const [mode, setMode] = useState<'toc' | 'bookmark'>('toc')
 
-  const toggleCollapsed = () => {
-    setCollapsed(!collapsed)
-  }
-
   const switchToToc = () => {
     if (mode === 'toc') {
       setCollapsed(!collapsed)
@@ -39,8 +35,8 @@ export default function ReadMenu({ toc, currentChapter, onChapterChange }: ReadM
   }))
 
   const getWidth = () => {
-    if (mode === 'bookmark') return 'w-[220px]'
-    return collapsed ? 'w-[80px]' : 'w-[220px]'
+    if (mode === 'bookmark') return 'w-[200px]'
+    return collapsed ? 'w-[80px]' : 'w-[200px]'
   }
 
   return (
@@ -71,7 +67,7 @@ export default function ReadMenu({ toc, currentChapter, onChapterChange }: ReadM
           className="flex-1 overflow-auto"
         />
       ) : (
-        <div className="flex-1 overflow-auto w-[220px]">
+        <div className="flex-1 overflow-auto">
           {/* 书签内容占位 */}
         </div>
       )}
