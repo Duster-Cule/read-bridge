@@ -14,6 +14,81 @@ interface ReadMenuProps {
   onChapterChange: (index: number, lineIndex: number) => void
 }
 
+// 渲染目录菜单函数
+const renderTocMenu = (
+  toc: Book['toc'],
+  currentChapter: number,
+  onChapterChange: (index: number, lineIndex: number) => void,
+  collapsed: boolean
+) => {
+  const menuItems = toc.map(({ title, index }) => ({
+    key: index,
+    label: collapsed ? index + 1 : title,
+    title: title
+  }))
+
+  return (
+    <Menu
+      mode="inline"
+      selectedKeys={[String(currentChapter)]}
+      inlineCollapsed={collapsed}
+      items={menuItems}
+      onClick={({ key }) => onChapterChange(parseInt(key), 0)}
+      className="flex-1 overflow-auto"
+    />
+  )
+}
+
+// 渲染书签列表函数
+const renderBookmarkList = (
+  bookmarks: Bookmark[],
+  handleBookmarkClick: (bookmark: Bookmark) => void,
+  handleDeleteBookmark: (e: React.MouseEvent, bookmark: Bookmark) => void
+) => {
+  return (
+    <div className="flex-1 overflow-auto">
+      {bookmarks.length > 0 ? (
+        <List
+          size="small"
+          dataSource={bookmarks}
+          renderItem={(bookmark) => (
+            <List.Item
+              onClick={() => handleBookmarkClick(bookmark)}
+              actions={[
+                <DeleteOutlined
+                  key="delete"
+                  className="text-red-500 hover:text-red-700"
+                  onClick={(e) => handleDeleteBookmark(e, bookmark)}
+                />
+              ]}
+            >
+              <List.Item.Meta
+                title={
+                  <div className="text-sm font-medium truncate">
+                    {bookmark.sentence.length > 40
+                      ? bookmark.sentence.substring(0, 40) + '...'
+                      : bookmark.sentence}
+                  </div>
+                }
+                description={
+                  <div className="text-xs text-gray-500">
+                    第{bookmark.chapterIndex + 1}章 · {bookmark.createTime}
+                  </div>
+                }
+              />
+            </List.Item>
+          )}
+        />
+      ) : (
+        <Empty
+          description="暂无书签"
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+          className="mt-8"
+        />
+      )}
+    </div>
+  )
+}
 
 export default function ReadMenu({ toc, currentChapter, onChapterChange }: ReadMenuProps) {
   const { collapsed, setCollapsed, readingId } = useSiderStore()
@@ -55,12 +130,6 @@ export default function ReadMenu({ toc, currentChapter, onChapterChange }: ReadM
     setMode('bookmark')
   }
 
-  const menuItems = toc.map(({ title, index }) => ({
-    key: index,
-    label: collapsed ? index + 1 : title,
-    title: title
-  }))
-
   const getWidth = () => {
     if (mode === 'bookmark') return 'w-[200px]'
     return collapsed ? 'w-[80px]' : 'w-[200px]'
@@ -84,59 +153,9 @@ export default function ReadMenu({ toc, currentChapter, onChapterChange }: ReadM
         </Button>
       </div>
 
-      {mode === 'toc' ? (
-        <Menu
-          mode="inline"
-          selectedKeys={[String(currentChapter)]}
-          inlineCollapsed={collapsed}
-          items={menuItems}
-          onClick={({ key }) => onChapterChange(parseInt(key), 0)}
-          className="flex-1 overflow-auto"
-        />
-      ) : (
-        <div className="flex-1 overflow-auto">
-          {bookmarks.length > 0 ? (
-            <List
-              size="small"
-              dataSource={bookmarks}
-              renderItem={(bookmark) => (
-                <List.Item
-                  className="cursor-pointer hover:bg-gray-50 px-2 py-1"
-                  onClick={() => handleBookmarkClick(bookmark)}
-                  actions={[
-                    <DeleteOutlined
-                      key="delete"
-                      className="text-red-500 hover:text-red-700"
-                      onClick={(e) => handleDeleteBookmark(e, bookmark)}
-                    />
-                  ]}
-                >
-                  <List.Item.Meta
-                    title={
-                      <div className="text-sm font-medium truncate">
-                        {bookmark.sentence.length > 40
-                          ? bookmark.sentence.substring(0, 40) + '...'
-                          : bookmark.sentence}
-                      </div>
-                    }
-                    description={
-                      <div className="text-xs text-gray-500">
-                        第{bookmark.chapterIndex + 1}章 · {bookmark.createTime}
-                      </div>
-                    }
-                  />
-                </List.Item>
-              )}
-            />
-          ) : (
-            <Empty
-              description="暂无书签"
-              image={Empty.PRESENTED_IMAGE_SIMPLE}
-              className="mt-8"
-            />
-          )}
-        </div>
-      )}
+      {mode === 'toc'
+        ? renderTocMenu(toc, currentChapter, onChapterChange, collapsed)
+        : renderBookmarkList(bookmarks, handleBookmarkClick, handleDeleteBookmark)}
     </div>
   )
 }
