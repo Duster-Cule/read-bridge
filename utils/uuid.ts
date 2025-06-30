@@ -41,7 +41,7 @@ export function generateUUID(): string {
   throw new Error('UUID generation not supported: crypto API unavailable');
 }
 
-console.log(crypto, 'crypto')
+
 
 // 默认导出主要函数
 export default generateUUID; 

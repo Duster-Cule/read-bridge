@@ -62,3 +62,12 @@ export interface ReadingProgress {
     [chapterIndex: number]: string[];
   }
 }
+
+export type Bookmark = {
+  id: string;
+  bookId: string;
+  sentence: string;
+  createTime: string;
+  chapterIndex: number;
+  lineIndex: number;
+}
