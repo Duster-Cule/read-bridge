@@ -31,6 +31,9 @@ const renderTocMenu = (
   return (
     <Menu
       mode="inline"
+      style={{
+        width: '100%',
+      }}
       selectedKeys={[String(currentChapter)]}
       inlineCollapsed={collapsed}
       items={menuItems}
@@ -48,15 +51,14 @@ const renderBookmarkList = (
   t: (path: string, params?: Record<string, string>) => string
 ) => {
   return (
-    <div className="flex-1 overflow-auto">
+    <div className="flex-1 overflow-auto border-r border-[var(--ant-color-border)]">
       {bookmarks.length > 0 ? (
         <List
           size="small"
           dataSource={bookmarks}
           renderItem={(bookmark) => (
             <List.Item
-              className='cursor-pointer [&_.ant-list-item-action]:!ml-1'
-              onClick={() => handleBookmarkClick(bookmark)}
+              className=' [&_.ant-list-item-action]:!ml-1'
               actions={[
                 <Popconfirm
                   key="delete"
@@ -75,7 +77,8 @@ const renderBookmarkList = (
             >
               <List.Item.Meta
                 title={
-                  <div className="text-sm font-medium truncate" title={bookmark.sentence}>
+                  <div className="text-sm font-medium truncate cursor-pointer"
+                    onClick={() => handleBookmarkClick(bookmark)} title={bookmark.sentence}>
                     {bookmark.sentence.length > 40
                       ? bookmark.sentence.substring(0, 40) + '...'
                       : bookmark.sentence}
@@ -123,13 +126,6 @@ export default function ReadMenu({ toc, currentChapter, onChapterChange }: ReadM
     }
   }
 
-  // 处理删除书签
-  const handleDeleteBookmark = (e: React.MouseEvent, bookmark: Bookmark) => {
-    e.stopPropagation() // 阻止事件冒泡，避免触发跳转
-    if (!book) return
-    removeBookmark(book.id, bookmark.id)
-  }
-
   // 处理确认删除书签
   const handleConfirmDeleteBookmark = (bookmark: Bookmark) => {
     if (!book) return
@@ -150,7 +146,7 @@ export default function ReadMenu({ toc, currentChapter, onChapterChange }: ReadM
 
   const getWidth = () => {
     if (mode === 'bookmark') return 'w-[200px]'
-    return collapsed ? 'w-[80px]' : 'w-[200px]'
+    return collapsed ? 'w-[92px]' : 'w-[200px]'
   }
 
   return (
