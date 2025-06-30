@@ -1,20 +1,47 @@
 'use client'
 
-import { Menu, Button } from 'antd'
-import { MenuFoldOutlined, MenuUnfoldOutlined, BookOutlined } from '@ant-design/icons'
-import { Book } from '@/types/book'
+import { Menu, Button, List, Empty } from 'antd'
+import { MenuFoldOutlined, MenuUnfoldOutlined, BookOutlined, DeleteOutlined } from '@ant-design/icons'
+import { Book, Bookmark } from '@/types/book'
 import { useSiderStore } from '@/store/useSiderStore'
+import { useBookmarkStore } from '@/store/useBookmarkStore'
+import { useBook } from '@/hooks/useBook'
 import { useState } from 'react'
 
 interface ReadMenuProps {
   toc: Book['toc']
   currentChapter: number
-  onChapterChange: (index: number) => void
+  onChapterChange: (index: number, lineIndex: number) => void
 }
 
+
 export default function ReadMenu({ toc, currentChapter, onChapterChange }: ReadMenuProps) {
-  const { collapsed, setCollapsed } = useSiderStore()
+  const { collapsed, setCollapsed, readingId } = useSiderStore()
+  const { getBookmarksByBookId, removeBookmark } = useBookmarkStore()
+  const [book] = useBook()
   const [mode, setMode] = useState<'toc' | 'bookmark'>('toc')
+
+  // 获取当前书籍的书签
+  const bookmarks = book ? getBookmarksByBookId(book.id) : []
+
+  // 处理书签点击跳转
+  const handleBookmarkClick = async (bookmark: Bookmark) => {
+    if (!readingId) return
+    try {
+      await onChapterChange(bookmark.chapterIndex, bookmark.lineIndex)
+      // 跳转后切换回目录模式
+      setMode('toc')
+    } catch (error) {
+      console.error('跳转书签失败:', error)
+    }
+  }
+
+  // 处理删除书签
+  const handleDeleteBookmark = (e: React.MouseEvent, bookmark: Bookmark) => {
+    e.stopPropagation() // 阻止事件冒泡，避免触发跳转
+    if (!book) return
+    removeBookmark(book.id, bookmark.id)
+  }
 
   const switchToToc = () => {
     if (mode === 'toc') {
@@ -63,12 +90,51 @@ export default function ReadMenu({ toc, currentChapter, onChapterChange }: ReadM
           selectedKeys={[String(currentChapter)]}
           inlineCollapsed={collapsed}
           items={menuItems}
-          onClick={({ key }) => onChapterChange(parseInt(key))}
+          onClick={({ key }) => onChapterChange(parseInt(key), 0)}
           className="flex-1 overflow-auto"
         />
       ) : (
         <div className="flex-1 overflow-auto">
-          {/* 书签内容占位 */}
+          {bookmarks.length > 0 ? (
+            <List
+              size="small"
+              dataSource={bookmarks}
+              renderItem={(bookmark) => (
+                <List.Item
+                  className="cursor-pointer hover:bg-gray-50 px-2 py-1"
+                  onClick={() => handleBookmarkClick(bookmark)}
+                  actions={[
+                    <DeleteOutlined
+                      key="delete"
+                      className="text-red-500 hover:text-red-700"
+                      onClick={(e) => handleDeleteBookmark(e, bookmark)}
+                    />
+                  ]}
+                >
+                  <List.Item.Meta
+                    title={
+                      <div className="text-sm font-medium truncate">
+                        {bookmark.sentence.length > 40
+                          ? bookmark.sentence.substring(0, 40) + '...'
+                          : bookmark.sentence}
+                      </div>
+                    }
+                    description={
+                      <div className="text-xs text-gray-500">
+                        第{bookmark.chapterIndex + 1}章 · {bookmark.createTime}
+                      </div>
+                    }
+                  />
+                </List.Item>
+              )}
+            />
+          ) : (
+            <Empty
+              description="暂无书签"
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              className="mt-8"
+            />
+          )}
         </div>
       )}
     </div>

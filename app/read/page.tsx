@@ -45,13 +45,13 @@ export default function ReadPage() {
   )
   if (bookNotFound || !book) return <Result icon={<FileUnknownOutlined />} title="404" subTitle="抱歉，没有找到该书籍或已删除" />
 
-  const handleChapterChange = async (index: number) => {
+  const handleChapterChange = async (index: number, lineIndex = 0) => {
     if (!readingId) return
     setFadeVisible(false)
     setTimeout(async () => {
       setIsChapterLoading(true)
       const start = Date.now()
-      await db.updateCurrentLocation(readingId, { chapterIndex: index, lineIndex: 0 })
+      await db.updateCurrentLocation(readingId, { chapterIndex: index, lineIndex })
       await updateReadingProgress(readingId)
       const elapsed = Date.now() - start
       if (elapsed < 200) {
@@ -65,8 +65,8 @@ export default function ReadPage() {
 
   return (
     <div className="w-full h-full p-2 flex flex-row">
-      <ReadMenu toc={book.toc} currentChapter={readingProgress.currentLocation.chapterIndex} onChapterChange={(index: number) => {
-        handleChapterChange(index)
+      <ReadMenu toc={book.toc} currentChapter={readingProgress.currentLocation.chapterIndex} onChapterChange={(index: number, lineIndex = 0) => {
+        handleChapterChange(index, lineIndex)
       }} />
       <div className={`flex-1 h-full transition-opacity duration-200 ease-in-out ${fadeVisible ? 'opacity-100' : 'opacity-0'}`}>
         {isChapterLoading ? <div className="w-full h-full" /> : <ReadArea book={book} readingProgress={readingProgress} />}
