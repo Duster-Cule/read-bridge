@@ -24,6 +24,7 @@
       "bookAsObject": "this book",
       "bookGeneric": "Book",
       "bookDetails": "book details",
+      "bookmarkAsObject": "this bookmark",
       "providerAsObject": "this provider",
       "modelAsObject": "this model",
       "modelID": "model ID",
@@ -162,7 +163,8 @@
     "chat": "Chat with AI",
     "defaultChat": "Default Chat",
     "addBookmark": "Add Bookmark",
-    "removeBookmark": "Remove Bookmark"
+    "removeBookmark": "Remove Bookmark",
+    "noBookmark": "No bookmarks"
   },
   "book": {
     "title": "Title",

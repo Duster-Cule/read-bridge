@@ -24,6 +24,7 @@
       "bookAsObject": "这本书",
       "bookGeneric": "书籍",
       "bookDetails": "书籍详情",
+      "bookmarkAsObject": "这个书签",
       "providerAsObject": "这个服务提供商",
       "modelAsObject": "这个模型",
       "modelID": "模型ID",
@@ -164,7 +165,8 @@
     "chat": "AI聊天助手",
     "defaultChat": "默认聊天",
     "addBookmark": "添加书签",
-    "removeBookmark": "移除书签"
+    "removeBookmark": "移除书签",
+    "noBookmark": "暂无书签"
   },
   "book": {
     "title": "书名",

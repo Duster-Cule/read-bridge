@@ -1,11 +1,12 @@
 'use client'
 
-import { Menu, Button, List, Empty } from 'antd'
+import { Menu, Button, List, Empty, Popconfirm } from 'antd'
 import { MenuFoldOutlined, MenuUnfoldOutlined, BookOutlined, DeleteOutlined } from '@ant-design/icons'
 import { Book, Bookmark } from '@/types/book'
 import { useSiderStore } from '@/store/useSiderStore'
 import { useBookmarkStore } from '@/store/useBookmarkStore'
 import { useBook } from '@/hooks/useBook'
+import { useTranslation } from '@/i18n/useTranslation'
 import { useState } from 'react'
 
 interface ReadMenuProps {
@@ -43,7 +44,8 @@ const renderTocMenu = (
 const renderBookmarkList = (
   bookmarks: Bookmark[],
   handleBookmarkClick: (bookmark: Bookmark) => void,
-  handleDeleteBookmark: (e: React.MouseEvent, bookmark: Bookmark) => void
+  handleConfirmDeleteBookmark: (bookmark: Bookmark) => void,
+  t: (path: string, params?: Record<string, string>) => string
 ) => {
   return (
     <div className="flex-1 overflow-auto">
@@ -53,18 +55,27 @@ const renderBookmarkList = (
           dataSource={bookmarks}
           renderItem={(bookmark) => (
             <List.Item
+              className='cursor-pointer [&_.ant-list-item-action]:!ml-1'
               onClick={() => handleBookmarkClick(bookmark)}
               actions={[
-                <DeleteOutlined
+                <Popconfirm
                   key="delete"
-                  className="text-red-500 hover:text-red-700"
-                  onClick={(e) => handleDeleteBookmark(e, bookmark)}
-                />
+                  title={t('sider.removeBookmark')}
+                  description={t('common.templates.confirmDelete', { entity: t('common.entities.bookmarkAsObject') })}
+                  onConfirm={() => handleConfirmDeleteBookmark(bookmark)}
+                  okText={t('common.ok')}
+                  cancelText={t('common.cancel')}
+                >
+                  <DeleteOutlined
+                    className="text-red-500 hover:text-red-700"
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </Popconfirm>
               ]}
             >
               <List.Item.Meta
                 title={
-                  <div className="text-sm font-medium truncate">
+                  <div className="text-sm font-medium truncate" title={bookmark.sentence}>
                     {bookmark.sentence.length > 40
                       ? bookmark.sentence.substring(0, 40) + '...'
                       : bookmark.sentence}
@@ -72,7 +83,7 @@ const renderBookmarkList = (
                 }
                 description={
                   <div className="text-xs text-gray-500">
-                    第{bookmark.chapterIndex + 1}章 · {bookmark.createTime}
+                    {bookmark.chapterIndex + 1} · {bookmark.createTime}
                   </div>
                 }
               />
@@ -81,7 +92,7 @@ const renderBookmarkList = (
         />
       ) : (
         <Empty
-          description="暂无书签"
+          description={t('sider.noBookmark')}
           image={Empty.PRESENTED_IMAGE_SIMPLE}
           className="mt-8"
         />
@@ -95,6 +106,7 @@ export default function ReadMenu({ toc, currentChapter, onChapterChange }: ReadM
   const { getBookmarksByBookId, removeBookmark } = useBookmarkStore()
   const [book] = useBook()
   const [mode, setMode] = useState<'toc' | 'bookmark'>('toc')
+  const { t } = useTranslation()
 
   // 获取当前书籍的书签
   const bookmarks = book ? getBookmarksByBookId(book.id) : []
@@ -114,6 +126,12 @@ export default function ReadMenu({ toc, currentChapter, onChapterChange }: ReadM
   // 处理删除书签
   const handleDeleteBookmark = (e: React.MouseEvent, bookmark: Bookmark) => {
     e.stopPropagation() // 阻止事件冒泡，避免触发跳转
+    if (!book) return
+    removeBookmark(book.id, bookmark.id)
+  }
+
+  // 处理确认删除书签
+  const handleConfirmDeleteBookmark = (bookmark: Bookmark) => {
     if (!book) return
     removeBookmark(book.id, bookmark.id)
   }
@@ -155,7 +173,7 @@ export default function ReadMenu({ toc, currentChapter, onChapterChange }: ReadM
 
       {mode === 'toc'
         ? renderTocMenu(toc, currentChapter, onChapterChange, collapsed)
-        : renderBookmarkList(bookmarks, handleBookmarkClick, handleDeleteBookmark)}
+        : renderBookmarkList(bookmarks, handleBookmarkClick, handleConfirmDeleteBookmark, t)}
     </div>
   )
 }
