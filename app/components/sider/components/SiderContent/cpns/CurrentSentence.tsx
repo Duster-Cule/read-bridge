@@ -1,21 +1,47 @@
 import { Tooltip, Button, Input } from "antd";
-import { EditOutlined, DoubleRightOutlined } from "@ant-design/icons";
+import { EditOutlined, DoubleRightOutlined, StarOutlined, StarFilled } from "@ant-design/icons";
 import nlp from "compromise";
 import { useCallback, useMemo, useState, useRef, useEffect } from "react";
 import { useTranslation } from "@/i18n/useTranslation";
 import { useTheme } from "next-themes";
 import { TextAreaRef } from "antd/es/input/TextArea";
+import { useBookmarkStore } from "@/store/useBookmarkStore";
 type CurrentSentenceProps = {
   sentence: string;
   handleWord: (word: string) => void;
   onEditComplete: (text: string) => void;
+  currentBookmarkInfo: {
+    bookId: string;
+    sentence: string;
+    chapterIndex: number;
+    lineIndex: number;
+  } | null;
+  onBookmarkToggle: () => void;
 }
-export default function CurrentSentence({ sentence, handleWord, onEditComplete }: CurrentSentenceProps) {
+export default function CurrentSentence({ sentence, handleWord, onEditComplete, currentBookmarkInfo, onBookmarkToggle }: CurrentSentenceProps) {
   const { t } = useTranslation()
   const { theme: currentTheme } = useTheme();
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState('');
   const inputRef = useRef<TextAreaRef>(null);
+
+  // 书签状态管理
+  const { getBookmarksByBookId } = useBookmarkStore();
+
+  // 获取当前书籍的书签数组
+  const currentBookmarks = currentBookmarkInfo ?
+    getBookmarksByBookId(currentBookmarkInfo.bookId) : [];
+
+  // 计算当前是否已收藏 - 监听书签数组长度变化
+  const isBookmarked = useMemo(() => {
+    if (!currentBookmarkInfo) return false;
+
+    const { chapterIndex, lineIndex } = currentBookmarkInfo;
+    return currentBookmarks.some(bookmark =>
+      bookmark.chapterIndex === chapterIndex &&
+      bookmark.lineIndex === lineIndex
+    );
+  }, [currentBookmarkInfo, currentBookmarks.length]);
 
   const wordTypeColors = useMemo(() => ({
     'Verb': 'text-[var(--ant-green-6)]',
@@ -74,12 +100,27 @@ export default function CurrentSentence({ sentence, handleWord, onEditComplete }
             {t('sider.selectSentence')}
           </div>
         </Tooltip>
-        <Button
-          type="text"
-          size="small"
-          icon={isEditing ? <DoubleRightOutlined /> : <EditOutlined />}
-          onClick={isEditing ? handleSave : handleEdit}
-        />
+        <div className="flex items-center gap-1">
+          {/* 收藏按钮 - 仅在非编辑模式且有书签信息时显示 */}
+          {!isEditing && currentBookmarkInfo && (
+            <Button
+              type="text"
+              size="small"
+              icon={isBookmarked ? <StarFilled /> : <StarOutlined />}
+              onClick={onBookmarkToggle}
+              className={isBookmarked ? 'text-yellow-500' : ''}
+              title={isBookmarked ? t('sider.removeBookmark') : t('sider.addBookmark')}
+            />
+          )}
+
+          {/* 原有编辑按钮 */}
+          <Button
+            type="text"
+            size="small"
+            icon={isEditing ? <DoubleRightOutlined /> : <EditOutlined />}
+            onClick={isEditing ? handleSave : handleEdit}
+          />
+        </div>
       </div>
       <div className="space-y-1 overflow-y-auto h-[76px] mt-2">
         {isEditing ? (

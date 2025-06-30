@@ -160,7 +160,9 @@
     "noSentenceSelected": "No sentence selected",
     "noWordSelected": "No word selected",
     "chat": "Chat with AI",
-    "defaultChat": "Default Chat"
+    "defaultChat": "Default Chat",
+    "addBookmark": "Add Bookmark",
+    "removeBookmark": "Remove Bookmark"
   },
   "book": {
     "title": "Title",

@@ -180,7 +180,6 @@ async function handleThinkAndResult(
     const hasContent = contentLength > 5;
     const thinkComplete = !hasThinkTag || (!thinking && thinkContentLength > 0);
 
-    console.log('Generator completed normally')
     return {
       completed: true,
       hasContent,

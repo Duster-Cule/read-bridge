@@ -16,6 +16,7 @@ import { SentenceProcessing } from "@/types/cache"
 import { cacheService } from "@/services/CacheService"
 import { createCacheGenerator } from "@/utils/cacheGenerator"
 import { Client as LLMClient } from "@/types/llm"
+import { useBookmarkStore } from "@/store/useBookmarkStore"
 
 
 /**
@@ -103,6 +104,16 @@ export default function SiderContent() {
 
   const [word, setWord] = useState<string>("")
   const [wordDetails, setWordDetails] = useState<string>("")
+
+  // 书签相关状态
+  const [currentBookmarkInfo, setCurrentBookmarkInfo] = useState<{
+    bookId: string;
+    sentence: string;
+    chapterIndex: number;
+    lineIndex: number;
+  } | null>(null);
+
+  const { addBookmark, removeBookmark, getBookmarksByBookId } = useBookmarkStore();
   const wordOption = useMemo(() => {
     return wordOptions.find(option => option.id === selectedWordId) || wordOptions[0] || {
       id: crypto.randomUUID(),
@@ -234,8 +245,39 @@ export default function SiderContent() {
       text = currentChapter[index]
     }
 
+    // 维护当前书签信息
+    setCurrentBookmarkInfo({
+      bookId,
+      sentence: currentChapter[index], // 书签不需要存储发送文本
+      chapterIndex,
+      lineIndex: index
+    });
+
     processingSentences(text, bookId)
   }, [defaultLLMClient, sentenceOptions, setSentenceProcessingList, batchProcessingSize, t, processingSentences])
+
+  // 书签操作函数
+  const handleBookmarkToggle = useCallback(() => {
+    if (!currentBookmarkInfo) return;
+
+    const { bookId, sentence, chapterIndex, lineIndex } = currentBookmarkInfo;
+    const bookmarks = getBookmarksByBookId(bookId);
+    const existingBookmark = bookmarks.find(bookmark =>
+      bookmark.chapterIndex === chapterIndex &&
+      bookmark.lineIndex === lineIndex
+    );
+
+    if (existingBookmark) {
+      removeBookmark(bookId, existingBookmark.id);
+    } else {
+      addBookmark({
+        bookId,
+        sentence,
+        chapterIndex,
+        lineIndex
+      });
+    }
+  }, [currentBookmarkInfo, addBookmark, removeBookmark, getBookmarksByBookId]);
 
   useEffect(() => {
     const unsub = EventEmitter.on(EVENT_NAMES.SEND_MESSAGE, handleLineIndex)
@@ -308,11 +350,19 @@ export default function SiderContent() {
   const handleEditComplete = useCallback((text: string) => {
     setSentence(text)
     processingSentences(text, '')
+    // 清除书签信息，因为句子已被手动编辑
+    setCurrentBookmarkInfo(null);
   }, [processingSentences, setSentence])
 
   return (
     <div className="w-full h-full flex flex-col">
-      <CurrentSentence sentence={sentence} handleWord={handleWord} onEditComplete={handleEditComplete} />
+      <CurrentSentence
+        sentence={sentence}
+        handleWord={handleWord}
+        onEditComplete={handleEditComplete}
+        currentBookmarkInfo={currentBookmarkInfo}
+        onBookmarkToggle={handleBookmarkToggle}
+      />
       <Divider className="my-0" />
       <MenuLine selectedTab={selectedTab} items={items} onTabChange={handleTabChange} />
       <div className={`${selectedTab === 'sentence-analysis' ? 'block' : 'hidden'}`}>
