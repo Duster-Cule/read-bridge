@@ -60,21 +60,19 @@ jobs:
           tagName: ${{ github.ref_name }}
           releaseName: 'Read Bridge ${{ github.ref_name }}'
           releaseBody: |
-            # 📚 Read Bridge ${{ github.ref_name }}
+            ## 📥 系统下载 / System Downloads
 
-            ## 🚀 快速下载 / Quick Download
+            ### 🪟 Windows
+            - `.exe` - 安装程序 / Setup Installer
+            - `.msi` - MSI安装包 / MSI Installer
 
-            **Windows**
-            [![Download EXE](https://img.shields.io/badge/Download_EXE-Windows-blue?style=for-the-badge)](https://github.com/WindChimeEcho/read-bridge/releases/download/${{ github.ref_name }}/read-bridge_${{ github.ref_name }}_x64-setup.exe)
-            [![Download MSI](https://img.shields.io/badge/Download_MSI-Windows-lightblue?style=for-the-badge)](https://github.com/WindChimeEcho/read-bridge/releases/download/${{ github.ref_name }}/read-bridge_${{ github.ref_name }}_x64_zh-CN.msi)
+            ### 🍎 macOS
+            - `_x64.dmg` - Intel 处理器 / Intel Processor
+            - `_aarch64.dmg` - Apple Silicon (M1/M2/M3)
 
-            **macOS**
-            [![Download DMG Intel](https://img.shields.io/badge/Download_DMG-Intel_Mac-silver?style=for-the-badge)](https://github.com/WindChimeEcho/read-bridge/releases/download/${{ github.ref_name }}/read-bridge_${{ github.ref_name }}_x64.dmg)
-            [![Download DMG Silicon](https://img.shields.io/badge/Download_DMG-Apple_Silicon-silver?style=for-the-badge)](https://github.com/WindChimeEcho/read-bridge/releases/download/${{ github.ref_name }}/read-bridge_${{ github.ref_name }}_aarch64.dmg)
-
-            **Linux**
-            [![Download AppImage](https://img.shields.io/badge/Download_AppImage-Linux-orange?style=for-the-badge)](https://github.com/WindChimeEcho/read-bridge/releases/download/${{ github.ref_name }}/read-bridge_${{ github.ref_name }}_amd64.AppImage)
-            [![Download DEB](https://img.shields.io/badge/Download_DEB-Ubuntu/Debian-red?style=for-the-badge)](https://github.com/WindChimeEcho/read-bridge/releases/download/${{ github.ref_name }}/read-bridge_${{ github.ref_name }}_amd64.deb)
+            ### 🐧 Linux
+            - `.AppImage` - 通用应用程序 / Universal App
+            - `.deb` - Debian/Ubuntu 软件包 / Package
 
             ---
             **Read Bridge** - Your AI Reading Companion for Language Mastery | 您的AI语言学习阅读伙伴
