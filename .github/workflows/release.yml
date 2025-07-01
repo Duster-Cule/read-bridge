@@ -60,20 +60,11 @@ jobs:
           tagName: ${{ github.ref_name }}
           releaseName: 'Read Bridge ${{ github.ref_name }}'
           releaseBody: |
-            ## 📥 系统下载 / System Downloads
-
-            ### 🪟 Windows
-            - `.exe` - 安装程序 / Setup Installer
-            - `.msi` - MSI安装包 / MSI Installer
-
-            ### 🍎 macOS
-            - `_x64.dmg` - Intel 处理器 / Intel Processor
-            - `_aarch64.dmg` - Apple Silicon (M1/M2/M3)
-
-            ### 🐧 Linux
-            - `.AppImage` - 通用应用程序 / Universal App
-            - `.deb` - Debian/Ubuntu 软件包 / Package
-
+            ### 系统下载 / Downloads
+            **Windows:** `.exe` (安装程序) | `.msi` (MSI包)
+            **macOS:** `_x64.dmg` (Intel处理器) | `_aarch64.dmg` (Apple Silicon)
+            **Linux:** `.AppImage` (通用应用) | `.deb` (Debian/Ubuntu)
+            
             ---
             **Read Bridge** - Your AI Reading Companion for Language Mastery | 您的AI语言学习阅读伙伴
             
