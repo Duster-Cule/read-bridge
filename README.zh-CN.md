@@ -51,20 +51,20 @@ ReadBridge的灵感来自我在一次刷视频时的偶然发现，这个视频�
 ### 网页版
 
 1. 克隆仓库
-   ```bash
+```bash
    git clone https://github.com/WindChimeEcho/read-bridge.git
    cd read-bridge
 ```
 
 2. 安装依赖
-   ```bash
+```bash
    npm install
 ```
 
 3. 启动开发服务器
-   ```bash
+```bash
    npm run dev
-   ```
+```
 
 4. 在浏览器中打开 [http://localhost:3000](http://localhost:3000)
 
@@ -73,9 +73,9 @@ ReadBridge的灵感来自我在一次刷视频时的偶然发现，这个视频�
 1. 按照 [Tauri v2 设置指南](https://v2.tauri.app/guides/quick-start/prerequisites) 安装先决条件
    
 2. 安装依赖并构建应用
-   ```bash
+```bash
    npm run tauri dev
-   ```
+```
 
 ## 下载
 

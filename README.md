@@ -51,20 +51,20 @@ The video also introduced the story of Hungarian linguist Lomb Kato, who mastere
 ### Web Version
 
 1. Clone the repository
-   ```bash
+```bash
    git clone https://github.com/WindChimeEcho/read-bridge.git
    cd read-bridge
 ```
 
 2. Install dependencies
-   ```bash
+```bash
    npm install
-   ```
+```
 
 3. Start the development server
-   ```bash
+```bash
    npm run dev
-   ```
+```
 
 4. Open [http://localhost:3000](http://localhost:3000) in your browser
 
@@ -73,9 +73,9 @@ The video also introduced the story of Hungarian linguist Lomb Kato, who mastere
 1. Follow the [Tauri v2 setup guide](https://v2.tauri.app/guides/quick-start/prerequisites) to install prerequisites
    
 2. Install dependencies and build the application
-   ```bash
+```bash
    npm run tauri dev
-   ```
+```
 
 ## Downloads
 
