@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import path from 'path'
 import type { Book } from '@/types/book'
+import { requireAuth } from '@/app/api/_lib/auth'
 import { readJsonFile, withWriteLock, writeJsonFileAtomic } from '@/app/api/_lib/jsonFileStore'
 
 export const runtime = 'nodejs'
@@ -22,8 +23,11 @@ async function writeDB(db: BooksDB): Promise<void> {
   await writeJsonFileAtomic(dbPath(), db)
 }
 
-export async function GET(_request: Request, context: { params: Promise<{ id: string }> }) {
+export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
+    const auth = await requireAuth(request)
+    if (auth) return auth
+
     const { id } = await context.params
     const db = await readDB()
     const book = db.books.find((b) => b.id === id) ?? null
@@ -37,6 +41,9 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
 export async function PUT(request: Request, context: { params: Promise<{ id: string }> }) {
   return withWriteLock(async () => {
     try {
+      const auth = await requireAuth(request)
+      if (auth) return auth
+
       const { id } = await context.params
       const body = (await request.json().catch(() => null)) as { book?: unknown } | null
       const book = body?.book as Book | undefined
@@ -59,9 +66,12 @@ export async function PUT(request: Request, context: { params: Promise<{ id: str
   })
 }
 
-export async function DELETE(_request: Request, context: { params: Promise<{ id: string }> }) {
+export async function DELETE(request: Request, context: { params: Promise<{ id: string }> }) {
   return withWriteLock(async () => {
     try {
+      const auth = await requireAuth(request)
+      if (auth) return auth
+
       const { id } = await context.params
 
       const db = await readDB()

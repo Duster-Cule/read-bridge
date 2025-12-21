@@ -6,6 +6,7 @@ import crypto from 'crypto'
 import { BOOK_MIME_TYPE } from '@/constants/book'
 import type { BOOK_MIME_TYPE_TYPE, Book } from '@/types/book'
 import { processBook } from '@/services/BookService'
+import { requireAuth } from '@/app/api/_lib/auth'
 import { readJsonFile, withWriteLock, writeJsonFileAtomic } from '@/app/api/_lib/jsonFileStore'
 import { generateUUID } from '@/utils/uuid'
 
@@ -56,6 +57,9 @@ function titleFromFilename(filename: string): string {
 export async function POST(request: Request) {
   return withWriteLock(async () => {
     try {
+      const auth = await requireAuth(request)
+      if (auth) return auth
+
       const { searchParams } = new URL(request.url)
       const dryRun = searchParams.get('dryRun') === 'true'
 

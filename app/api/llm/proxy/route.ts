@@ -1,8 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
-export const runtime = 'edge';
+import { NextResponse } from 'next/server';
+import { requireAuth } from '@/app/api/_lib/auth'
+export const runtime = 'nodejs';
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
+    const auth = await requireAuth(req)
+    if (auth) return auth
+
     const requestBody = await req.json();
     const { url, apiKey, ...restBody } = requestBody;
 

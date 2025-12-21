@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import path from 'path'
 import type { Book, BookPreview } from '@/types/book'
+import { requireAuth } from '@/app/api/_lib/auth'
 import { readJsonFile, withWriteLock, writeJsonFileAtomic } from '@/app/api/_lib/jsonFileStore'
 
 export const runtime = 'nodejs'
@@ -58,6 +59,9 @@ async function readReadingProgressMap(): Promise<Map<string, number>> {
 
 export async function GET(request: Request) {
   try {
+    const auth = await requireAuth(request)
+    if (auth) return auth
+
     const { searchParams } = new URL(request.url)
     const mode = searchParams.get('mode') // 'preview' | null
     const reverse = searchParams.get('reverse') !== 'false'
@@ -80,6 +84,9 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   return withWriteLock(async () => {
     try {
+      const auth = await requireAuth(request)
+      if (auth) return auth
+
       const body = (await request.json().catch(() => null)) as { book?: unknown } | null
       const book = body?.book as Book | undefined
       if (!book || typeof book !== 'object' || typeof book.id !== 'string') {

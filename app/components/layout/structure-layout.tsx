@@ -6,6 +6,7 @@ import FooterContent from "@/app/components/footer";
 import Sider from "@/app/components/sider";
 import SelectionContextMenu from "@/app/components/SelectionContextMenu";
 import { CSSProperties, useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { useHeaderStore } from "@/store/useHeaderStore";
 import { Button } from "antd";
 import { CaretDownFilled } from "@ant-design/icons";
@@ -71,6 +72,7 @@ const headerToggleButtonStyle: CSSProperties = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
   const { collapsed, toggleCollapsed } = useHeaderStore();
   const { token } = theme.useToken();
   const [contextMenuVisible, setContextMenuVisible] = useState(false);
@@ -80,6 +82,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const [isPdfContext, setIsPdfContext] = useState(false);
 
   useEffect(() => {
+    if (pathname === '/login') return
+
     const handleContextMenu = (e: MouseEvent) => {
       const selection = window.getSelection();
       const text = selection?.toString().trim();
@@ -327,7 +331,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       document.removeEventListener('click', handleAltClick, true);
       document.removeEventListener('click', handleClick);
     };
-  }, []);
+  }, [pathname]);
+
+  if (pathname === '/login') {
+    return <div className="min-h-screen w-full">{children}</div>
+  }
 
   // Dynamic header height based on collapsed state
   const dynamicHeaderStyle: CSSProperties = {

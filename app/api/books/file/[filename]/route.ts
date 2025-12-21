@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import path from 'path'
 import fs from 'fs/promises'
+import { requireAuth } from '@/app/api/_lib/auth'
 
 export const runtime = 'nodejs'
 
@@ -26,10 +27,13 @@ function contentTypeFromExt(filename: string): string {
 }
 
 export async function GET(
-  _request: Request,
+  request: Request,
   context: { params: Promise<{ filename: string }> }
 ) {
   try {
+    const auth = await requireAuth(request)
+    if (auth) return auth
+
     const { filename } = await context.params
     if (!filename || !isSafeBookFilename(filename)) {
       return NextResponse.json({ error: 'Invalid filename' }, { status: 400 })

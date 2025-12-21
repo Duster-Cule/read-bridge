@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import path from 'path'
 import fs from 'fs/promises'
 import crypto from 'crypto'
+import { requireAuth } from '@/app/api/_lib/auth'
 
 export const runtime = 'nodejs'
 
@@ -26,6 +27,9 @@ function guessExtension(fileName: string, mimeType: string): string {
 
 export async function POST(request: Request) {
   try {
+    const auth = await requireAuth(request)
+    if (auth) return auth
+
     const formData = await request.formData()
     const file = formData.get('file')
 

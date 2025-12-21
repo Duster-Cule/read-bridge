@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { requireAuth } from '@/app/api/_lib/auth'
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -13,6 +14,9 @@ function isHttpUrl(raw: string): boolean {
 }
 
 export async function GET(req: Request) {
+  const auth = await requireAuth(req)
+  if (auth) return auth
+
   const { searchParams } = new URL(req.url);
   const url = searchParams.get('url');
 

@@ -1,10 +1,14 @@
 import path from 'node:path'
 import Database from 'better-sqlite3'
 import type { NextRequest } from 'next/server'
+import { requireAuth } from '@/app/api/_lib/auth'
 
 export const runtime = 'nodejs'
 
 export async function GET(req: NextRequest) {
+  const auth = await requireAuth(req)
+  if (auth) return auth
+
   const { searchParams } = new URL(req.url)
   const raw = searchParams.get('word') || ''
   const word = raw.trim()

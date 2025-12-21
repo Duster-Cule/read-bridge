@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import path from 'path'
 import nlp from 'compromise'
 import type { Book, ReadingProgress } from '@/types/book'
+import { requireAuth } from '@/app/api/_lib/auth'
 import { readJsonFile, withWriteLock, writeJsonFileAtomic } from '@/app/api/_lib/jsonFileStore'
 
 export const runtime = 'nodejs'
@@ -102,8 +103,11 @@ async function ensureSentenceChapter(bookId: string, progress: ReadingProgress):
   return updated
 }
 
-export async function GET(_request: Request, context: { params: Promise<{ bookId: string }> }) {
+export async function GET(request: Request, context: { params: Promise<{ bookId: string }> }) {
   try {
+    const auth = await requireAuth(request)
+    if (auth) return auth
+
     const { bookId } = await context.params
     const progress = await ensureProgress(bookId)
     const updated = await ensureSentenceChapter(bookId, progress)
@@ -117,6 +121,9 @@ export async function GET(_request: Request, context: { params: Promise<{ bookId
 export async function PUT(request: Request, context: { params: Promise<{ bookId: string }> }) {
   return withWriteLock(async () => {
     try {
+      const auth = await requireAuth(request)
+      if (auth) return auth
+
       const { bookId } = await context.params
       const body = (await request.json().catch(() => null)) as { currentLocation?: unknown; reset?: unknown } | null
 
@@ -155,9 +162,12 @@ export async function PUT(request: Request, context: { params: Promise<{ bookId:
   })
 }
 
-export async function DELETE(_request: Request, context: { params: Promise<{ bookId: string }> }) {
+export async function DELETE(request: Request, context: { params: Promise<{ bookId: string }> }) {
   return withWriteLock(async () => {
     try {
+      const auth = await requireAuth(request)
+      if (auth) return auth
+
       const { bookId } = await context.params
       const db = await readProgressDB()
       delete db.progress[bookId]

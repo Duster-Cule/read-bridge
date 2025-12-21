@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { promises as fs } from 'fs'
 import path from 'path'
+import { requireAuth } from '@/app/api/_lib/auth'
 
 export const runtime = 'nodejs'
 
@@ -67,6 +68,9 @@ async function writeKVFile(data: KVFile): Promise<void> {
 
 export async function GET(request: Request) {
   try {
+    const auth = await requireAuth(request)
+    if (auth) return auth
+
     const { searchParams } = new URL(request.url)
     const key = searchParams.get('key')
     if (!key) {
@@ -85,6 +89,9 @@ export async function GET(request: Request) {
 export async function PUT(request: Request) {
   return withWriteLock(async () => {
     try {
+      const auth = await requireAuth(request)
+      if (auth) return auth
+
       const body = (await request.json().catch(() => null)) as { key?: unknown; value?: unknown } | null
       const key = typeof body?.key === 'string' ? body.key : null
       const value = typeof body?.value === 'string' ? body.value : null
@@ -108,6 +115,9 @@ export async function PUT(request: Request) {
 export async function DELETE(request: Request) {
   return withWriteLock(async () => {
     try {
+      const auth = await requireAuth(request)
+      if (auth) return auth
+
       const body = (await request.json().catch(() => null)) as { key?: unknown } | null
       const key = typeof body?.key === 'string' ? body.key : null
       if (!key) {
