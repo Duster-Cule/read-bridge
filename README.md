@@ -1,142 +1,151 @@
-# ReadBridge: AI-Enhanced Reading Assistant for Language Learning
+# ReadBridge: AI增强型语言学习阅读助手
 
-*[English](./README.md) | [中文](./README.zh-CN.md)*
+*[English](./README.en-US.md) | [中文](./README.md)*
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Next.js](https://img.shields.io/badge/Next.js-black?logo=next.js&logoColor=white)](https://nextjs.org/) [![Tauri](https://img.shields.io/badge/Tauri-24C8D8?logo=tauri&logoColor=white)](https://tauri.app/) [![Web](https://img.shields.io/badge/Platform-Web-blue)](https://nextjs.org/) [![Windows](https://img.shields.io/badge/Platform-Windows-blue?logo=windows&logoColor=white)](https://tauri.app/) [![macOS](https://img.shields.io/badge/Platform-macOS-blue?logo=apple&logoColor=white)](https://tauri.app/) [![Linux](https://img.shields.io/badge/Platform-Linux-blue?logo=linux&logoColor=white)](https://tauri.app/)
+---
 
-[![Documentation](https://img.shields.io/badge/Documentation-docs.readbridge.cc-blue)](https://docs.readbridge.cc/)
+本仓库 fork 自 [WindChimeEcho/read-bridge](https://github.com/WindChimeEcho/read-bridge).
 
-ReadBridge is an AI-powered reading assistant available as both a web application and desktop software (via Tauri). It enhances language learning through the "n+1" comprehensible input approach, helping learners engage with content in their target language.
+本仓库在原有基础上[修改了一些内容](./CHANGES.md)，只是自用，如果你觉得我修改的地方对你有帮助，你也可以直接使用我的仓库部署。
 
-## Overview
+在README中，除了这小节外并没有修改任何文字，如果你用以本文档的部署方法，依然部署的是原版 ReadBridge.
 
-This reading assistant enables a source-to-source language learning approach, reducing reliance on translation to your native language. The platform helps learners practice reading within the target language ecosystem, supporting natural language acquisition through contextual understanding.
+---
 
-## Comprehensible Input Theory
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Next.js](https://img.shields.io/badge/Next.js-black?logo=next.js&logoColor=white)](https://nextjs.org/) [![Tauri](https://img.shields.io/badge/Tauri-24C8D8?logo=tauri&logoColor=white)](https://tauri.app/) [![Web](https://img.shields.io/badge/-Web-blue)](https://nextjs.org/) [![Windows](https://img.shields.io/badge/平台-Windows-blue?logo=windows&logoColor=white)](https://tauri.app/) [![macOS](https://img.shields.io/badge/平台-macOS-blue?logo=apple&logoColor=white)](https://tauri.app/) [![Linux](https://img.shields.io/badge/平台-Linux-blue?logo=linux&logoColor=white)](https://tauri.app/)
 
-ReadBridge draws inspiration from Stephen Krashen's Comprehensible Input Hypothesis, which suggests:
+[![文档](https://img.shields.io/badge/文档-docs.readbridge.cc-blue)](https://docs.readbridge.cc/)
 
-- **Natural Acquisition**: We acquire language when we understand messages in context
-- **Input Level**: Learning is effective when input is slightly above current competence
-- **Focus on Meaning**: Understanding content takes precedence over explicit grammar study
+ReadBridge是一款AI驱动的阅读助手，同时提供网页应用和桌面软件（通过Tauri）。它通过"n+1"可理解输入方法辅助语言学习，帮助学习者更有效地阅读目标语言内容。
 
-## Project Origin
+## 概述
 
-The inspiration for ReadBridge came from a video I stumbled upon while browsing, which completely transformed my understanding of language learning. The video discussed three major challenges in language learning:
+这款阅读助手实现了源语言到源语言的学习方法，减少对母语翻译的依赖。该平台帮助学习者在目标语言生态系统中练习阅读，通过上下文理解促进自然语言习得。
 
-- **Arbitrary Symbol Challenge**: Memorizing words is like remembering meaningless symbols, making this type of memory easily forgotten
-- **Breadth Challenge**: Vocabulary is as vast as an ocean, and pure memorization is like trying to scoop up the sea with a bucket
-- **Depth Challenge**: Word meaning is as deep as a well, and rote memorization only scratches the surface
+## 可理解输入理论
 
-What impressed me most was the concept that "only 1-2 unknown words per 100 words" creates comprehensible input, and that "a word needs to be repeated at least 12 times in different contexts" to be truly mastered. This made me realize that learning vocabulary in context is as natural and effective as solving a puzzle.
+ReadBridge基于Stephen Krashen的可理解输入假说，该理论认为：
 
-The video also introduced the story of Hungarian linguist Lomb Kato, who mastered 15 languages through reading original works, and research showing that ten novels by Sidney Sheldon could cover over 90% of college-level English vocabulary, with each word repeated an average of 26 times. Studies suggest that regular reading may be the primary source of most of our vocabulary, and with just half an hour of daily reading, we could complete one million words in a year.
+- **自然习得**：当我们在上下文中理解信息时，我们能自然习得语言
+- **输入水平**：当输入略高于当前能力水平时，学习最为有效
+- **意义优先**：理解内容的意义优先于显式学习语法规则
 
-"Only this kind of reading is true reading" — this statement became my motivation for developing ReadBridge. If you're interested in this learning method, I recommend watching this video: https://www.bilibili.com/festival/jzj2023?bvid=BV1ns4y1A7fj
+## 项目起源
 
-## Key Features
+ReadBridge的灵感来自我在一次刷视频时的偶然发现，这个视频彻底改变了我对语言学习的理解。视频中讲述了语言学习的三大难题：
 
-- **Interactive Reading Interface**: Progress through texts sentence-by-sentence with an intuitive UI
-- **AI Reading Support**: Get explanations in the target language to maintain immersion
-- **User-Defined Difficulty**: Set prompt templates based on your self-assessed proficiency level
-- **Contextual Learning**: Explore vocabulary and grammar structures in authentic contexts
-- **Progress Tracking**: Save your reading position across chapters and books
-- **Customizable Configuration**: Adjust settings to match your learning preferences
-- **Cross-Platform**: Use in any modern browser or as a desktop application
-- **Book Management**: Easily import, organize, and access your reading materials
-- **Distraction-Free Design**: Clean interface designed for focused reading
+- 任意符号难题：记单词就像记住无意义的符号，这种记忆容易遗忘
+- 宽度难题：单词量如海洋般广阔，单纯背诵就像用木桶舀海水
+- 深度难题：词义深度如井水，单纯记忆只能触及表面
 
-## Getting Started
+让我印象深刻的是："每百词中只有1-2个生词"的可理解输入理念，以及"一个单词需要在不同语境中重复至少12次"才能真正掌握。这让我意识到，在语境中学习词汇就像解谜一样自然而有效。
 
-### Web Version
+视频还介绍了匈牙利语言学家Lomb Kato通过阅读原著掌握了15门语言的故事，以及Sidney Sheldon的十本小说能覆盖六级词汇90%以上，平均每个词重复26次的研究发现。研究表明，日常阅读可能是我们获取大部分词汇量的主要来源，每天只需半小时，一年就能完成100万词的阅读量。
 
-1. Clone the repository
+"只有这一种阅读，才是真正的阅读"——这句话成为了我开发ReadBridge的动力。如果你也对这种学习方法感兴趣，推荐看看这个视频：https://www.bilibili.com/festival/jzj2023?bvid=BV1ns4y1A7fj
+
+## 主要特点
+
+- **交互式阅读界面**：通过直观的UI逐句阅读文本
+- **AI阅读支持**：获取目标语言的解释，保持语言沉浸
+- **用户自定义难度**：根据自我评估的熟练程度设置提示词模板
+- **上下文学习**：在真实语境中探索词汇和语法结构
+- **进度跟踪**：保存各章节和书籍中的阅读位置
+- **自定义配置**：调整设置以匹配你的学习偏好
+- **跨平台**：在任何现代浏览器或作为桌面应用使用
+- **书籍管理**：轻松导入、组织和访问阅读材料
+- **无干扰设计**：简洁界面设计，专注于阅读体验
+
+## 开始使用
+
+### 网页版
+
+1. 克隆仓库
 ```bash
    git clone https://github.com/WindChimeEcho/read-bridge.git
    cd read-bridge
 ```
 
-2. Install dependencies
+2. 安装依赖
 ```bash
    npm install
 ```
 
-3. Start the development server
+3. 启动开发服务器
 ```bash
    npm run dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser
+4. 在浏览器中打开 [http://localhost:3000](http://localhost:3000)
 
-### Desktop Version (Tauri)
+### 桌面版 (Tauri)
 
-1. Follow the [Tauri v2 setup guide](https://v2.tauri.app/guides/quick-start/prerequisites) to install prerequisites
+1. 按照 [Tauri v2 设置指南](https://v2.tauri.app/guides/quick-start/prerequisites) 安装先决条件
    
-2. Install dependencies and build the application
+2. 安装依赖并构建应用
 ```bash
    npm run tauri dev
 ```
 
-## Downloads
+## 下载
 
-You can download the latest version of ReadBridge from our GitHub releases:
+您可以从GitHub发布页面下载ReadBridge的最新版本：
 
-- [All Releases](https://github.com/WindChimeEcho/read-bridge/releases)
+- [所有版本](https://github.com/WindChimeEcho/read-bridge/releases)
 
-## Deployment
+## 部署
 
-Deploy your own instance of ReadBridge with just one click:
+只需一键部署您自己的ReadBridge实例：
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/WindChimeEcho/read-bridge)
 
-[![Deploy to Cloudflare Pages](https://img.shields.io/badge/Deploy%20to-Cloudflare%20Pages-orange.svg?style=for-the-badge&logo=cloudflare)](https://developers.cloudflare.com/pages/framework-guides/deploy-a-nextjs-site/)
+[![Deploy to Cloudflare Pages](https://img.shields.io/badge/部署到-Cloudflare%20Pages-orange.svg?style=for-the-badge&logo=cloudflare)](https://developers.cloudflare.com/pages/framework-guides/deploy-a-nextjs-site/)
 
-## Configuration
+## 配置
 
-ReadBridge offers several configuration options:
+ReadBridge提供多种配置选项：
 
-### AI Settings
-- Configure different AI providers (OpenAI, etc.)
-- Set up custom models and endpoints
-- Manage API keys and access
-- **Privacy Note**: Your API keys are never saved to our servers - they are stored locally in your browser's local storage for security
+### AI设置
+- 配置不同的AI提供商（OpenAI等）
+- 设置自定义模型和端点
+- 管理API密钥和访问权限
+- **隐私说明**：我们不会保存您的API密钥 - 所有API密钥均存储在您浏览器的本地存储中，确保数据安全
 
-### Model Configuration
-- Select default models for different functionalities
-- Customize model parameters
+### 模型配置
+- 为不同功能选择默认模型
+- 自定义模型参数
 
-### Prompt Configuration
-- Choose from preset prompt templates or create your own
-- Customize prompts based on your language level and learning goals
-- Adjust the type of assistance you receive while reading
+### 提示词配置
+- 从预设提示词模板中选择或创建自己的模板
+- 根据您的语言水平和学习目标自定义提示词
+- 调整阅读过程中获取的辅助类型
 
-### Sentence Processing
-- Configure how texts are segmented and presented
-- Adjust the reading flow to match your preferences
+### 句子处理
+- 配置文本如何分段和呈现
+- 调整阅读流程以匹配您的偏好
 
-## How AI Enhances Reading
+## AI如何增强阅读体验
 
-ReadBridge leverages AI in focused ways to support your reading:
+ReadBridge有针对性地利用AI支持您的阅读：
 
-- **Contextual Explanations**: Get clarifications about difficult passages in the target language
-- **Vocabulary Support**: Understand new words through explanations rather than direct translations
-- **Customized Assistance**: Receive help tailored to your self-selected proficiency level
-- **Natural Language Interaction**: Ask questions about the text to deepen understanding
+- **上下文解释**：获取目标语言中关于难点段落的说明
+- **词汇支持**：通过解释而非直接翻译理解新词
+- **定制化辅助**：接收根据您自选熟练度水平调整的帮助
+- **自然语言交互**：提问以深化对文本的理解
 
-## Learning Approach
+## 学习方法
 
-ReadBridge supports language acquisition through:
+ReadBridge通过以下方式支持语言习得：
 
-- **Immersion Reading**: Engage with authentic texts in the target language
-- **Contextual Understanding**: Learn new elements through context rather than isolated study
-- **Personalized Support**: Configure the AI assistance to match your current abilities
-- **Reading Flow**: Maintain concentration with a distraction-free interface
+- **沉浸式阅读**：接触目标语言的真实文本
+- **上下文理解**：通过语境而非孤立学习新元素
+- **个性化支持**：根据您当前能力配置AI辅助
+- **阅读流畅性**：通过无干扰界面保持专注
 
+## 贡献
 
-## Contributing
+欢迎贡献！请随时提交PR。
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+## 许可证
 
-## License
-
-This project is licensed under the [MIT License](LICENSE).
+本项目采用 [MIT 许可证](LICENSE)。
