@@ -2,6 +2,8 @@
 
 **请注意，所有的更改都在 dusterdev 分支而不是 main 分支上，如果你要部署或克隆，一定要记得切换分支。main分支仍然保留原项目的所有代码。**
 
+另外，由于 Github 的提交不允许超过 100M 大小的文件，所以词典的数据库文件被压缩了。你需要先解压 `src-tauri/resources/ecdict.zip` 和 `src-tauri/resources/stardict.db.zip` 才能够正常使用。
+
 ## 存储方案变更
 原项目将所有设置都保存在浏览器本地，在此项目中除 API Key 等涉及隐私的变量将会保存在服务器端而非客户端中（比如设置中的条目）。
 
@@ -42,3 +44,6 @@
 
 # 鸣谢
 此修改由 [Github Copilot](https://github.com/features/copilot) 与 [Codex](https://openai.com/codex/) 共同完成。
+
+# 使用的第三方库
+开源词典 [ECDICT](https://github.com/skywind3000/ECDICT) 用作本地词典查询。

@@ -44,3 +44,7 @@ key.json
 
 # Uploaded books (web/dev)
 /books/
+
+# Large files
+src-tauri/resources/ecdict.csv
+src-tauri/resources/stardict.db
