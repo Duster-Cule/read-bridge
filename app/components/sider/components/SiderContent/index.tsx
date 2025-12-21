@@ -2,11 +2,11 @@ import { EVENT_NAMES, EventEmitter } from "@/services/EventService"
 import { createLLMClient } from "@/services/llm"
 import { useLLMStore } from "@/store/useLLMStore"
 import getGeneratorThinkAndHTMLTag from "@/utils/generator"
-import { Divider, Empty } from "antd"
+import { Divider, Empty, App } from "antd"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { CurrentSentence, MenuLine, Sentences, WordDetails } from "./cpns"
+import { CurrentSentence, MenuLine, Sentences, Dictionary } from "./cpns"
 import { useOutputOptions } from "@/store/useOutputOptions"
-import { assemblePrompt, contextMessages, INPUT_PROMPT, OUTPUT_TYPE } from "@/constants/prompt"
+import { assemblePrompt, contextMessages, OUTPUT_TYPE } from "@/constants/prompt"
 import { OUTPUT_PROMPT } from "@/constants/prompt"
 import { useTranslation } from "@/i18n/useTranslation"
 import { useTTSStore } from "@/store/useTTSStore"
@@ -16,8 +16,11 @@ import { ReadingProgress } from "@/types/book"
 import { SentenceProcessing } from "@/types/cache"
 import { cacheService } from "@/services/CacheService"
 import { createCacheGenerator } from "@/utils/cacheGenerator"
-import { Client as LLMClient } from "@/types/llm"
+import { Client as LLMClient, Model } from "@/types/llm"
 import { useBookmarkStore } from "@/store/useBookmarkStore"
+import { ContextMenuItem } from "@/types/contextMenu"
+import { WordDetail } from "@/types/dict"
+import { normalizeDictQuery } from "@/utils/dictQuery"
 
 
 /**
@@ -95,16 +98,17 @@ async function createSentenceGenerator(
 }
 
 export default function SiderContent() {
+  const { message } = App.useApp()
   const { t } = useTranslation()
   const { theme } = useTheme()
   const [sentenceProcessingList, setSentenceProcessingList] = useState<SentenceProcessing[]>([])
-  const { sentenceOptions, batchProcessingSize, wordOptions, selectedWordId } = useOutputOptions()
+  const [customQueryList, setCustomQueryList] = useState<SentenceProcessing[]>([])
+  const { sentenceOptions, batchProcessingSize } = useOutputOptions()
   const [sentence, setSentence] = useState<string>("")
 
   const [selectedTab, setSelectedTab] = useState<string>("sentence-analysis")
-
-  const [word, setWord] = useState<string>("")
-  const [wordDetails, setWordDetails] = useState<string>("")
+  const [dictionaryData, setDictionaryData] = useState<WordDetail | null>(null)
+  const [dictionaryLoading, setDictionaryLoading] = useState(false)
 
   // 书签相关状态
   const [currentBookmarkInfo, setCurrentBookmarkInfo] = useState<{
@@ -115,13 +119,6 @@ export default function SiderContent() {
   } | null>(null);
 
   const { addBookmark, removeBookmark, getBookmarksByBookId } = useBookmarkStore();
-  const wordOption = useMemo(() => {
-    return wordOptions.find(option => option.id === selectedWordId) || wordOptions[0] || {
-      id: crypto.randomUUID(),
-      name: 'default',
-      rulePrompt: INPUT_PROMPT.FUNC_WORD_DETAILS
-    }
-  }, [wordOptions, selectedWordId])
 
   const { parseModel } = useLLMStore()
   const { ttsProvider, ttsGlobalConfig, ttsConfig } = useTTSStore()
@@ -163,8 +160,6 @@ export default function SiderContent() {
     controllerRef.current = new AbortController();
     const { signal } = controllerRef.current;
     setSelectedTab("sentence-analysis")
-    setWord("")
-    setWordDetails("")
     if (!text || !defaultLLMClient) return
 
     // 清空现有列表
@@ -212,7 +207,7 @@ export default function SiderContent() {
 
     // 执行添加处理器的函数
     addProcessorsWithDelay()
-  }, [defaultLLMClient, sentenceOptions, setSentenceProcessingList, batchProcessingSize, t])
+  }, [defaultLLMClient, sentenceOptions, speak, ttsGlobalConfig.autoSentenceTTS, theme, t])
 
   // 处理行索引
   const handleLineIndex = useCallback(async (readingProgress: ReadingProgress) => {
@@ -256,7 +251,7 @@ export default function SiderContent() {
     });
 
     processingSentences(text, bookId)
-  }, [defaultLLMClient, sentenceOptions, setSentenceProcessingList, batchProcessingSize, t, processingSentences])
+  }, [batchProcessingSize, processingSentences])
 
   // 书签操作函数
   const handleBookmarkToggle = useCallback(() => {
@@ -281,15 +276,135 @@ export default function SiderContent() {
     }
   }, [currentBookmarkInfo, addBookmark, removeBookmark, getBookmarksByBookId]);
 
+  const handleDictQuery = useCallback(async (text: string) => {
+    const query = normalizeDictQuery(text)
+    if (!query) return
+
+    setSelectedTab("dictionary")
+    setDictionaryLoading(true)
+    setDictionaryData(null)
+
+    try {
+      const resp = await fetch(`/api/dict/query?word=${encodeURIComponent(query)}`)
+
+      const contentType = resp.headers.get('content-type') || ''
+      if (!contentType.includes('application/json')) {
+        const textBody = await resp.text()
+        throw new Error(`Dict API returned non-JSON (${resp.status}). ${textBody.slice(0, 120)}`)
+      }
+
+      const payload = (await resp.json()) as { ok: boolean; data: WordDetail | null; error?: string }
+      if (!resp.ok || !payload.ok) {
+        throw new Error(payload.error || `HTTP ${resp.status}`)
+      }
+
+      setDictionaryData(payload.data)
+    } catch (error) {
+      console.error('Dictionary query failed:', error)
+      message.error(String(error))
+    } finally {
+      setDictionaryLoading(false)
+    }
+  }, [setSelectedTab, message])
+
+  // 词典数据刷新后自动发音（覆盖右键/Alt 查词入口）
   useEffect(() => {
+    const word = dictionaryData?.word
+    if (!word) return
+    if (!speak || !ttsGlobalConfig.autoWordTTS) return
+
+    speak(word)
+  }, [dictionaryData?.word, speak, ttsGlobalConfig.autoWordTTS])
+
+  // 处理右键菜单事件
+  const handleSelectionMenu = useCallback(async (data: { text: string, context?: string, menuItem: ContextMenuItem, model: Model }) => {
+    const { text, context, menuItem, model } = data
+    
+    // 切换到自定义查询 Tab
+    setSelectedTab("custom-query")
+    
+    // 取消之前的请求
+    if (controllerRef.current) {
+      controllerRef.current.abort();
+    }
+    
+    // 创建新的 controller
+    controllerRef.current = new AbortController();
+    const { signal } = controllerRef.current;
+    
+    // 清空现有列表
+    setCustomQueryList([])
+    
+    // 创建 LLM Client
+    const client = createLLMClient(model)
+    
+    // 替换 prompt 中的变量
+    // {{selection}} -> 选中的文本
+    // {{context}} 或 {{paragraph}} -> 上下文（段落）
+    let prompt = menuItem.prompt.replace(/\{\{selection\}\}/g, text)
+    
+    // 如果选中的文字与上下文一致（或者非常接近），则不发送上下文，避免重复
+    const isContextSameAsSelection = context && text && context.trim() === text.trim();
+    const effectiveContext = isContextSameAsSelection ? '' : context;
+
+    if (effectiveContext) {
+      prompt = prompt.replace(/\{\{context\}\}/g, effectiveContext)
+      prompt = prompt.replace(/\{\{paragraph\}\}/g, effectiveContext)
+    } else {
+      // 如果没有 context 或者 context 与 selection 相同，则将 context 占位符替换为空字符串或者移除相关描述
+      // 这里简单地替换为空字符串，提示词设计时应考虑这种情况
+      prompt = prompt.replace(/\{\{context\}\}/g, '')
+      prompt = prompt.replace(/\{\{paragraph\}\}/g, '')
+    }
+    
+    try {
+      // 直接创建 generator
+      const generator = client.completionsGenerator(
+        [{ role: 'user', content: prompt }],
+        undefined, 
+        signal
+      )
+      
+      // 添加到处理列表
+      setCustomQueryList([{
+        name: menuItem.name,
+        type: OUTPUT_TYPE.MD, 
+        generator,
+        id: menuItem.id,
+        text,
+        fromCache: false,
+        bookId: '', 
+        signal
+      }])
+      
+    } catch (error) {
+      console.error('右键菜单处理失败:', error)
+    }
+    
+  }, [setCustomQueryList, setSelectedTab])
+
+  const handleSelectedSentence = useCallback(async (data: { text: string; bookId: string }) => {
+    const { text, bookId } = data
+    // PDF 模式下无法通过 lineIndex 定位，直接以文本作为“当前句子”触发分析
+    setCurrentBookmarkInfo(null)
+    processingSentences(text, bookId)
+  }, [processingSentences])
+
+  useEffect(() => {
+    const unsubMenu = EventEmitter.on(EVENT_NAMES.HANDLE_SELECTION_MENU, handleSelectionMenu)
+    const unsubDict = EventEmitter.on(EVENT_NAMES.HANDLE_DICT_QUERY, handleDictQuery)
     const unsub = EventEmitter.on(EVENT_NAMES.SEND_MESSAGE, handleLineIndex)
+    const unsubSelectedSentence = EventEmitter.on(EVENT_NAMES.SEND_SELECTED_SENTENCE, handleSelectedSentence)
     return () => {
+      unsubMenu()
+      unsubDict()
       unsub()
+      unsubSelectedSentence()
       if (controllerRef.current) {
         controllerRef.current.abort();
       }
     }
-  }, [handleLineIndex])
+  }, [handleDictQuery, handleLineIndex, handleSelectionMenu, handleSelectedSentence])
 
   // 菜单项
   const items = useMemo(() => {
@@ -299,54 +414,26 @@ export default function SiderContent() {
         key: 'sentence-analysis',
       },
       {
-        label: t('sider.wordDetails'),
-        key: 'word-details',
-        disabled: !word,
+        label: t('sider.dictionary'),
+        key: 'dictionary',
+        disabled: !dictionaryData && !dictionaryLoading
       },
+      {
+        label: t('sider.aiAssistant'),
+        key: 'custom-query',
+        disabled: customQueryList.length === 0
+      }
     ];
-  }, [word, t]);
+  }, [t, customQueryList, dictionaryData, dictionaryLoading]);
   const handleTabChange = useCallback((key: string) => {
     setSelectedTab(key)
   }, [setSelectedTab])
 
-  const wordAbortControllerRef = useRef<AbortController | null>(null)
-  const isSameWord = useCallback((newWord: string) => {
-    return new Promise((resolve) => {
-      setWord((prev) => {
-        if (prev === newWord) {
-          resolve(true)
-          return prev
-        }
-        else return newWord
-      })
-      resolve(false)
-    })
-  }, [setWord])
-
   // 处理点击单词
   const handleWord = useCallback(async (word: string) => {
-    // 阅读
-    if (speak && word && ttsGlobalConfig.autoWordTTS) {
-      speak(word)
-    }
-
-    if (await isSameWord(word)) return
-    if (wordAbortControllerRef.current) {
-      wordAbortControllerRef.current.abort();
-    }
-    wordAbortControllerRef.current = new AbortController();
-    const { signal } = wordAbortControllerRef.current;
-
-    setWordDetails("")
-    handleTabChange('word-details')
-
-    if (!defaultLLMClient) return
-    const wordDetailGenerator = defaultLLMClient.completionsGenerator([{ role: 'user', content: `word:${word} sentence:${sentence}` }], wordOption.rulePrompt + OUTPUT_PROMPT.MD_WORD, signal)
-    for await (const chunk of wordDetailGenerator) {
-      if (!chunk) continue
-      setWordDetails((prev) => (prev || "") + chunk)
-    }
-  }, [defaultLLMClient, handleTabChange, sentence, isSameWord, wordOption])
+    // 统一跳转到词典查询
+    await handleDictQuery(word)
+  }, [handleDictQuery])
 
 
   const handleEditComplete = useCallback((text: string) => {
@@ -372,9 +459,13 @@ export default function SiderContent() {
           <Sentences sentenceProcessingList={sentenceProcessingList} />
           : <Empty description={parseModel ? t('sider.noSentenceSelected') : t('sider.noAnalysisModelSelected')} className="flex flex-col items-center justify-center h-[262px]" />}
       </div>
-      <div className={`${selectedTab === 'word-details' ? 'flex flex-col flex-1 min-h-0' : 'hidden'}`}>
-        {(word && parseModel) ? <WordDetails wordDetails={wordDetails} />
-          : <Empty description={parseModel ? t('sider.noWordSelected') : t('sider.noAnalysisModelSelected')} className="flex flex-col items-center justify-center h-[262px]" />}
+      <div className={`${selectedTab === 'dictionary' ? 'flex flex-col flex-1 min-h-0' : 'hidden'}`}>
+        <Dictionary data={dictionaryData} loading={dictionaryLoading} />
+      </div>
+      <div className={`${selectedTab === 'custom-query' ? 'flex flex-col flex-1 min-h-0' : 'hidden'}`}>
+        {customQueryList.length > 0 ?
+          <Sentences sentenceProcessingList={customQueryList} />
+          : <Empty description={t('sider.noCustomQuery')} className="flex flex-col items-center justify-center h-[262px]" />}
       </div>
       <Divider className="my-0" />
     </div>

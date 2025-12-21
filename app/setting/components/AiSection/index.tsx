@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Menu, Button, Form } from 'antd';
+import { App, Menu, Button, Form } from 'antd';
 import { Provider, Model } from '@/types/llm';
 import { useLLMStore } from '@/store/useLLMStore';
 import { ModelFormModal, ProviderForm } from './cpns';
@@ -8,6 +8,7 @@ import { useTranslation } from '@/i18n/useTranslation';
 
 export default function AiSection() {
   const { t } = useTranslation()
+  const { message } = App.useApp();
   const { providers: defaultProviders, addProvider, editProvider, deleteProvider } = useLLMStore()
   const [providers, setProviders] = useState<Provider[]>([])
   const [selectedProviderId, setSelectedProviderId] = useState<string>('');
@@ -121,6 +122,72 @@ export default function AiSection() {
     }
   };
 
+  const handleFetchOllamaModels = async (baseUrl: string) => {
+    if (!selectedProvider) return;
+
+    type OllamaTag = {
+      name: string;
+      [key: string]: unknown;
+    };
+
+    type OllamaTagsResponse = {
+      models: OllamaTag[];
+    };
+
+    try {
+      // 调用Ollama API获取模型列表
+      const response = await fetch(`${baseUrl}/api/tags`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data: OllamaTagsResponse = await response.json();
+      
+      if (!data.models || !Array.isArray(data.models)) {
+        throw new Error(t('settings.invalidResponse'));
+      }
+
+      // 转换为应用的Model格式
+      const fetchedModels: Model[] = data.models.map((model) => ({
+        id: model.name,
+        name: model.name.split(':')[0], // 移除tag部分作为显示名称
+        providerId: selectedProvider.id,
+        temperature: 0.5,
+        topP: 1,
+      }));
+
+      if (fetchedModels.length === 0) {
+        throw new Error(t('settings.noModelsFound'));
+      }
+
+      // 覆盖Ollama模型列表：以Ollama返回为准（同时尽量保留已有同ID模型的自定义参数）
+      const existingById = new Map(selectedProvider.models.map(m => [m.id, m] as const));
+      const nextModels: Model[] = fetchedModels.map(m => {
+        const existing = existingById.get(m.id);
+        return {
+          ...m,
+          name: existing?.name ?? m.name,
+          temperature: existing?.temperature ?? m.temperature,
+          topP: existing?.topP ?? m.topP,
+        };
+      });
+
+      const updatedProvider = {
+        ...selectedProvider,
+        models: nextModels
+      };
+
+      editProvider(updatedProvider);
+      setSelectedProvider(updatedProvider);
+
+      message.success(t('settings.fetchModelsSuccessDetail', { count: String(nextModels.length) }));
+    } catch (error) {
+      console.error('Failed to fetch Ollama models:', error);
+      throw error;
+    }
+  };
+
   return (
     <Card className='h-[50vh] flex justify-between overflow-hidden'>
       <div className='w-[20%] h-full flex flex-col overflow-y-auto'>
@@ -144,6 +211,7 @@ export default function AiSection() {
             onEditModel={handleEditModel}
             onDeleteModel={handleDeleteModel}
             onDeleteProvider={handleDeleteProvider}
+            onFetchOllamaModels={handleFetchOllamaModels}
           />
         )}
       </div>

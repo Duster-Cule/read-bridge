@@ -3,12 +3,14 @@ export const BOOK_MIME_TYPE = {
   EPUB_ZIP: 'application/epub+zip',
   TXT: 'text/plain',
   MD: 'text/markdown',
+  PDF: 'application/pdf',
 } as const;
 
 export const BOOK_FORMAT = {
   EPUB: 'epub',
   TXT: 'txt',
   MD: 'md',
+  PDF: 'pdf',
 } as const;
 
 export const COMMON_LANGUAGES = [

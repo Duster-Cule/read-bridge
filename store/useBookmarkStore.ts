@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware'
 import { Bookmark } from '@/types/book'
 import { generateUUID } from '@/utils/uuid'
 import dayjs from 'dayjs'
+import { createSettingsJSONStorage } from '@/store/persistStorage'
 
 interface BookmarkStore {
   bookmarksByBook: Record<string, Bookmark[]>
@@ -73,6 +74,7 @@ export const useBookmarkStore = create<BookmarkStore>()(
     }),
     {
       name: 'bookmark-storage',
+      storage: createSettingsJSONStorage(),
     }
   )
 ) 

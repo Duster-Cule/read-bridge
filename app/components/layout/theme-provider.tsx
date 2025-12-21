@@ -1,6 +1,6 @@
 'use client';
 
-import { ConfigProvider, theme } from 'antd';
+import { ConfigProvider, theme, App } from 'antd';
 import { ThemeProvider as NextThemeProvider, useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 import { useStyleStore } from '@/store/useStyleStore';
@@ -87,7 +87,9 @@ function AntdProvider({ children }: { children: React.ReactNode }) {
     <ConfigProvider
       theme={generateTheme(currentTheme)}
     >
-      {children}
+      <App>
+        {children}
+      </App>
     </ConfigProvider>
   );
 }

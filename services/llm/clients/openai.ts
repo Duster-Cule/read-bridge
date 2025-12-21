@@ -22,7 +22,10 @@ export function createOpenAIClient(provider: Provider, model: Model, options?: C
   let useProxy = false;
   // 初始更新一次useProxy
 
-  check()
+  // Avoid firing network checks when apiKey is missing (e.g. before secret store hydration).
+  if (apiKey) {
+    void check()
+  }
 
   async function check(): Promise<{ valid: boolean, error: Error | null }> {
     try {

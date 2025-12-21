@@ -6,6 +6,7 @@ import { UploadOutlined } from '@ant-design/icons';
 import type { UploadProps } from 'antd';
 import { COMMON_LANGUAGES } from "@/constants/book";
 import ChapterManager from "./cpns/ChapterManager";
+import dayjs from 'dayjs';
 
 const { Option } = Select;
 
@@ -32,19 +33,26 @@ export default function BookAddOrEditModal({ open, onCancel, onOk, getInitialDat
       publisher: initialData.metadata.publisher,
       date: initialData.metadata.date,
       language: initialData.metadata.language,
+      uploadTime: dayjs(initialData.uploadTime ?? initialData.createTime ?? Date.now()).format('YYYY-MM-DDTHH:mm'),
     });
   }, [open, getInitialData, setBook, form]);
 
   const handleFormChange = () => {
     const formValues = form.getFieldsValue();
     if (book) {
+      const uploadTime = formValues.uploadTime as string | undefined;
       setBook({
         ...book,
         title: formValues.title,
         author: formValues.author,
+        uploadTime: uploadTime ? dayjs(uploadTime).valueOf() : (book.uploadTime ?? book.createTime ?? Date.now()),
         metadata: {
           ...book.metadata,
-          ...formValues
+          title: formValues.title,
+          author: formValues.author,
+          publisher: formValues.publisher,
+          date: formValues.date,
+          language: formValues.language,
         }
       });
     }
@@ -172,6 +180,14 @@ export default function BookAddOrEditModal({ open, onCancel, onOk, getInitialDat
               label={t('book.publishDate')}
             >
               <Input placeholder={t('book.publishDatePlaceholder')} />
+            </Form.Item>
+
+            <Form.Item
+              name="uploadTime"
+              label={t('book.uploadTime')}
+              rules={[{ required: true, message: t('book.uploadTimeRequired') }]}
+            >
+              <Input type="datetime-local" />
             </Form.Item>
 
 

@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { LLMHistory } from '@/types/llm'
 import dayjs from 'dayjs'
+import { createSettingsJSONStorage } from '@/store/persistStorage'
 
 
 interface HistoryStore {
@@ -108,6 +109,7 @@ export const useHistoryStore = create<HistoryStore>()(
     }),
     {
       name: 'history-storage',
+      storage: createSettingsJSONStorage(),
     }
   )
 )

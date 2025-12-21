@@ -1,9 +1,10 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { OutputOption, PromptOption, WordOption } from "@/types/llm";
+import { OutputOption, PromptOption } from "@/types/llm";
 import { OUTPUT_TYPE, INPUT_PROMPT } from "@/constants/prompt";
 import { message } from 'antd';
 import generateUUID from '@/utils/uuid'
+import { createSettingsJSONStorage } from '@/store/persistStorage'
 
 function defaultSentenceOutputOption(): OutputOption[] {
   return [
@@ -34,21 +35,6 @@ function defaultSentenceOutputOption(): OutputOption[] {
   ]
 }
 
-function defaultWordOutputOption(): WordOption[] {
-  return [
-    {
-      id: generateUUID(),
-      name: '单词基础分析',
-      rulePrompt: INPUT_PROMPT.WORD_DETAILS,
-    },
-    {
-      id: generateUUID(),
-      name: '单词详细分析',
-      rulePrompt: INPUT_PROMPT.FUNC_WORD_DETAILS,
-    }
-  ]
-}
-
 interface OutputOptionsStore {
   sentenceOptions: OutputOption[]
   addSentenceOptions: (newOption: OutputOption) => void
@@ -65,14 +51,6 @@ interface OutputOptionsStore {
   resetPromptOptions: () => void
   selectedId: string
   setSelectedId: (id: string) => void
-
-  wordOptions: WordOption[]
-  addWordOptions: (newOption: WordOption) => void
-  deleteWordOptions: (targetOption: WordOption) => void
-  updateWordOptions: (updatedOption: WordOption) => void
-  resetWordOptions: () => void
-  selectedWordId: string
-  setSelectedWordId: (id: string) => void
 }
 
 function defaultPromptOutputOption(): PromptOption[] {
@@ -135,49 +113,26 @@ export const useOutputOptions = create<OutputOptionsStore>()(
       })),
       selectedId: defaultPromptOutputOption()[0].id,
       setSelectedId: (id) => set({ selectedId: id }),
-
-      wordOptions: defaultWordOutputOption(),
-      addWordOptions: (newOption) => set((state) => ({
-        wordOptions: [...state.wordOptions, {
-          ...newOption,
-          id: generateUUID()
-        }]
-      })),
-      deleteWordOptions: (targetOption) => set((state) => {
-        if (state.wordOptions.length === 1) {
-          message.warning('至少保留一个单词配置')
-          return { wordOptions: state.wordOptions }
-        }
-        const newWordOptions = state.wordOptions.filter((option) => option.id !== targetOption.id)
-        const isSelectedWordDeleted = state.selectedWordId === targetOption.id
-
-        message.success('删除成功')
-        return {
-          wordOptions: newWordOptions,
-          ...(isSelectedWordDeleted && newWordOptions.length > 0 ? { selectedWordId: newWordOptions[0].id } : {})
-        }
-      }),
-      updateWordOptions: (updatedOption) => set((state) => ({
-        wordOptions: state.wordOptions.map((option) =>
-          option.id === updatedOption.id ? updatedOption : option)
-      })),
-      resetWordOptions: () => set(() => {
-        const newWordOptions = defaultWordOutputOption()
-        return {
-          wordOptions: newWordOptions,
-          selectedWordId: newWordOptions[0].id
-        }
-      }),
-      selectedWordId: '',
-      setSelectedWordId: (id) => set({ selectedWordId: id })
     }),
     {
       name: 'output-options-storage',
-      onRehydrateStorage: () => (state) => {
-        if (state && (!state.selectedWordId || state.selectedWordId === '') && state.wordOptions && state.wordOptions.length > 0) {
-          state.selectedWordId = state.wordOptions[0].id;
+      storage: createSettingsJSONStorage(),
+      version: 1,
+      migrate: (persistedState: unknown) => {
+        if (!persistedState || typeof persistedState !== 'object') return persistedState as any
+        const state = persistedState as Record<string, any>
+
+        // Drop legacy word-processing fields.
+        if (state.wordOptions) delete state.wordOptions
+        if (state.selectedWordId) delete state.selectedWordId
+
+        // Ensure selectedId exists.
+        if (!state.selectedId) {
+          state.selectedId = defaultPromptOutputOption()[0]?.id
         }
-      }
+
+        return state as any
+      },
     }
   )
 )

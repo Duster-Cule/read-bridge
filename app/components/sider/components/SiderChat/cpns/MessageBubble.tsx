@@ -1,6 +1,6 @@
 import { LLMHistory } from "@/types/llm";
 import { memo, useCallback, useState } from "react";
-import { Button, Collapse, message } from "antd";
+import { App, Button, Collapse } from "antd";
 import dayjs from "dayjs";
 import { useTheme } from "next-themes"
 import { SyncOutlined, LoadingOutlined } from "@ant-design/icons";
@@ -16,6 +16,7 @@ const MessageBubble = memo(function MessageBubble({
   msg: LLMHistory['messages'][number],
   isUser: boolean
 }) {
+  const { message } = App.useApp();
   const { theme } = useTheme();
   const isDarkMode = theme === 'dark'
   const { thinkingExpanded, setThinkingExpanded } = useSiderStore()

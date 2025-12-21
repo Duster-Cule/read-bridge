@@ -6,6 +6,7 @@ import { initTXTBook } from '@/services/TXT';
 
 import type { Book } from '@/types/book';
 import { initMDBook } from './MD';
+import { initPDFBook } from './PDF';
 import { generateUUID } from '@/utils/uuid'
 /**
  * 处理书籍
@@ -33,6 +34,9 @@ export async function processBook(buffer: Buffer, type: BOOK_MIME_TYPE_TYPE, nam
       case BOOK_MIME_TYPE.MD:
         initFile = initMDBook(buffer, name)
         break
+      case BOOK_MIME_TYPE.PDF:
+        initFile = await initPDFBook(buffer, name)
+        break
       default:
         throw new Error(`Unsupported book format: ${type}`)
     }
@@ -48,10 +52,12 @@ export async function processBook(buffer: Buffer, type: BOOK_MIME_TYPE_TYPE, nam
 }
 
 function createBookModel(formattedBook: FormattedBook, hash: string): Book {
+  const now = Date.now()
   return {
     id: generateUUID(),
     fileHash: hash,
-    createTime: Date.now(),
+    uploadTime: now,
+    createTime: now,
     title: formattedBook.metadata.title,
     author: formattedBook.metadata.author,
     chapterList: formattedBook.chapterList,

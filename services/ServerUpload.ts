@@ -36,6 +36,24 @@ export async function handleFileUpload(
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
 
+  // Persist the original uploaded file on the server (web/dev).
+  // If this fails (e.g. no server API in the current runtime), we gracefully fallback.
+  let persistedUrl: string | null = null
+  try {
+    const formData = new FormData()
+    formData.append('file', file)
+    const resp = await fetch('/api/books/upload', {
+      method: 'POST',
+      body: formData,
+    })
+    if (resp.ok) {
+      const json = (await resp.json().catch(() => null)) as { url?: unknown } | null
+      if (json && typeof json.url === 'string') persistedUrl = json.url
+    }
+  } catch {
+    // ignore
+  }
+
   // 替换 Node.js 的 crypto 哈希计算
   // const hash = crypto.createHash('sha256').update(buffer).digest('hex')
   const hashBuffer = await crypto.subtle.digest('SHA-256', bytes);
@@ -47,6 +65,16 @@ export async function handleFileUpload(
   // 进行书籍初始化
   try {
     const book = await processBook(buffer, type, nameWithoutExt, hash);
+
+    // Store the persisted file reference for later use (e.g. PDF viewer).
+    if (persistedUrl) {
+      const metadata = book.metadata as unknown as Record<string, unknown>
+      metadata.sourceFile = {
+        data: persistedUrl,
+        mediaType: type,
+      }
+    }
+
     return book;
   } catch (error) {
     console.error('Error processing book', error);

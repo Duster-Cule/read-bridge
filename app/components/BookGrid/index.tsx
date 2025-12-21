@@ -1,6 +1,6 @@
 'use client';
 
-import { Row, Col, Button } from 'antd';
+import { Row, Col, Button, Checkbox } from 'antd';
 import { BookPreview, Resource } from '@/types/book';
 import BookUploader from '@/app/components/BookUploader';
 import { useStyleStore } from '@/store/useStyleStore';
@@ -12,9 +12,12 @@ import BookDetailsModal from '@/app/components/BookDetailsModal';
 
 interface BookGridProps {
   books: BookPreview[];
+  selectionMode?: boolean;
+  selectedIds?: Set<string>;
+  onToggleSelect?: (bookId: string) => void;
 }
 
-export default function BookGrid({ books }: BookGridProps) {
+export default function BookGrid({ books, selectionMode = false, selectedIds, onToggleSelect }: BookGridProps) {
   const { itemsPerRow, gutterX, gutterY } = useStyleStore()
   const router = useRouter();
   const { setReadingId } = useSiderStore()
@@ -22,6 +25,10 @@ export default function BookGrid({ books }: BookGridProps) {
   const [selectedBookId, setSelectedBookId] = useState<string>('');
 
   const onBookClick = (id: string) => {
+    if (selectionMode) {
+      onToggleSelect?.(id)
+      return
+    }
     setReadingId(id)
     router.push(`/read`);
   }
@@ -41,9 +48,18 @@ export default function BookGrid({ books }: BookGridProps) {
       <Row gutter={[gutterX, gutterY]}>
         {books.map((book) => (
           <Col key={book.id} span={24 / itemsPerRow}>
-            <div className="cursor-pointer">
-              <div className="aspect-[3/4] w-full overflow-hidden" onClick={() => onBookClick(book.id)}>
+            <div className={selectionMode ? 'cursor-pointer select-none' : 'cursor-pointer'}>
+              <div className="relative aspect-[3/4] w-full overflow-hidden" onClick={() => onBookClick(book.id)}>
                 <BookCover cover={book.cover} title={book.title} />
+                {selectionMode && (
+                  <div className="absolute top-2 left-2">
+                    <Checkbox
+                      checked={selectedIds?.has(book.id) ?? false}
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={() => onToggleSelect?.(book.id)}
+                    />
+                  </div>
+                )}
               </div>
               <div className="mt-2 text-center">
                 <div className="font-medium truncate">{book.title}</div>

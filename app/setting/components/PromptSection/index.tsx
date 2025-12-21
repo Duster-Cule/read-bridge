@@ -1,6 +1,6 @@
 import { Card } from "../index";
 import { useOutputOptions } from "@/store/useOutputOptions";
-import { Button, Modal, Form, Input, Typography, List, FormInstance, Popconfirm, message, Space } from 'antd';
+import { App, Button, Modal, Form, Input, Typography, List, FormInstance, Popconfirm, Space } from 'antd';
 import { useState, useEffect } from "react";
 import { PromptOption } from "@/types/llm";
 import { PlusOutlined, EditOutlined, DeleteOutlined, ReloadOutlined, SettingOutlined, ClearOutlined } from '@ant-design/icons';
@@ -11,6 +11,7 @@ const { Paragraph } = Typography;
 
 export default function PromptSection() {
   const { t } = useTranslation();
+  const { message } = App.useApp();
   const { promptOptions, addPromptOptions, updatePromptOptions, deletePromptOptions, resetPromptOptions } = useOutputOptions();
   const { chatShortcut, setChatShortcut } = useSiderStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -109,6 +110,7 @@ export default function PromptSection() {
         onCancel={() => setIsShortcutModalOpen(false)}
         currentShortcut={chatShortcut}
         onSave={setChatShortcut}
+        messageApi={message}
       />
     </Card >
   );
@@ -165,7 +167,7 @@ function PromptModal({ isModalOpen, handleOk, handleCancel, form, isEdit = false
   </Modal>
 }
 
-function ShortcutModal({ isModalOpen, onCancel, currentShortcut, onSave }: { isModalOpen: boolean, onCancel: () => void, currentShortcut: string, onSave: (shortcut: string) => void }) {
+function ShortcutModal({ isModalOpen, onCancel, currentShortcut, onSave, messageApi }: { isModalOpen: boolean, onCancel: () => void, currentShortcut: string, onSave: (shortcut: string) => void, messageApi: ReturnType<typeof App.useApp>['message'] }) {
   const { t } = useTranslation();
   const [recordedShortcut, setRecordedShortcut] = useState('');
   const [isRecording, setIsRecording] = useState(false);
@@ -186,10 +188,10 @@ function ShortcutModal({ isModalOpen, onCancel, currentShortcut, onSave }: { isM
   const handleSave = () => {
     if (recordedShortcut) {
       onSave(recordedShortcut);
-      message.success(t('settings.shortcutSaved'));
+      messageApi.success(t('settings.shortcutSaved'));
       onCancel();
     } else {
-      message.warning(t('settings.pleaseRecordShortcut'));
+      messageApi.warning(t('settings.pleaseRecordShortcut'));
     }
   };
 

@@ -77,6 +77,30 @@ export const defaultProviders = (): Provider[] => {
           topP: 1,
         },
       ],
+    },
+    {
+      id: 'ollama',
+      name: 'Ollama (本地)',
+      baseUrl: 'http://localhost:11434',
+      apiKey: 'ollama', // ollama不需要apiKey，但为了兼容现有逻辑，设置一个默认值
+      isDefault: true,
+      type: 'ollama',
+      models: [
+        {
+          id: 'llama3.2',
+          name: 'Llama 3.2',
+          providerId: 'ollama',
+          temperature: 0.5,
+          topP: 1,
+        },
+        {
+          id: 'qwen2.5',
+          name: 'Qwen 2.5',
+          providerId: 'ollama',
+          temperature: 0.5,
+          topP: 1,
+        },
+      ],
     }
   ]
 }

@@ -1,5 +1,5 @@
 import { useState, memo, useCallback, useMemo } from 'react';
-import { Button, Typography, Empty, Popconfirm, Input, message } from 'antd';
+import { App, Button, Typography, Empty, Popconfirm, Input } from 'antd';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { PlusOutlined, MenuOutlined, DeleteOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { Book, PlainTextChapter } from '@/types/book';
@@ -61,6 +61,7 @@ ChapterItem.displayName = 'ChapterItem';
 
 export default function ChapterManager({ book, onChange }: ChapterManagerProps) {
   const { t } = useTranslation();
+  const { message } = App.useApp();
   const [selectedChapterIndex, setSelectedChapterIndex] = useState<number>(0);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editingTitle, setEditingTitle] = useState('');

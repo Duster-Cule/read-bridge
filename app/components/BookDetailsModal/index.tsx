@@ -1,7 +1,7 @@
 'use client';
 
 import { FC, useState, useEffect, useCallback } from 'react';
-import { Modal, Button, Typography, Divider, Popconfirm, message } from 'antd';
+import { App, Modal, Button, Typography, Divider, Popconfirm } from 'antd';
 import { DeleteOutlined, EditOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { Book, Resource } from '@/types/book';
 import db from '@/services/DB';
@@ -25,12 +25,13 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
   onClose,
   bookId,
 }) => {
+  const { message } = App.useApp();
   const [book, setBook] = useState<Book | null>(null);
   const [loading, setLoading] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const router = useRouter();
   const { readingId, setReadingId } = useSiderStore()
-  const { updateReadingProgress } = useReadingProgressStore()
+  const { updateReadingProgress, setReadingProgress } = useReadingProgressStore()
   const [, , updateBook] = useBook()
   const { t } = useTranslation();
 
@@ -60,9 +61,12 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
   const handleDelete = async () => {
     if (!bookId) return;
 
+    let deleted = false;
+
     try {
       setLoading(true);
       await db.deleteBook(bookId);
+      deleted = true;
 
       message.success(t('common.templates.deleteSuccess', { entity: t('common.entities.bookGeneric') }));
       onClose();
@@ -72,12 +76,22 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
       console.error('Error deleting book:', error);
       message.error(t('common.templates.deleteFailed', { entity: t('common.entities.bookGeneric') }));
     } finally {
-      if (bookId === readingId) {
-        setReadingId(null)
+      if (deleted) {
+        if (bookId === readingId) {
+          setReadingId(null)
+        }
+        // deleteBook already deletes readingProgress; reset store state to avoid "Reading progress not found"
+        setReadingProgress({
+          bookId: '',
+          lastReadTime: 0,
+          currentLocation: { chapterIndex: 0, lineIndex: 0 },
+          sentenceChapters: {},
+        })
+        await updateBook()
+      } else {
+        // Keep store consistent if caller expects an update attempt
+        await updateReadingProgress(bookId)
       }
-      await db.deleteReadingProgress(bookId)
-      await updateReadingProgress(bookId)
-      await updateBook()
       setLoading(false);
     }
   };
@@ -145,9 +159,14 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
           {book?.author && <Text type="secondary" className="block">{t('bookDetails.author')}: {book.author}</Text>}
           {book?.metadata?.language && <Text type="secondary" className="block">{t('bookDetails.language')}: {book.metadata.language}</Text>}
           {book?.metadata?.publisher && <Text type="secondary" className="block">{t('bookDetails.publisher')}: {book.metadata.publisher}</Text>}
-          {book?.createTime && (
+          {book?.fileHash && (
             <Text type="secondary" className="block">
-              {t('bookDetails.added')}: {new Date(book.createTime).toLocaleDateString()}
+              {t('bookDetails.hash')}: <Text copyable={{ text: book.fileHash }}>{book.fileHash}</Text>
+            </Text>
+          )}
+          {(book?.uploadTime || book?.createTime) && (
+            <Text type="secondary" className="block">
+              {t('bookDetails.added')}: {new Date(book.uploadTime ?? book.createTime).toLocaleString()}
             </Text>
           )}
         </div>
@@ -204,7 +223,7 @@ const BookDetailsModal: FC<BookDetailsModalProps> = ({
       open={open}
       onCancel={onClose}
       footer={null}
-      width={500}
+      width={640}
       destroyOnClose
     >
       {loading ? (

@@ -38,6 +38,8 @@ export interface Book {
   title: string;
   author?: string;
   fileHash: string;
+  /** 上传时间（毫秒时间戳） */
+  uploadTime: number;
   createTime: number;
   chapterList: PlainTextChapter[];
   toc: TocItem[];
@@ -49,6 +51,8 @@ export interface BookPreview {
   title: string;
   author?: string;
   cover?: Resource;
+  uploadTime?: number;
+  createTime?: number;
 }
 
 export interface ReadingProgress {

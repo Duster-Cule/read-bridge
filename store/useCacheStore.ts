@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { CacheSystem, CacheItem, CacheKeyParams } from '@/types/cache'
 import { DEFAULT_CACHE_SETTINGS } from '@/constants/cache'
+import { createSettingsJSONStorage } from '@/store/persistStorage'
 
 interface CacheStore extends CacheSystem {
   // 增删改 
@@ -151,6 +152,7 @@ export const useCacheStore = create<CacheStore>()(
     }),
     {
       name: 'cache-storage',
+      storage: createSettingsJSONStorage(),
     }
   )
 ) 

@@ -1,4 +1,4 @@
-import { message, Modal, Button } from "antd"
+import { App, Modal, Button } from "antd"
 
 import { useHistoryStore } from "@/store/useHistoryStore"
 import { LLMHistory } from "@/types/llm"
@@ -18,6 +18,7 @@ import { useSiderStore } from "@/store/useSiderStore"
 import KeyboardShortcut from "@/app/components/KeyboardShortcut"
 
 export default function StandardChat() {
+  const { message } = App.useApp()
   const { t } = useTranslation()
   const { readingProgress } = useReadingProgressStore()
   const { selectedId, promptOptions, setSelectedId } = useOutputOptions()

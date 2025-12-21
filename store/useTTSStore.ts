@@ -1,5 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { createSettingsJSONStorage } from '@/store/persistStorage'
+import { useTTSSecretStore } from '@/store/useTTSSecretStore'
 
 interface TTSStore {
   ttsProvider: string
@@ -50,12 +52,36 @@ export const useTTSStore = create<TTSStore>()(
           token: '',
         },
       },
-      setTTSConfig: (type, config) => set((state) => ({
-        ttsConfig: {
-          ...state.ttsConfig,
-          [type]: config,
-        },
-      })),
+      setTTSConfig: (type, config) => {
+        if (type === 'volcengine') {
+          const { appid, token, ...rest } = config
+          useTTSSecretStore.getState().setVolcengineSecrets({
+            ...(typeof appid === 'string' ? { appid } : {}),
+            ...(typeof token === 'string' ? { token } : {}),
+          })
+
+          set((state) => ({
+            ttsConfig: {
+              ...state.ttsConfig,
+              volcengine: {
+                ...state.ttsConfig.volcengine,
+                ...rest,
+                // Do not persist secrets in this store; they are hydrated separately.
+                appid: '',
+                token: '',
+              },
+            },
+          }))
+          return
+        }
+
+        set((state) => ({
+          ttsConfig: {
+            ...state.ttsConfig,
+            [type]: config,
+          },
+        }))
+      },
 
       ttsGlobalConfig: {
         autoSentenceTTS: true,
@@ -70,6 +96,33 @@ export const useTTSStore = create<TTSStore>()(
     }),
     {
       name: 'tts-storage',
+      storage: createSettingsJSONStorage(),
+      partialize: (state) => ({
+        ...state,
+        ttsConfig: {
+          ...state.ttsConfig,
+          volcengine: {
+            ...state.ttsConfig.volcengine,
+            appid: '',
+            token: '',
+          },
+        },
+      }),
+      onRehydrateStorage: () => (state) => {
+        if (!state) return
+
+        const { appid, token } = useTTSSecretStore.getState().volcengine
+        if (appid || token) {
+          state.ttsConfig = {
+            ...state.ttsConfig,
+            volcengine: {
+              ...state.ttsConfig.volcengine,
+              appid,
+              token,
+            },
+          }
+        }
+      },
     }
   )
 ) 

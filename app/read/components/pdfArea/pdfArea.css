@@ -1,0 +1,43 @@
+/*
+  react-pdf renders a selectable text layer over the canvas.
+  In some browsers/global themes, selected text can become visible and look like a duplicate layer.
+  Keep the text layer transparent even during selection.
+*/
+
+[data-reader-mode="pdf"] .react-pdf__Page__textContent,
+[data-reader-mode="pdf"] .textLayer {
+  color: transparent;
+}
+
+[data-reader-mode="pdf"] {
+  --pdf-selection-bg: color-mix(in srgb, var(--ant-color-primary) 22%, transparent);
+}
+
+[data-reader-mode="pdf"] .react-pdf__Page__textContent span,
+[data-reader-mode="pdf"] .textLayer span {
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+[data-reader-mode="pdf"] .react-pdf__Page__textContent span::selection,
+[data-reader-mode="pdf"] .textLayer span::selection {
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  background-color: var(--pdf-selection-bg);
+}
+
+[data-reader-mode="pdf"] .react-pdf__Page__textContent span::-moz-selection,
+[data-reader-mode="pdf"] .textLayer span::-moz-selection {
+  color: transparent;
+  background-color: var(--pdf-selection-bg);
+}
+
+[data-reader-mode="pdf"] .react-pdf__Page__textContent br::selection,
+[data-reader-mode="pdf"] .textLayer br::selection {
+  background-color: var(--pdf-selection-bg);
+}
+
+[data-reader-mode="pdf"] .react-pdf__Page__textContent br::-moz-selection,
+[data-reader-mode="pdf"] .textLayer br::-moz-selection {
+  background-color: var(--pdf-selection-bg);
+}

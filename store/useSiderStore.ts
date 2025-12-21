@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { createSettingsJSONStorage } from '@/store/persistStorage'
 
 interface SiderStore {
   readingId: string | null
@@ -30,6 +31,7 @@ export const useSiderStore = create<SiderStore>()(
     }),
     {
       name: 'sider-storage',
+      storage: createSettingsJSONStorage(),
     }
   )
 ) 

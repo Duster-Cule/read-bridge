@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { createSettingsJSONStorage } from '@/store/persistStorage'
 
 interface HeaderStore {
   collapsed: boolean
@@ -16,6 +17,7 @@ export const useHeaderStore = create<HeaderStore>()(
     }),
     {
       name: 'header-storage',
+      storage: createSettingsJSONStorage(),
     }
   )
 ) 

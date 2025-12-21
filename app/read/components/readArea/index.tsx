@@ -4,9 +4,19 @@ import db from "@/services/DB"
 import { EVENT_NAMES, EventEmitter } from "@/services/EventService"
 import { Radio } from "antd"
 import { useStyleStore, FontSize } from "@/store/useStyleStore"
+import PDFArea from "../pdfArea"
 
 
 export default function ReadArea({ book, readingProgress }: { book: Book, readingProgress: ReadingProgress }) {
+  const isPDF = useMemo(() => {
+    const source = (book.metadata as any)?.sourceFile
+    return source?.mediaType === 'application/pdf'
+  }, [book.metadata])
+
+  if (isPDF) {
+    return <PDFArea book={book} readingProgress={readingProgress} />
+  }
+
   const { fontSize } = useStyleStore()
 
   const title = useMemo(() => {

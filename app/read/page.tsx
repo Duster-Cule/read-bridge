@@ -68,7 +68,7 @@ export default function ReadPage() {
       <ReadMenu toc={book.toc} currentChapter={readingProgress.currentLocation.chapterIndex} onChapterChange={(index: number, lineIndex = 0) => {
         handleChapterChange(index, lineIndex)
       }} />
-      <div className={`flex-1 h-full transition-opacity duration-200 ease-in-out ${fadeVisible ? 'opacity-100' : 'opacity-0'}`}>
+      <div className={`flex-1 min-w-0 h-full transition-opacity duration-200 ease-in-out ${fadeVisible ? 'opacity-100' : 'opacity-0'}`}>
         {isChapterLoading ? <div className="w-full h-full" /> : <ReadArea book={book} readingProgress={readingProgress} />}
       </div>
     </div>

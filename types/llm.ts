@@ -15,6 +15,7 @@ export type Provider = {
   baseUrl: string
   apiKey: string
   isDefault?: boolean
+  type?: 'openai' | 'ollama' // openai兼容或ollama本地
   models: Model[]
 }
 
@@ -45,12 +46,6 @@ export type OutputOption = {
   id: string
   name: string
   type: OutputType
-  rulePrompt: string
-}
-
-export type WordOption = {
-  id: string
-  name: string
   rulePrompt: string
 }
 

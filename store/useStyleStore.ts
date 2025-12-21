@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { Locale } from '@/i18n'
+import { createSettingsJSONStorage } from '@/store/persistStorage'
 
 export type FontSize = 'small' | 'medium' | 'large'
 
@@ -49,6 +50,7 @@ export const useStyleStore = create<StyleStore>()(
     }),
     {
       name: 'style-storage',
+      storage: createSettingsJSONStorage(),
     }
   )
 ) 

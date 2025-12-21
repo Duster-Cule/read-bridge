@@ -1,5 +1,5 @@
 import type { UploadProps, UploadFile } from 'antd';
-import { message, Upload } from 'antd';
+import { App, Upload } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { BOOK_FORMAT } from '@/constants/book';
 import { UPLOAD_CONFIG } from '@/constants/upload';
@@ -20,6 +20,7 @@ function checkFileFormat(file: File): boolean {
 
 export default function BookUploader() {
   const { t } = useTranslation();
+  const { message } = App.useApp();
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const errorShownRef = useRef<Set<string>>(new Set());
   const batchInfoRef = useRef<{ total: number; processed: number }>({ total: 0, processed: 0 });
@@ -58,6 +59,14 @@ export default function BookUploader() {
           [fileToUpload],
           fileToUpload.name,
           { type: 'text/markdown' }
+        );
+      }
+
+      if (fileToUpload.name.endsWith('.pdf') && !fileToUpload.type) {
+        fileToUpload = new File(
+          [fileToUpload],
+          fileToUpload.name,
+          { type: 'application/pdf' }
         );
       }
 
