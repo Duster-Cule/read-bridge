@@ -7,7 +7,7 @@ import { BOOK_MIME_TYPE } from '@/constants/book'
 import type { BOOK_MIME_TYPE_TYPE, Book } from '@/types/book'
 import { processBook } from '@/services/BookService'
 import { requireAuth } from '@/app/api/_lib/auth'
-import { readJsonFile, withWriteLock, writeJsonFileAtomic } from '@/app/api/_lib/jsonFileStore'
+import { readJsonFile, withWriteLockFor, writeJsonFileAtomic } from '@/app/api/_lib/jsonFileStore'
 import { generateUUID } from '@/utils/uuid'
 
 export const runtime = 'nodejs'
@@ -55,7 +55,7 @@ function titleFromFilename(filename: string): string {
 }
 
 export async function POST(request: Request) {
-  return withWriteLock(async () => {
+  return withWriteLockFor(booksPath(), async () => {
     try {
       const auth = await requireAuth(request)
       if (auth) return auth

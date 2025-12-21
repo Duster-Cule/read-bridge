@@ -2,14 +2,30 @@ import { promises as fs } from 'fs'
 import path from 'path'
 
 // Serialize writes within this Node.js process to avoid concurrent read-modify-write races.
-let writeQueue: Promise<void> = Promise.resolve()
+const writeQueues = new Map<string, Promise<void>>()
+
+function getQueue(key: string): Promise<void> {
+  return writeQueues.get(key) ?? Promise.resolve()
+}
+
+function setQueue(key: string, run: Promise<void>): void {
+  writeQueues.set(
+    key,
+    run.then(
+      () => undefined,
+      () => undefined
+    )
+  )
+}
 
 export function withWriteLock<T>(fn: () => Promise<T>): Promise<T> {
-  const run = writeQueue.then(fn, fn)
-  writeQueue = run.then(
-    () => undefined,
-    () => undefined
-  )
+  return withWriteLockFor('__global__', fn)
+}
+
+export function withWriteLockFor<T>(filePath: string, fn: () => Promise<T>): Promise<T> {
+  const key = path.resolve(filePath)
+  const run = getQueue(key).then(fn, fn)
+  setQueue(key, run.then(() => undefined, () => undefined))
   return run
 }
 

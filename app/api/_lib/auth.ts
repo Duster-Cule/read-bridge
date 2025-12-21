@@ -1,7 +1,7 @@
 import path from 'path'
 import crypto from 'crypto'
 import { NextResponse } from 'next/server'
-import { readJsonFile, withWriteLock, writeJsonFileAtomic } from '@/app/api/_lib/jsonFileStore'
+import { readJsonFile, withWriteLockFor, writeJsonFileAtomic } from '@/app/api/_lib/jsonFileStore'
 
 type PublicKeyRecord = {
   id: string
@@ -141,7 +141,7 @@ export async function requireAuth(request: Request): Promise<NextResponse | null
 
 export async function validateSession(token: string): Promise<Session | null> {
   const now = Date.now()
-  return withWriteLock(async () => {
+  return withWriteLockFor(sessionsPath(), async () => {
     const sessions = await readSessions()
     const pruned = pruneExpired(sessions, now)
     if (pruned.length !== sessions.length) {
@@ -162,7 +162,7 @@ export async function createChallenge(): Promise<{ challenge: string; expiresAt:
   const ttl = readNumberEnv('READ_BRIDGE_AUTH_CHALLENGE_TTL_MS', DEFAULT_CHALLENGE_TTL_MS)
   const expiresAt = now + ttl
 
-  await withWriteLock(async () => {
+  await withWriteLockFor(challengesPath(), async () => {
     const challenges = await readChallenges()
     const pruned = pruneExpired(challenges, now)
     pruned.push({ id: challenge, createdAt: now, expiresAt })
@@ -174,7 +174,7 @@ export async function createChallenge(): Promise<{ challenge: string; expiresAt:
 
 export async function consumeChallenge(challenge: string): Promise<boolean> {
   const now = Date.now()
-  return withWriteLock(async () => {
+  return withWriteLockFor(challengesPath(), async () => {
     const challenges = await readChallenges()
     const pruned = pruneExpired(challenges, now)
     const remaining = pruned.filter((item) => item.id !== challenge)
@@ -244,7 +244,7 @@ export async function createSession(keyId: string): Promise<Session> {
     expiresAt: now + ttl,
   }
 
-  await withWriteLock(async () => {
+  await withWriteLockFor(sessionsPath(), async () => {
     const sessions = await readSessions()
     const pruned = pruneExpired(sessions, now)
     pruned.push(session)
@@ -255,7 +255,7 @@ export async function createSession(keyId: string): Promise<Session> {
 }
 
 export async function revokeSession(token: string): Promise<boolean> {
-  return withWriteLock(async () => {
+  return withWriteLockFor(sessionsPath(), async () => {
     const sessions = await readSessions()
     const remaining = sessions.filter((session) => session.token !== token)
     if (remaining.length === sessions.length) return false

@@ -43,6 +43,51 @@ export default function ReadArea({ book, readingProgress }: { book: Book, readin
   const [selectedLine, setSelectedLine] = useState<number>(Infinity)
   const lineRefsMap = useRef<Map<number, HTMLDivElement>>(new Map())
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const saveStateRef = useRef<{
+    timer: ReturnType<typeof setTimeout> | null
+    inFlight: boolean
+    pending: { chapterIndex: number; lineIndex: number } | null
+    lastSavedAt: number
+    lastSavedKey: string
+  }>({
+    timer: null,
+    inFlight: false,
+    pending: null,
+    lastSavedAt: 0,
+    lastSavedKey: '',
+  })
+
+  const scheduleSaveLocation = useCallback((chapterIndex: number, lineIndex: number) => {
+    const key = `${chapterIndex}:${lineIndex}`
+    if (saveStateRef.current.lastSavedKey === key && !saveStateRef.current.pending) {
+      return
+    }
+
+    saveStateRef.current.pending = { chapterIndex, lineIndex }
+    if (saveStateRef.current.inFlight) return
+
+    const now = Date.now()
+    const elapsed = now - saveStateRef.current.lastSavedAt
+    const delay = Math.max(0, 800 - elapsed)
+
+    if (saveStateRef.current.timer) clearTimeout(saveStateRef.current.timer)
+    saveStateRef.current.timer = setTimeout(async () => {
+      const pending = saveStateRef.current.pending
+      if (!pending) return
+      saveStateRef.current.pending = null
+      saveStateRef.current.inFlight = true
+      try {
+        await db.updateCurrentLocation(book.id, pending)
+        saveStateRef.current.lastSavedAt = Date.now()
+        saveStateRef.current.lastSavedKey = `${pending.chapterIndex}:${pending.lineIndex}`
+      } finally {
+        saveStateRef.current.inFlight = false
+        if (saveStateRef.current.pending) {
+          scheduleSaveLocation(saveStateRef.current.pending.chapterIndex, saveStateRef.current.pending.lineIndex)
+        }
+      }
+    }, delay)
+  }, [book.id])
 
   // 页面加载时滚动到上次阅读位置
   useEffect(() => {
@@ -99,10 +144,7 @@ export default function ReadArea({ book, readingProgress }: { book: Book, readin
 
         // save
         if (visibleLineIndex !== Infinity && visibleLineIndex >= 0) {
-          db.updateCurrentLocation(book.id, {
-            chapterIndex: readingProgress.currentLocation.chapterIndex,
-            lineIndex: visibleLineIndex
-          });
+          scheduleSaveLocation(readingProgress.currentLocation.chapterIndex, visibleLineIndex)
         }
       }, 300);
     };
@@ -115,18 +157,22 @@ export default function ReadArea({ book, readingProgress }: { book: Book, readin
       }
     };
   }, [book.id, readingProgress.currentLocation.chapterIndex, lines]);
+  useEffect(() => {
+    return () => {
+      if (saveStateRef.current.timer) clearTimeout(saveStateRef.current.timer)
+    }
+  }, [])
 
   // 处理行点击
   const handleLineClick = useCallback((index: number) => {
     setSelectedLine((prev) => {
       EventEmitter.emit(EVENT_NAMES.SEND_LINE_INDEX, index);
-      if (prev !== index) db.updateCurrentLocation(book.id, {
-        chapterIndex: readingProgress.currentLocation.chapterIndex,
-        lineIndex: index
-      });
+      if (prev !== index) {
+        scheduleSaveLocation(readingProgress.currentLocation.chapterIndex, index)
+      }
       return index;
     });
-  }, [book.id, readingProgress.currentLocation.chapterIndex]);
+  }, [readingProgress.currentLocation.chapterIndex, scheduleSaveLocation]);
 
   // 记录每行DOM引用
   const setLineRef = useCallback((element: HTMLDivElement | null, index: number) => {

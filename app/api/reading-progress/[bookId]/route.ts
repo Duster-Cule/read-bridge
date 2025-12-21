@@ -3,7 +3,7 @@ import path from 'path'
 import nlp from 'compromise'
 import type { Book, ReadingProgress } from '@/types/book'
 import { requireAuth } from '@/app/api/_lib/auth'
-import { readJsonFile, withWriteLock, writeJsonFileAtomic } from '@/app/api/_lib/jsonFileStore'
+import { readJsonFile, withWriteLockFor, writeJsonFileAtomic } from '@/app/api/_lib/jsonFileStore'
 
 export const runtime = 'nodejs'
 
@@ -119,7 +119,7 @@ export async function GET(request: Request, context: { params: Promise<{ bookId:
 }
 
 export async function PUT(request: Request, context: { params: Promise<{ bookId: string }> }) {
-  return withWriteLock(async () => {
+  return withWriteLockFor(progressPath(), async () => {
     try {
       const auth = await requireAuth(request)
       if (auth) return auth
@@ -153,8 +153,7 @@ export async function PUT(request: Request, context: { params: Promise<{ bookId:
       db.progress[bookId] = updated
       await writeProgressDB(db)
 
-      const withLines = await ensureSentenceChapter(bookId, updated)
-      return NextResponse.json({ readingProgress: withLines })
+      return NextResponse.json({ ok: true })
     } catch (e: unknown) {
       console.error('[api/reading-progress] PUT failed', e)
       return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
@@ -163,7 +162,7 @@ export async function PUT(request: Request, context: { params: Promise<{ bookId:
 }
 
 export async function DELETE(request: Request, context: { params: Promise<{ bookId: string }> }) {
-  return withWriteLock(async () => {
+  return withWriteLockFor(progressPath(), async () => {
     try {
       const auth = await requireAuth(request)
       if (auth) return auth

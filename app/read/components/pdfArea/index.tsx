@@ -38,6 +38,19 @@ export default function PDFArea({ book, readingProgress }: { book: Book; reading
   const [zoom, setZoom] = useState<number>(1)
   const pageRefs = useRef<Map<number, HTMLDivElement>>(new Map())
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const saveStateRef = useRef<{
+    timer: ReturnType<typeof setTimeout> | null
+    inFlight: boolean
+    pending: { chapterIndex: number; lineIndex: number } | null
+    lastSavedAt: number
+    lastSavedKey: string
+  }>({
+    timer: null,
+    inFlight: false,
+    pending: null,
+    lastSavedAt: 0,
+    lastSavedKey: '',
+  })
 
   const ZOOM_MIN = 0.5
   const ZOOM_MAX = 2.5
@@ -86,6 +99,39 @@ export default function PDFArea({ book, readingProgress }: { book: Book; reading
     const width = Math.max(320, Math.floor(container.clientWidth) - 16)
     setPageWidth(width)
   }, [])
+
+  const scheduleSaveLocation = useCallback((lineIndex: number) => {
+    const chapterIndex = 0
+    const key = `${chapterIndex}:${lineIndex}`
+    if (saveStateRef.current.lastSavedKey === key && !saveStateRef.current.pending) {
+      return
+    }
+
+    saveStateRef.current.pending = { chapterIndex, lineIndex }
+    if (saveStateRef.current.inFlight) return
+
+    const now = Date.now()
+    const elapsed = now - saveStateRef.current.lastSavedAt
+    const delay = Math.max(0, 800 - elapsed)
+
+    if (saveStateRef.current.timer) clearTimeout(saveStateRef.current.timer)
+    saveStateRef.current.timer = setTimeout(async () => {
+      const pending = saveStateRef.current.pending
+      if (!pending) return
+      saveStateRef.current.pending = null
+      saveStateRef.current.inFlight = true
+      try {
+        await db.updateCurrentLocation(book.id, pending)
+        saveStateRef.current.lastSavedAt = Date.now()
+        saveStateRef.current.lastSavedKey = `${pending.chapterIndex}:${pending.lineIndex}`
+      } finally {
+        saveStateRef.current.inFlight = false
+        if (saveStateRef.current.pending) {
+          scheduleSaveLocation(saveStateRef.current.pending.lineIndex)
+        }
+      }
+    }, delay)
+  }, [book.id])
 
   const renderWidth = useMemo(() => {
     return Math.max(200, Math.floor(pageWidth * zoom))
@@ -153,10 +199,7 @@ export default function PDFArea({ book, readingProgress }: { book: Book; reading
           }
         }
 
-        db.updateCurrentLocation(book.id, {
-          chapterIndex: 0,
-          lineIndex: visiblePageIndex,
-        })
+        scheduleSaveLocation(visiblePageIndex)
       }, 300)
     }
 
@@ -166,6 +209,11 @@ export default function PDFArea({ book, readingProgress }: { book: Book; reading
       if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current)
     }
   }, [book.id, numPages])
+  useEffect(() => {
+    return () => {
+      if (saveStateRef.current.timer) clearTimeout(saveStateRef.current.timer)
+    }
+  }, [])
 
   if (!pdfUrl) {
     return (

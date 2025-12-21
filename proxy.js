@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-export async function middleware(request) {
+export async function proxy(request) {
   const { pathname } = request.nextUrl
 
   if (pathname.startsWith('/login')) {
@@ -34,7 +34,5 @@ export async function middleware(request) {
 }
 
 export const config = {
-  matcher: [
-    '/((?!api/|_next/|login|favicon.ico|favicon.svg|robots.txt|sitemap.xml|assets/).*)',
-  ],
+  matcher: ['/((?!api/|_next/|login|favicon.ico|favicon.svg|robots.txt|sitemap.xml|assets/).*)'],
 }

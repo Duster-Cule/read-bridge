@@ -31,15 +31,27 @@ export async function initPDFBook(buffer: Buffer, name: string): Promise<Formatt
   const data = new Uint8Array(buffer);
 
   const isServer = typeof window === 'undefined'
-  // In Node (route handlers / import), avoid worker resolution issues.
-  const loadingTask = pdfjsLib.getDocument({ data, ...(isServer ? { disableWorker: true } : {}) } as any);
+  const createLoadingTask = (disableWorker: boolean) =>
+    pdfjsLib.getDocument({ data, ...(disableWorker ? { disableWorker: true } : {}) } as any)
 
-  const pdf = await loadingTask.promise;
+  // In Node (route handlers / import), avoid worker resolution issues. In browser
+  // runtimes with strict CSP (e.g. Tauri), retry without worker on failure.
+  let pdf;
+  try {
+    const loadingTask = createLoadingTask(isServer)
+    pdf = await loadingTask.promise
+  } catch (error) {
+    if (isServer) throw error
+    const loadingTask = createLoadingTask(true)
+    pdf = await loadingTask.promise
+  }
 
   const paragraphs: string[] = [];
   let sampleText = '';
+  const maxPagesToParse = 50
 
   for (let pageIndex = 1; pageIndex <= pdf.numPages; pageIndex++) {
+    if (pageIndex > maxPagesToParse) break
     const page = await pdf.getPage(pageIndex);
     const textContent = await page.getTextContent();
 
@@ -55,6 +67,9 @@ export async function initPDFBook(buffer: Buffer, name: string): Promise<Formatt
       if (sampleText.length < 600) {
         sampleText += (sampleText ? '\n' : '') + pageText;
       }
+    }
+    if (!isServer) {
+      await new Promise((resolve) => setTimeout(resolve, 0))
     }
   }
 

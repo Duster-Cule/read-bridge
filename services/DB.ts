@@ -51,6 +51,21 @@ async function request<T>(input: string, init?: RequestInit): Promise<T> {
   return readJsonOrThrow<T>(res)
 }
 
+async function requestNoJson(input: string, init?: RequestInit): Promise<void> {
+  const res = await fetch(input, {
+    ...init,
+    headers: {
+      ...(init?.headers ?? {}),
+    },
+  })
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => '')
+    const message = text || `${res.status} ${res.statusText}`
+    throw new HttpError(res.status, message)
+  }
+}
+
 function normalizeBookUploadTime(book: Book): Book {
   if (book.uploadTime == null) {
     return {
@@ -134,7 +149,7 @@ class ServerBookDB {
 
   async updateCurrentLocation(bookId: string, currentLocation: ReadingProgress['currentLocation']): Promise<void> {
     // Do NOT emit DB_CHANGED_EVENT here; it fires on scroll and would spam listeners.
-    await request<{ readingProgress: ReadingProgress }>(`/api/reading-progress/${encodeURIComponent(bookId)}`, {
+    await requestNoJson(`/api/reading-progress/${encodeURIComponent(bookId)}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ currentLocation }),

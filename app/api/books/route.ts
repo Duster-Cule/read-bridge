@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import path from 'path'
 import type { Book, BookPreview } from '@/types/book'
 import { requireAuth } from '@/app/api/_lib/auth'
-import { readJsonFile, withWriteLock, writeJsonFileAtomic } from '@/app/api/_lib/jsonFileStore'
+import { readJsonFile, withWriteLockFor, writeJsonFileAtomic } from '@/app/api/_lib/jsonFileStore'
 
 export const runtime = 'nodejs'
 
@@ -82,7 +82,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  return withWriteLock(async () => {
+  return withWriteLockFor(booksPath(), async () => {
     try {
       const auth = await requireAuth(request)
       if (auth) return auth
