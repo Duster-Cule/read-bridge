@@ -7,6 +7,28 @@
 ## 存储方案变更
 原项目将所有设置都保存在浏览器本地，在此项目中除 API Key 等涉及隐私的变量将会保存在服务器端而非客户端中（比如设置中的条目）。
 
+
+### Standalone（适合低配云服务器）
+
+此方式会在本地/CI **预编译**，线上仅运行 Node 服务，不会像 `next dev` 那样实时编译。
+
+1. 安装依赖
+```bash
+npm ci
+```
+
+2. 构建 standalone
+```bash
+npm run build:standalone
+```
+
+3. 启动（生产）
+```bash
+PORT=3000 npm run start
+```
+
+说明：`build:standalone` 会把 `.next/static` 和 `public` 复制到 `.next/standalone` 内，方便你只上传/部署 standalone 产物。
+
 ## 鉴权
 服务器可以鉴权，只让有权限的人访问网页。使用以下脚本可以生成密钥。
 

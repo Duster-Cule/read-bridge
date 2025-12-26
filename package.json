@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "build:standalone": "next build && node scripts/prepareStandalone.mjs",
+    "start": "node .next/standalone/server.js",
+    "start:next": "next start",
     "lint": "eslint .",
     "tauri": "tauri"
   },

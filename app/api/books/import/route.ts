@@ -55,7 +55,7 @@ function titleFromFilename(filename: string): string {
 }
 
 export async function POST(request: Request) {
-  return withWriteLockFor(booksPath(), async () => {
+  return withWriteLockFor(booksDbPath(), async () => {
     try {
       const auth = await requireAuth(request)
       if (auth) return auth

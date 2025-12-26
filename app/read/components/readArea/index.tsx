@@ -7,6 +7,9 @@ import { useStyleStore, FontSize } from "@/store/useStyleStore"
 import PDFArea from "../pdfArea"
 
 
+type PendingLocation = { chapterIndex: number; lineIndex: number }
+
+
 export default function ReadArea({ book, readingProgress }: { book: Book, readingProgress: ReadingProgress }) {
   const isPDF = useMemo(() => {
     const source = (book.metadata as any)?.sourceFile
@@ -46,7 +49,7 @@ export default function ReadArea({ book, readingProgress }: { book: Book, readin
   const saveStateRef = useRef<{
     timer: ReturnType<typeof setTimeout> | null
     inFlight: boolean
-    pending: { chapterIndex: number; lineIndex: number } | null
+    pending: PendingLocation | null
     lastSavedAt: number
     lastSavedKey: string
   }>({
@@ -82,9 +85,8 @@ export default function ReadArea({ book, readingProgress }: { book: Book, readin
         saveStateRef.current.lastSavedKey = `${pending.chapterIndex}:${pending.lineIndex}`
       } finally {
         saveStateRef.current.inFlight = false
-        if (saveStateRef.current.pending) {
-          scheduleSaveLocation(saveStateRef.current.pending.chapterIndex, saveStateRef.current.pending.lineIndex)
-        }
+        const queued = saveStateRef.current.pending as unknown as PendingLocation | null
+        if (queued !== null) scheduleSaveLocation(queued.chapterIndex, queued.lineIndex)
       }
     }, delay)
   }, [book.id])

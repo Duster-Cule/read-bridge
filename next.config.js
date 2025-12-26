@@ -21,4 +21,6 @@ const nextConfig = {
   assetPrefix: isProd ? undefined : `http://${internalHost}:3000`,
 }
 
+nextConfig.output = 'standalone'
+
 module.exports = nextConfig 

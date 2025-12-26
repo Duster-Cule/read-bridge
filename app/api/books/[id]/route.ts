@@ -39,7 +39,7 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
 }
 
 export async function PUT(request: Request, context: { params: Promise<{ id: string }> }) {
-  return withWriteLockFor(booksPath(), async () => {
+  return withWriteLockFor(dbPath(), async () => {
     try {
       const auth = await requireAuth(request)
       if (auth) return auth
@@ -67,7 +67,7 @@ export async function PUT(request: Request, context: { params: Promise<{ id: str
 }
 
 export async function DELETE(request: Request, context: { params: Promise<{ id: string }> }) {
-  return withWriteLockFor(booksPath(), async () => {
+  return withWriteLockFor(dbPath(), async () => {
     try {
       const auth = await requireAuth(request)
       if (auth) return auth

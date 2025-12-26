@@ -82,7 +82,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  return withWriteLockFor(booksPath(), async () => {
+  return withWriteLockFor(dbPath(), async () => {
     try {
       const auth = await requireAuth(request)
       if (auth) return auth

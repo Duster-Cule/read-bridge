@@ -31,6 +31,8 @@ function bytesToObjectUrl(bytes: Uint8Array, mediaType: string): string {
   return URL.createObjectURL(blob)
 }
 
+type PendingLocation = { chapterIndex: number; lineIndex: number }
+
 export default function PDFArea({ book, readingProgress }: { book: Book; readingProgress: ReadingProgress }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [numPages, setNumPages] = useState<number>(0)
@@ -41,7 +43,7 @@ export default function PDFArea({ book, readingProgress }: { book: Book; reading
   const saveStateRef = useRef<{
     timer: ReturnType<typeof setTimeout> | null
     inFlight: boolean
-    pending: { chapterIndex: number; lineIndex: number } | null
+    pending: PendingLocation | null
     lastSavedAt: number
     lastSavedKey: string
   }>({
@@ -126,9 +128,8 @@ export default function PDFArea({ book, readingProgress }: { book: Book; reading
         saveStateRef.current.lastSavedKey = `${pending.chapterIndex}:${pending.lineIndex}`
       } finally {
         saveStateRef.current.inFlight = false
-        if (saveStateRef.current.pending) {
-          scheduleSaveLocation(saveStateRef.current.pending.lineIndex)
-        }
+        const queued = saveStateRef.current.pending as unknown as PendingLocation | null
+        if (queued !== null) scheduleSaveLocation(queued.lineIndex)
       }
     }, delay)
   }, [book.id])
