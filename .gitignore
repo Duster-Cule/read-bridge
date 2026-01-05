@@ -48,3 +48,8 @@ key.json
 # Large files
 src-tauri/resources/ecdict.csv
 src-tauri/resources/stardict.db
+
+#Docker
+Dockerfile
+.dockerignore
+dist-standalone/

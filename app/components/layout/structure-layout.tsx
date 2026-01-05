@@ -101,14 +101,105 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         const isPdf = Boolean(pdfRoot)
         setIsPdfContext(isPdf)
 
-        const normalizeSpace = (s: string) => String(s || '').replace(/\s+/g, ' ').trim()
+        const normalizeSpace = (s: string) => {
+          const raw = String(s || '')
+            // PDF text layers may contain soft-hyphen and zero-width characters.
+            .replace(/\u00AD/g, '')
+            .replace(/[\u200B-\u200D\uFEFF]/g, '')
 
-        const pickContextBySentenceWindow = (sourceText: string, selectionText: string) => {
+          try {
+            return raw.normalize('NFKC').replace(/\s+/g, ' ').trim()
+          } catch {
+            return raw.replace(/\s+/g, ' ').trim()
+          }
+        }
+
+        const buildPdfContextFromTextLayer = (textLayer: HTMLElement, range: Range) => {
+          const allSpans = Array.from(textLayer.querySelectorAll('span')) as HTMLElement[]
+          const spans = allSpans.filter((s) => (s.textContent || '').trim().length > 0)
+          if (spans.length === 0) return ''
+
+          const tryFindSpanIndex = (node: Node | null) => {
+            if (!node) return -1
+            const el = node.nodeType === Node.ELEMENT_NODE ? (node as Element) : node.parentElement
+            const span = el?.closest?.('span') as HTMLElement | null
+            if (!span) return -1
+            return spans.indexOf(span)
+          }
+
+          let minIdx = Number.POSITIVE_INFINITY
+          let maxIdx = -1
+          for (let i = 0; i < spans.length; i++) {
+            const span = spans[i]
+            try {
+              if (range.intersectsNode(span)) {
+                minIdx = Math.min(minIdx, i)
+                maxIdx = Math.max(maxIdx, i)
+              }
+            } catch {
+              // Some browsers can throw if the node is not in the same tree; ignore.
+            }
+          }
+
+          if (!Number.isFinite(minIdx) || minIdx === Number.POSITIVE_INFINITY) {
+            const startIdx = tryFindSpanIndex(range.startContainer)
+            const endIdx = tryFindSpanIndex(range.endContainer)
+            if (startIdx >= 0) {
+              minIdx = startIdx
+              maxIdx = Math.max(startIdx, endIdx)
+            }
+          }
+
+          if (!Number.isFinite(minIdx) || minIdx === Number.POSITIVE_INFINITY || maxIdx < 0) return ''
+
+          const windowBefore = 40
+          const windowAfter = 40
+          const start = Math.max(0, (minIdx as number) - windowBefore)
+          const end = Math.min(spans.length, (maxIdx as number) + windowAfter + 1)
+
+          const parts = spans.slice(start, end).map((s) => s.textContent || '')
+          const joined = normalizeSpace(parts.join(' '))
+          if (!joined) return ''
+
+          // Keep it within a reasonable size and centered around the selection.
+          const preParts = spans.slice(start, Math.min(spans.length, (minIdx as number))).map((s) => s.textContent || '')
+          const approxCenter = normalizeSpace(preParts.join(' ')).length
+          if (joined.length <= 2000) return joined
+
+          const winStart = Math.max(0, approxCenter - 800)
+          const winEnd = Math.min(joined.length, approxCenter + 1200)
+          return joined.slice(winStart, winEnd).trim().slice(0, 2000)
+        }
+
+        const findClosestOccurrenceIndex = (haystack: string, needle: string, hintIndex: number) => {
+          if (!haystack || !needle) return -1
+          let bestIdx = -1
+          let bestDist = Number.POSITIVE_INFINITY
+          let fromIndex = 0
+          while (true) {
+            const idx = haystack.indexOf(needle, fromIndex)
+            if (idx < 0) break
+            const dist = Math.abs(idx - hintIndex)
+            if (dist < bestDist) {
+              bestDist = dist
+              bestIdx = idx
+              if (bestDist === 0) break
+            }
+            fromIndex = idx + Math.max(1, needle.length)
+          }
+          return bestIdx
+        }
+
+        const pickContextBySentenceWindow = (sourceText: string, selectionText: string, hintIndex?: number) => {
           const source = normalizeSpace(sourceText)
           const sel = normalizeSpace(selectionText)
           if (!source) return ''
 
-          const idx = sel ? source.indexOf(sel) : -1
+          const idx = sel
+            ? (typeof hintIndex === 'number' && hintIndex >= 0
+              ? findClosestOccurrenceIndex(source, sel, hintIndex)
+              : source.indexOf(sel))
+            : -1
           if (idx < 0) {
             return source.slice(0, 2000)
           }
@@ -156,8 +247,35 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             const textLayer = (pageEl?.querySelector('.textLayer') as HTMLElement | null)
               || (pageEl?.querySelector('.react-pdf__Page__textContent') as HTMLElement | null)
 
-            const pageText = textLayer?.textContent || textLayer?.innerText || ''
-            context = pickContextBySentenceWindow(pageText, text)
+            const pageText = textLayer?.innerText || textLayer?.textContent || ''
+
+            // Prefer span-neighborhood context: this is stable across prod/standalone and
+            // guarantees the selected region is inside the extracted context.
+            const spanContext = textLayer ? buildPdfContextFromTextLayer(textLayer, range) : ''
+
+            let hintIndex: number | undefined
+            if (textLayer) {
+              try {
+                const preRange = document.createRange()
+                preRange.selectNodeContents(textLayer)
+                preRange.setEnd(range.startContainer, range.startOffset)
+                hintIndex = normalizeSpace(preRange.toString()).length
+              } catch {
+                // ignore and fallback to first match
+              }
+            }
+
+            const primarySource = spanContext || pageText
+            context = spanContext
+              ? pickContextBySentenceWindow(primarySource, text)
+              : pickContextBySentenceWindow(primarySource, text, hintIndex)
+
+            // Last-resort guard: ensure context is local even if matching fails.
+            const normSel = normalizeSpace(text)
+            const normCtx = normalizeSpace(context)
+            if (normSel && normCtx && !normCtx.includes(normSel) && spanContext) {
+              context = spanContext
+            }
           } else {
           
           // 辅助函数：找到包含文本的块级元素
